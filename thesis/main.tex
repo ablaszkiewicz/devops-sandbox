@@ -72,29 +72,38 @@ Za rok, w którym narodziła się ta kultura uważa się rok 2009. To wtedy John
 
 Rozwój tej kultury, chociaż silnie związany z programowaniem, wydaje się być opóźniony w stosunku do ewolucji samego programowania. Kultura DevOps, będąc reakcją na dynamiczny rozwój branży programistycznej, dopiero niedawno wkroczyła w fazę ustalania i konsolidacji najlepszych praktyk, analogicznie do etapu, w którym programowanie zaczęło koncentrować się na koncepcjach takich jak "czysty kod".
 
-Jeszcze dekadę temu, umiejętność autonomicznego wdrażania aplikacji była rzadkością, wymagającą dogłębnej wiedzy o narzędziach i zasadach działania systemów operacyjnych. Obecnie, implementacja automatycznego systemu wdrażania aplikacji wielośrodowiskowych na serwerze jest możliwa w znacznie krótszym czasie. Przypisuję to zjawisko rozwojowi narzędzi o wysokim stopniu abstrakcji, które nazwałbym "meta-narzędziami". Pod tym terminem rozumiem narzędzia wykorzystujące inne narzędzia do jeszcze bardziej efektywnego osiągania określonych celów. Warto zauważyć, że to nie koniec - istnieją "meta-meta-narzędzia", które integrują wiele "meta-narzędzi".
+Jeszcze dekadę temu, umiejętność autonomicznego wdrażania aplikacji była rzadkością, wymagającą dogłębnej wiedzy o narzędziach i zasadach działania systemów operacyjnych. Obecnie, implementacja automatycznego systemu wdrażania aplikacji wielośrodowiskowych na serwerze jest możliwa w znacznie krótszym czasie. Przypisuję to zjawisko rozwojowi narzędzi o wysokim stopniu abstrakcji, które nazwałbym "meta-narzędziami"[\ref{subsectionMetaNarzedzia}]. Pod tym terminem rozumiem narzędzia wykorzystujące inne narzędzia do jeszcze bardziej efektywnego osiągania określonych celów. Warto zauważyć, że to nie koniec - istnieją "meta-meta-narzędzia", które integrują wiele "meta-narzędzi".
 
 Obserwuje się trend, w którym końcowy użytkownik tych rozwiązań jest coraz bardziej oddalony od pierwotnego celu, który stara się osiągnąć, co skutkuje ograniczeniem jego potrzeby posiadania szczegółowej wiedzy na temat działania tych systemów. Ma to swoje zalety, jak ułatwienie osiągania celów, ale również wady, takie jak utrzymanie użytkownika w nieświadomości konsekwencji niektórych decyzji.
 
-W ramach mojej pracy magisterskiej zamierzam szczegółowo porównać rozwiązania potrzebne przy wdrażaniu do projektu kultury devops.
-
 \subsection{Cele pracy}
 
+W ramach swojej pracy stworzę bardzo prostą aplikację w architekturze frontend+backend, a następnie pokryję proces wprowadzania do takiego projektu kultury devops. Przy każdym pojęciu chciałbym się zatrzymać, aby opisać, jaki problem rozwiązuje, porównać możliwe rozwiązania problemu, wybrać jedno i krótko opisać implementację wybranego sposobu.
+
+Nie będę się skupiał na samej aplikacji, a na devopsowej otoczce. Aplikacja ma być bezpieczna, szybko budować, zmiany wprowadzane przez użytkowników mają być kontrolowane, nowe wersje mają być testowalne na oddzielnym środowisku. Jeżeli z serwerem lub aplikacją jest coś nie tak - chciałbym dostać alert.
+
+
+Spis tematów, które chcę poruszyć:
 \begin{itemize}
-    \item zbadanie strategii budowy obrazu i wdrażania aplikacji,
-    \item zbadanie podejść do kontrolowania zmian w kodzie na poziomie platformy typu github,
-    \item zbadanie podejść do monitoringu i observability:
+    \item porównanie strategii budowy obrazu i wdrażania aplikacji pod względem czasu, zajętego miejsca, bezpieczeństwa i developer experience, wybranie jednej oraz opis implementacji takiej strategii,
+    \item przedstawienie podejść do kontrolowania zmian w kodzie na poziomie platformy typu github oraz opis ich implemntacji:
     \begin{itemize}
-        \item statystyki serwera,
-        \item statystyki aplikacji - metryki frontendowe,
-        \item statystyki aplikacji - metryki backendowe,
-        \item zbieranie logów
-        \item coś tu dodałem
+        \item ustawienie blokad bezpośredniego pushowania na branche,
+        \item ustawienie blokad mergowania pull requestów bez wymaganych akceptacji,
+        \item ustawienie blokad mergowania pull requestów zanim powiodą się automatyczne akcje. Na przykład poprawne przejście testów, sprawdzenie stylu kodu.
+    \end{itemize}
+    \item sekrety - opis koncepcji sekretów w platformach CI/CD oraz opis implementacji,
+    \item wiele środowisk - opis potrzeby istnienia kilku środowisk oraz opis implementacji,
+    \item porównanie podejść do monitoringu i observability, wybranie najlepszych i opis ich implementacji:
+    \begin{itemize}
+        \item statystyki serwera - monitorowanie zajętości miejsca, zużycia pamięci RAM, wykorzystania CPU,
+        \item statystyki aplikacji (metryki frontendowe) - ile unikalnych użytkowników odwiedza aplikację, z jakich państw są,
+        \item statystyki aplikacji (metryki backendowe) - budowa niestandardowych metryk od podstaw,
+        \item zbieranie logów - porównanie podejść do zbierania i przeszukiwania logów oraz opis implementacji wybranego podejścia
     \end{itemize}
 \end{itemize}
 
-
-coś tutaj też dodałem
+Wszystkie z wyżej wymienionych tematów będę testował na mojej prostej aplikacji, ponieważ zastosowane dalej metody są skalowalne i aplikuje się je analogicznie do większych aplikacji.
 
 
 \section {DevOps}
@@ -127,12 +136,97 @@ Z grupy DevOps można wyróżnić pewne pozycje:
     \item rozumienie potrzeb - zespoły nie powinny pracować w oderwaniu od rzeczywistości ("budować w bańce"), tworząc oprogramowanie bazując tylko na założeniach, w jaki sposób użytkownicy będą z niego korzystać. Zamiast tego, zespoły DevOps powinny posiadać całkowite zrozumienie produktu, począwsy od jego tworzenia, aż po wdrożenie.
 \end{itemize}
 
+\subsection{Dostępne narzędzia}
+
+Skategoryzuję tutaj dostępne narzędzia, a dalej w pracy rozwinę każdy z tych tematów:
+
+\begin{itemize}
+    \item budowa aplikacji NodeJS[\ref{sectionBudowanieAplikacji}] - webpack, vite, SWC,
+    \item platformy CI/CD[\ref{sectionCICD}] - Gitlab, Github Actions,
+    \item wirtualizacja[\ref{sectionBudowaObrazu}] - docker,
+    \item monitorowanie i observability - uptime kuma, grafana, prometheus, loki, cadvisor, promtail,
+    \item konfiguracja i zarządzanie serwerem - htop, nginx, cloudflare,
+\end{itemize}
+
+\subsection{Przegląd literatury}
+
+\subsubsection{Royce, Winston. "Managing the Development of Large Software Systems." (1970)}
+Klasyczny artykuł Winstona Royce'a, który wprowadził koncepcję modelu wodospadowego w zarządzaniu projektami oprogramowania. Choć sam model wodospadowy jest obecnie uważany za przestarzały, artykuł Royce'a jest ważny dla zrozumienia ewolucji metodologii zarządzania projektami, które doprowadziły do powstania zwinnych metod i praktyk DevOps. Royce podkreślał znaczenie planowania, dokumentacji i rygorystycznego podejścia do zarządzania dużymi projektami.
+
+\subsubsection{Allspaw, John, and Paul Hammond. "10+ Deploys per Day: Dev and Ops Cooperation at Flickr." (2009)
+}
+Jest to całkiem stara pozycja i nie wchodzi w szczegóły, ale co ciekawe, prawie wszystko z tej prezentacji sprawdza się w dzisiejszych czasach - zostało po prostu bardziej rozwinięte. Prezentacja ta, wygłoszona podczas konferencji Velocity stała się kamieniem milowym dla ruchu DevOps. Autorzy podkreślają znaczenie nie tyle użytej technologii, co kultury wspólpracy i komunikacji. 
+
+\subsubsection{Kim, Gene, "The DevOPS Handbook: How to Create World-Class Agility, Reliability, and Security in Technology Organizations (2016)
+}
+Książka ta jest kompleksowym przewodnikiem po świecie DevOps, napisanym przez uznanych ekspertów: Gene Kima, Patricka Deboisa, Johna Willisa i Jeza Humble'a. Autorzy przedstawiają fundamenty DevOps, koncentrując się na praktykach i narzędziach, które pomagają organizacjom osiągnąć wyjątkową wydajność, niezawodność i bezpieczeństwo. Książka ta jest często cytowana jako fundamentalne źródło wiedzy, które wyjaśnia, jak wdrożyć i skalować DevOps w dużych organizacjach, podając konkretne przykłady i studia przypadków.
+
+\subsubsection{
+Edwards, Damon. "What is DevOps?" (2010)
+}
+W artykule tym Damon Edwards definiuje DevOps jako koncepcję parasolową obejmującą wszystkie działania mające na celu poprawę współpracy między rozwojem a operacjami. Edwards podkreśla, że DevOps nie jest jedynie zestawem narzędzi, ale przede wszystkim filozofią pracy, która promuje ciągłe doskonalenie, automatyzację i wzajemne zrozumienie między zespołami. Artykuł ten jest często cytowany jako jedno z pierwszych źródeł definiujących DevOps w sposób, który obejmuje zarówno techniczne, jak i kulturowe aspekty.
+
+\subsection{Meta narzędzia} \label{subsectionMetaNarzedzia}
+
+Podstawową metodą wdrożenia kodu na serwer jest pobranie i włączenie go na serwerze. Wraz z rozwojem IT powstały jednak bardziej abstrakcyjne metody wdrażania. Na wzór wezmę funkcje \textbf{Lambda} oferowane przez \textbf{AWS}. Oferują one środowisko uruchomieniowe, za które płaci się a wykorzystane minuty. Nie wymagają konfiguracji i posiadania własnych zasobów serwerowych. Jest to pierwsza warstwa abstrakcji - nazywam to meta-narzędziem.
+
+Samo wgranie kodu do funkcji Lambda wymaga od dewelopera całkiem powtarzalnej interakcji. Kod należy skompresować do pliku zip i wgrać przez panel AWS Lambda. Aby uprościć te czynności, powstało wiele narzędzi automatyzujących ten proces. Opiszę tutaj narzędzie \textbf{Serverless Framework}. Narzędzie to jest oferowane w postaci strony internetowej z dodatkiem CLI, z poziomu którego wykonuje się komendę, która wdroży aplikację.
+
+Po odpowiedniej konfiguracji projektu wystarczy użyć \lstinline|sls deploy|, aby kod w przeciągu kilkunastu sekund został wdrożony w funkcję Lambda. Narzędzie jest warstwą abstrakcji na inne narzędzie zarządzające stanem wdrożonych zasobów na koncie AWS - \textbf{CloudFormation}.
+
+Deweloper korzystając z niego nie zdaje sobie sprawy, co dzieje się pod spodem. Jest na przykład zupełnie nieświadomy tego, że narzędzie to tworzy \textbf{S3 Bucket}, w którym zapisane zostaną informacje dotyczące wdrażania kolejnych wersji aplikacji oraz informacje o stworzonych zasobach.
+
+W tym wypadku nazwałbym to nawet meta-meta-meta-narzędziem, ponieważ \textbf{SLS Framework} jest abstrakcją na \textbf{CloudFormation}, która jest abstrakcją na ręczne tworzenie zasobów w \textbf{AWS}, które jest abstrakcją na posiadanie swojego serwera.
 
 \section{Wdrażana aplikacja}
 
-Swoje badania będę przeprowadzał na prostej aplikacji udostępniającej \textbf{frontend}, na którym można kliknąć przycisk, który zwiększa licznik oraz \textbf{backend}, który zapamiętuje ten stan. Nie ma potrzeby wprowadzania niczego bardziej złożonego, ponieważ metody opisane dalej nie będą się różniły niezależnie od stopnia skomplikowania aplikacji.
+\subsection{Backend}
 
-\section{Budowanie aplikacji}
+Backend aplikacji napisany jest w NodeJS, a konkretnie frameworku NestJS i języku typescipt. Cały backend to jeden kontroler RESTowy zawierający metody pobrania i zaktualizowania licznika.
+
+\begin{lstlisting}[caption=Główny kod backendu NestJS]
+import { Controller, Get, Post } from '@nestjs/common';
+
+@Controller()
+export class AppController {
+  private counter = 0;
+
+  @Get('/counter')
+  getCounter() {
+    return {
+      count: this.counter,
+    };
+  }
+
+  @Post('/counter')
+  incrementCounter() {
+    this.counter++;
+    return {
+      count: this.counter,
+    };
+  }
+}
+
+\end{lstlisting}
+
+Takie rozwiązanie uniemożliwia włączenie kilku instancji, ponieważ stan licznika przechowywany jest w pamięci pojedyńczej aplikacji, jednak wystarczy do przeprowadzenia większości testów. W dalszej części pracy konieczna będzie zmiana tego podejścia - tam skupię się na opisaniu, czym charakteryzują się aplikacje, które wspierają multi-instancyjność.
+
+\subsection{Frontend}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{frontendScreenshot.png}
+    \caption{Zrzut ekranu aplikacji frontendowej}
+\end{figure}
+
+Frontend jest aplikacją napisaną również w NodeJS, a konkretniej we frameworku React i języku typescript. Po wciśnięciu przycisku wysyła request do serwera, co skutkuje podniesieniem stanu licznika o 1.
+
+\subsection{Domena}
+
+Aby konfigurować rzeczy w realnym środowisku, na czas trwania pisania pracy wykupiłem domenę 
+\lstinline|https://aleksanderblaszkiewicz.pl|, na której będę przeprowadzał testy.
+
+\section{Budowanie aplikacji} \label{sectionBudowanieAplikacji}
 
 Aby wdrożyć kod aplikacji na serwer, konieczne jest przekonwertowanie go z kodu czytelnego dla człowieka do kodu czytelnego przez maszynę. Optymalizację procesu \textbf{CI/CD} zacznę już na samym początku - od procesu budowania.
 
@@ -367,7 +461,7 @@ Jak widać, Vite oferuje niewiarygodne przyspieszenie czasu budowania. Co zdumie
 
 Powyższe badania udowadniają, że często domyślne zestawy narzędzi są dalekie od optymalnych. Optymalizację devops warto zacząć już od samego dobrania narzędzi najlepiej jeszcze przed rozpoczęciem projektu. Zmiany rozmiaru tych opisanych w powyższym rozdziale mogą być bardzo kosztowne w późniejszych fazach projektu.
 
-\section{Metody wdrażania}
+\section{Metody wdrażania} \label{sectionMetodyWdrazania}
 
 Po zbudowaniu aplikacji trzeba jej kod w jakiś sposób przenieść na serwer i na nim włączyć. Wypiszę teraz zarys sposobów, a w następnych działach każdy z nich opiszę dokładniej:
 
@@ -513,7 +607,7 @@ Monitorowanie aplikacji                 & \cellcolor{red!50}nie & \cellcolor{red
 Zasadniczym plusem ręcznego wdrażania jest szybkość pierwszej konfiguracji. Nie trzeba konfigurować praktycznie nic, tylko włączyć aplikację na serwerze. Uważam jednak, że liczba zalet wirtualizacji z użyciem CI/CD przewyższa zysk czasowy manualnego wdrażania. Warto poświęcić na początku więcej czasu na dobrą konfigurację aby zaoszczędzić go w późniejszych fazach rozwoju aplikacji.
 
 
-\section{Budowa obrazu}
+\section{Budowa obrazu} \label{sectionBudowaObrazu}
 
 \subsection{Podstawowy obraz}
 
@@ -677,13 +771,446 @@ Z początkowego 1.64GB udało się zejść do 175MB, przy tym samym przyspieszaj
 \label{fig:miejsce}
 \end{figure}
 
-\section{CI/CD}
+\section{CI/CD} \label{sectionCICD}
 
-\subsection{Wybór platformy}
+\subsection{Wprowadzenie}
+
+\subsubsection{Co chcemy osiągnąć}
+
+Zadaniem CI/CD jest zautomatyzowanie czynności związanych z testowaniem, budowaniem i wdrażaniem aplikacji. Chcemy osiągnąć ciągłość integracji (Continuous Integration) oraz ciągłość dostarczania (Continuous Delivery/Deployment), co pozwoli na:
+
+\begin{itemize}
+\item Automatyczne uruchamianie testów jednostkowych i integracyjnych po każdym commitcie, co zapewnia wczesne wykrywanie błędów.
+\item Automatyczne budowanie aplikacji po każdym commitcie, co umożliwia szybsze wdrażanie nowych wersji.
+\item Automatyczne wdrażanie aplikacji na środowiska testowe i produkcyjne, co przyspiesza proces wydawania nowych wersji i minimalizuje ryzyko błędów wynikających z ręcznego wdrażania.
+\item Zapewnienie spójności środowisk poprzez zautomatyzowane procesy budowania i wdrażania.
+\item Zwiększenie produktywności zespołu poprzez automatyzację powtarzalnych zadań.
+\end{itemize}
+
+\subsubsection{Wybór platformy}
 
 Najpopularniejszą platformą i oferującą jednocześnie najwięcej opcji jest z pewnością Gitlab, ale wymaga bardzo czasochłonnej konfiguracji jeszcze przed samym zaczęciem konfiguracji CI/CD.
 
 Ja jako platformę CI/CD wybrałem \textbf{Github Actions}, ponieważ jest darmowa dla publicznych projektów, bardzo dobrze udokumentowana i nie wymaga żadnej początkowej konfiguracji. Językiem opisu są tutaj pliki \lstinline|.yml| mieszczone w folderze \lstinline|.github| w głównym folderze projektu.
+
+\subsubsection{Sekrety}
+
+Sekrety w kontekście CI/CD to poufne informacje, takie jak klucze API, dane logowania, tokeny dostępu czy hasła, które są niezbędne do działania różnych etapów pipeline'u, ale które nie powinny być ujawniane publicznie. Wiele platform CI/CD, takich jak Github Actions, Gitlab CI czy Jenkins, umożliwia przechowywanie i zarządzanie sekretami w bezpieczny sposób.
+
+Mimo że pliki konfiguracyjne pipeline'ów mogą być publiczne, same sekrety są ukryte i niedostępne dla osób postronnych. Nawet gdy pipeline jest otwarty dla publicznego wglądu, wartości sekretów pozostają niewidoczne. Sekrety są wstrzykiwane do pipeline'u jako zmienne środowiskowe tylko w momencie wykonywania pipeline'u, co zapewnia ich bezpieczeństwo. W publicznym do wglądu logu pipeline wyświetlane są tak:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{actionsLogSecrets.png}
+    \caption{Przykład wyświetlania wartości sekretu w logach pipeline}
+    \label{fig:enter-label}
+\end{figure}
+
+Na przykład w Github Actions, sekrety można skonfigurować w ustawieniach repozytorium:
+
+\begin{enumerate}
+\item Przejdź do sekcji "Settings" w swoim repozytorium.
+\item Wybierz "Secrets and variables" z menu po lewej stronie.
+\item Kliknij "New repository secret", aby dodać nowy sekret.
+\end{enumerate}
+
+Po dodaniu sekrety można używać w plikach YAML definiujących pipeline, w ten sposób
+
+\begin{lstlisting}[caption=Przykładowa konfiguracja pipeline'u w Github Actions]
+- value: ${{ secrets.MY_SECRET }}
+\end{lstlisting}
+
+\subsubsection{Pipeline}
+
+Pipeline CI/CD składa się z serii kroków, które są wykonywane automatycznie po każdym commitcie. W przypadku Github Actions, konfiguracja pipeline'u odbywa się za pomocą plików YAML, które definiują kroki, jakie mają być wykonane. Poniżej przedstawiam przykładowy pipeline
+
+\begin{lstlisting}[caption=Przykładowa konfiguracja pipeline'u w Github Actions]
+name: CI/CD Pipeline
+
+on:
+push:
+  branches:
+    - main
+
+jobs:
+  example:
+    runs-on: ubuntu-latest
+
+steps:
+- name: Print hello world
+  run: echo "Hello world"
+
+\end{lstlisting}
+
+Pipeline składa się z sekcji konfiguracyjnej, w której wyspecyfikowane jest, co ma go włączać. W tym przypadku jest to akcja push na branch main.
+
+W następnej sekcji zdefiniowane jest, jakiego typu agent zostanie przydzielony. W tym wypadku jest to ubuntu.
+
+W ostatniej sekcji zdefiniowane są kroki pipeline. Tutaj włączany jest tylko jeden krok, który wywołuje komendę bezpośrednio na agencie, która wypisze na ekran "Hello world"
+
+\subsubsection{Agent}
+
+W kontekście CI/CD, agent jest to bezstanowa maszyna wirtualna lub kontener, na którym wykonywane są kroki zdefiniowane w pipeline. Agent jest odpowiedzialny za wykonanie zadań takich jak budowanie, testowanie i wdrażanie aplikacji. W Github Actions, agentem jest maszyna uruchomiona przez Github, na której uruchamiane są kroki zdefiniowane w pliku YAML.
+
+Agent jest kluczowym elementem w procesie CI/CD, ponieważ to na nim wykonywane są wszystkie operacje, które składają się na cały proces. Każdy job w pipeline jest uruchamiany na oddzielnym agencie, co pozwala na równoległe wykonywanie zadań i zwiększa efektywność procesu. Agenty są bezstanowe, co oznacza, że każde uruchomienie joba zaczyna się od nowej, czystej maszyny, co minimalizuje ryzyko wystąpienia problemów wynikających z zależności między zadaniami.
+
+
+\subsubsection{Gotowe akcje GitHub Actions}
+
+Jedną z zalet korzystania z GitHub Actions jest dostępność gotowych akcji (actions), które upraszczają i przyspieszają konfigurację pipeline'ów CI/CD. Akcje te są predefiniowanymi, wielokrotnego użytku fragmentami kodu, które można łatwo zintegrować z własnym pipeline'em. Dzięki nim, można nałożyć abstrakcję na powtarzalne i skomplikowane zadania, co znacząco upraszcza proces automatyzacji.
+
+Gotowe akcje można znaleźć w oficjalnym GitHub Marketplace, gdzie dostępne są tysiące akcji przygotowanych przez społeczność oraz samych twórców GitHub. Akcje te mogą obejmować różnorodne zadania, takie jak:
+
+\begin{itemize}
+\item Analiza kodu: Integracja z narzędziami do analizy statycznej kodu, linterami oraz sprawdzanie jakości kodu.
+\item Bezpieczeństwo: Automatyczne skanowanie kodu w poszukiwaniu podatności, zarządzanie sekretami oraz zapewnienie zgodności z politykami bezpieczeństwa.
+\item Wdrażanie: Akcje do wdrażania aplikacji na różne środowiska, w tym na serwery, usługi chmurowe (np. AWS, Azure, Google Cloud) oraz platformy kontenerowe (np. Docker, Kubernetes).
+\item Powiadomienia: Integracja z narzędziami do komunikacji i zarządzania projektem, takimi jak Slack, Microsoft Teams, czy e-mail, w celu wysyłania powiadomień o stanie pipeline'u.
+\end{itemize}
+
+Korzystanie z gotowych akcji pozwala na znaczące zmniejszenie ilości kodu konfiguracyjnego oraz eliminację potencjalnych błędów wynikających z ręcznego definiowania skomplikowanych kroków. Na przykład, zamiast samodzielnie pisać skrypty do instalacji zależności i uruchamiania testów, można skorzystać z gotowych akcji, takich jak \lstinline|actions/setup-node| dla Node.js czy \lstinline|actions/checkout| do pobierania kodu źródłowego.
+
+\subsection{Najlepsze praktyki}
+Pisanie dobrych pipelinów ma zasady bardzo podobne do zasad pisania czystego kodu. Przytoczę kilka z nich
+
+\subsubsection{Odpowiedzialność}
+
+Każda akcja w pipeline CI/CD powinna spełniać zasadę pojedynczej odpowiedzialności, czyli wykonywać tylko jedno, dobrze zdefiniowane zadanie. Unikanie dużych, złożonych plików konfiguracyjnych, które realizują wszystkie kroki procesu, jest kluczowe dla utrzymania przejrzystości i łatwości zarządzania. Dzięki temu podejściu, można również uruchamiać wiele akcji równocześnie tam, gdzie to możliwe, co zwiększa efektywność i skraca czas wykonania całego pipeline'u.
+
+Przykładowy proces budowania aplikacji może obejmować kroki takie jak:
+
+\begin{itemize}
+    \item zbudowanie,
+    \item przetestowanie,
+    \item analiza kodu sonarqube
+\end{itemize}
+
+Zakładając, że wszystkie te kroki opisane są w jednej akcji i że każda z czynności zajmuje 1 jednostkę czasu, to cały pipeline wykona się w 3 jednostki czasu.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{pipelines3T.png}
+    \caption{Czas trwania nieoptymalnego pipeline}
+    \label{fig:enter-label}
+\end{figure}
+
+Warto jednak zauważyć, że krok \textbf{zbudowanie} musi być wykonany pierwszy, a kroki \textbf{przetestowanie} oraz \textbf{analiza kodu sonarqube} mogą być wykonane współbieżnie, ponieważ nie wpływają na siebie wzajemnie. Dobry rozdział na akcje pozwala w tym przypadku zaoszczędzić czas - cały pipeline wykona się teraz w 2 jednostki czasu.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{pipelines2T.png}
+    \caption{Czas trwania zoptymalizowanego pipeline}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsubsection{Abstrakcja}
+
+Dobrze napisane akcje powinny być konfigurowalne i elastyczne, aby można było je wykorzystywać w różnych kontekstach, takich jak wdrażanie na środowiska deweloperskie i produkcyjne. Konfiguracja powinna odbywać się za pomocą parametrów, co pozwala na wielokrotne użycie tej samej akcji bez konieczności modyfikowania jej kodu.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{pipelinesAbstraction.png}
+    \caption{Abstrakcja w pipeline}
+    \label{fig:enter-label}
+\end{figure}
+
+Możliwe jest także wyniesienie akcji na poziom wyższy niż obejmujący jedno repozytorium. Możliwe jest, że na przykład w skład projektu wchodzi kilka mikroserwisów napisanych w tej samej technologii. Wygodne jest wtedy stworzenie oddzielnego repozytorium na akcje i zdefiniowanie tam akcji powtarzalnych dla wszystkich tych mikroserwisów.
+
+\subsubsection{Idempotencja}
+
+Idempotencja jest kluczową zasadą w projektowaniu akcji CI/CD. Oznacza to, że wykonanie tej samej akcji wielokrotnie powinno dawać ten sam efekt, niezależnie od stanu początkowego. Idempotentne akcje minimalizują ryzyko wystąpienia błędów i nieprzewidzianych zachowań podczas wielokrotnego uruchamiania pipeline'u.
+
+Przykładem nieidempotentnej akcji byłaby akcja budująca obraz dockerowy, która zaciąga repozytorium po prostu z brancha main. W tym wypadku o tym, co zostanie zbudowane decyduje aktualny stan brancha main. Po włączeniu pipeline, a następnie zmiany na branchu main i potem ponownym włączeniem tego samego pipeline zostanie zbudowany inny obraz.
+
+Poprawnym rozwiązaniem tej sytuacji byłoby pobranie dokładnego commita, do którego referencji jest dostęp w samym pipeline. Ponowne włączenie tego samego pipeline zawsze będzie miało referencję do tego samego commita.
+
+Przydatne może się to okazać w przypadku próby rollbacku do poprzedniej działającej wersji. Zakładając, że wdrożone zostały wersje:
+\begin{itemize}
+    \item wersja A - ta wersja zadziałała poprawnie,
+    \item wersja B - ta wersja nie działa poprawnie
+\end{itemize}
+
+Można odszukać konkretny pipeline wdrażający wersję A i po prostu ponownie go włączyć. Zagwarantuje to ponowne wdrożenie działającej wersji.
+
+\section{Konfiguracja infrastruktury}
+
+\subsection{Serwer}
+
+Rolę mojego serwera będzie pełnić maszyna z ubuntu 22.04 posiadająca 2GB ramu, 10GB dysku oraz 1 współdzielony rdzeń procesora.
+
+\subsection{Uwierzytelnienie do serwera}
+
+W procesie uwierzytelniania do serwera VPS możemy wyróżnić dwa główne podejścia. Uwierzytelnienie kluczem SSH oraz uwierzytelnienie hasłem. Każde z tych rozwiązań ma swoje zalety i wady, które mogą wpływać na decyzję o wyborze jednej z metod w zależności od specyfiki użycia i wymagań bezpieczeństwa.
+
+\subsubsection{Uwierzytelnienie hasłem}
+
+Uwierzytelnienie hasłem jest jednym z najczęściej spotykanych i najprostszych sposobów zabezpieczania dostępu do serwera. Polega ono na wymaganiu od użytkownika podania nazwy użytkownika oraz odpowiadającego mu hasła podczas logowania.
+
+\begin{itemize}
+    \item \textbf{Zalety:}
+    \begin{itemize}
+        \item \textit{Łatwość użycia}: Proces logowania jest intuicyjny i nie wymaga zaawansowanej wiedzy technicznej.
+        \item \textit{Powszechność}: Hasła są szeroko stosowane w różnych systemach i aplikacjach, co sprawia, że użytkownicy są zazwyczaj zaznajomieni z tą formą uwierzytelniania.
+        \item \textit{Brak konieczności konfiguracji dodatkowego oprogramowania}: Nie wymaga instalacji czy konfiguracji dodatkowych narzędzi poza podstawową konfiguracją serwera.
+    \end{itemize}
+    \item \textbf{Wady:}
+    \begin{itemize}
+        \item \textit{Bezpieczeństwo}: Hasła mogą być narażone na ataki brute force, phishing, czy przechwytywanie podczas transmisji. Skuteczne hasło musi być odpowiednio długie i skomplikowane, co z kolei może być problematyczne do zapamiętania.
+        \item \textit{Zarządzanie}: W przypadku wielu użytkowników lub często zmieniającego się personelu, zarządzanie hasłami może stać się trudne i czasochłonne.
+        \item \textit{Skłonność do słabych haseł}: Użytkownicy często tworzą łatwe do odgadnięcia hasła, co zwiększa ryzyko nieautoryzowanego dostępu.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Uwierzytelnienie kluczem SSH}
+
+Uwierzytelnienie kluczem SSH polega na użyciu pary kluczy kryptograficznych (klucza prywatnego i publicznego) do uwierzytelniania użytkownika. Klucz publiczny jest przechowywany na serwerze, natomiast klucz prywatny jest przechowywany przez użytkownika.
+
+\begin{itemize}
+    \item \textbf{Zalety:}
+    \begin{itemize}
+        \item \textit{Bezpieczeństwo}: Klucze SSH są znacznie trudniejsze do złamania w porównaniu z hasłami. Uwierzytelnianie kluczem prywatnym i publicznym zapewnia wysoki poziom bezpieczeństwa.
+        \item \textit{Brak konieczności przesyłania klucza prywatnego}: Podczas procesu logowania klucz prywatny nigdy nie opuszcza maszyny użytkownika, co eliminuje ryzyko jego przechwycenia.
+        \item \textit{Automatyzacja i skrypty}: Uwierzytelnienie kluczem jest wygodne do użycia w skryptach i automatycznych procesach, gdzie podanie hasła byłoby problematyczne.
+    \end{itemize}
+    \item \textbf{Wady:}
+    \begin{itemize}
+        \item \textit{Złożoność konfiguracji}: Proces generowania kluczy, ich instalacja i zarządzanie mogą być bardziej skomplikowane, zwłaszcza dla mniej doświadczonych użytkowników.
+        \item \textit{Bezpieczeństwo klucza prywatnego}: Klucz prywatny musi być przechowywany w bezpiecznym miejscu. W przypadku jego utraty lub przechwycenia, dostęp do serwera może być zagrożony.
+        \item \textit{Zarządzanie kluczami}: W dużych organizacjach zarządzanie kluczami może być skomplikowane, szczególnie jeśli użytkownicy często się zmieniają.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Implementacja}
+
+Jako że uwierzytelnienie kluczem SSH jest bezpieczniejsze oraz wygodniejsze przy automatyzacji procesów, wybrałem właśnie tę opcję i opiszę proces implementacji.
+
+Zwykle po wykupieniu serwera dostaje się dane do zalogowania. W tym hasło. Należy zalogować się do serwera tymi danymi. Następnie na swojej maszynie należy wygenerować parę kluczy ssh.
+
+\begin{lstlisting}[caption=Wygenerowanie pary kluczy na swojej maszynie]
+cd ~/.ssh
+ssh-keygen -t rsa -b 4096
+\end{lstlisting}
+
+Stworzy to pliki \lstinline|id_rsa| oraz \lstinline|id_rsa.pub|. Należy skopiować zawartość \lstinline|id_rsa.pub|, a następnie wkleić ją do pliku \lstinline|~/.ssh/authorized_keys| na serwerze.
+
+Ostatnim wygodnym krokiem jest stworzenie pliku \lstinline|~/.ssh/config| na lokalnej maszynie i dodanie tam konfiguracji serwera, gdzie \lstinline|IdentityFile| to ścieżka do prywatnego klucza SSH.
+
+\begin{lstlisting}[caption=Przykładowa konfiguracja pliku config na lokalnej maszynie]
+Host magisterka
+    HostName srv15.mikr.us
+    User root
+    Port 10104
+    IdentityFile ~/.ssh/id_rsa
+    IdentitiesOnly yes
+    ServerAliveInterval 60
+\end{lstlisting}
+
+Po wykonaniu powyższych kroków można przetestować połączenie z serwerem wpisując w terminal \lstinline|ssh magisterka|. Powinno to połączyć się z serwerem.
+
+Parametr \lstinline|ServerAliveInterval| zadba o to, żeby sesja z serwerem nie zamykała się od nieaktywności. Maszyna hosta co 60 sekund będzie wysyłała do serwera ping, co spowoduje utrzymanie otwartego połączenia.
+
+
+\subsection{Instalacja potrzebnych narzędzi}
+
+Jak wspomniane wcześniej, należy zminimalizować liczbę potrzebnych zależności na serwerze. W tym wypadku potrzebny będzie jedynie Docker, którego można zainstalować wykonując:
+
+\begin{lstlisting}[caption=Skrypt instalujący dockera na maszynie Ubuntu]
+curl -fsSL https://get.docker.com -o get-docker.sh
+sh get-docker.sh
+\end{lstlisting}
+
+Należy przeprowadzić weryfikację poprawnej instalacji używając \lstinline|docker ps|. Powinna pokazać się Dockerowa tabelka pokazująca, że aktualnie nie pracują żadne kontenery:
+
+\begin{lstlisting}[caption=Wynik wykonania komendy weryfikującej instalację Dockera]
+root@l104:~# docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+\end{lstlisting}
+
+
+\subsection{Tunelowanie IPv6}
+
+Jako że serwer wybrany przeze mnie należy do budżetowych, nie ma on swojego adresu IPv4. Jest to popularna praktyka obniżająca koszty. Dostawca zapewnia wtedy adres IPv6, do którego jednak nie wszyscy użytkownicy mają dostęp (adres IPv6 nie jest powszechnie wspierany).
+
+Aby to obejść, można skorzystać z darmowego narzędzia \textbf{Cloudflare}, do którego najpierw należy podpiąć swoją domenę. Cloudflare będzie pełniło rolę proxy. Użytkownik wchodząc na domenę będzie łączył się z Cloudflare po IPv4, a ten będzie tunelował ten ruch trybem IPv6 do serwera.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{ipv6diagram.png}
+    \caption{Zasada działania tunelowania IPv6 Cloudflare}
+    \label{fig:enter-label}
+\end{figure}
+
+W pierwszej kolejności należy na serwerze wykonać komendę \lstinline|ifconifg|, aby dostać się do listy interfejsów sieciowych serwera. Następnie odszukać pole \lstinline|inet6| i skopiować jego wartość.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{ipv6server.png}
+    \caption{Lista interfejsów sieciowych serwera z adresem IPv6 serwera zaznaczonym na czerwono}
+    \label{fig:enter-label}
+\end{figure}
+
+Następnie w sekcji \textbf{DNS} panelu konfiguracyjnego domeny w Cloudflare należy dodać rekord AAAA z nazwą ustawioną na nazwę domeny, a wartością ustawioną na wcześniej skopiowany adres.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{ipv6cloudflare.png}
+    \caption{Dodanie rekordu AAAA w Cloudflare}
+    \label{fig:enter-label}
+\end{figure}
+
+Aby upewnić się, że konfiguracja działa, należy na serwerze postawić testowy kontener z obrazem \textbf{nginx} używając.
+
+\begin{lstlisting}[caption=Komenda uruchamiająca kontener z obrazem nginx w celu przetestowania] docker run -p 80:80 nginx
+\end{lstlisting}
+
+W celu weryfikacji poprawności wszystkich kroków należy udać się na stronę domeny (w tym wypadku ablaszkiewicz.pl). Strona powinna pokazać stronę startową \textbf{nginx}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{ipv6helloWorld.png}
+    \caption{Strona startowa nginx}
+    \label{fig:enter-label}
+\end{figure}
+
+
+\subsection{Reverse proxy}
+
+W aktualnej konfiguracji z poziomu domeny można dostać się tylko do jednego serwisu działającego na serwerze - konkretnie do serwisu działającego na porcie 80. Jest to oczywiście niechciane rozwiązanie, ponieważ w aktualnej konfiguracji na serwerze włączone będą minimum 2 serwisy - frontend oraz backend.
+
+Aby radzić sobie z takimi sytuacjami, wykorzystuje się mechanizm zwany \textbf{reverse proxy}. Zamiast uruchamiać serwis bezpośrednio na porcie 80, to na porcie 80 stawia się reverse proxy, któremu podaje się zestaw reguł, na podstawie których kieruje ono ruch na inne, wewnętrzne porty serwera.
+
+Narzędziem realizującym to zadanie w moim przypadku będzie nginx. Oprócz wyżej wymienionego zadania warto wiedzieć, że narzędzia tego typu zwykle zbierają logi wszystkiego, co związane z przekierowaniami. Będzie to bardzo przydatne w dalszej części pracy.
+
+Narzędzie skonfigurowałem tak, aby domyślnie kierowało ruch na wewnętrzny port serwera 3000 (tam będzie działał frontend), a adresy zawierające \lstinline|/api/| kierowało na 3001 (tam będzie działał backend).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{reverseProxyDiagram.png}
+    \caption{Zasada działania reverse proxy}
+    \label{fig:enter-label}
+\end{figure}
+
+W tym celu przygotowałem pliki, które zbudują obraz dockerowy z reverse proxy.
+
+\begin{lstlisting}[caption=Plik \lstinline|/infrastructure/reverse-proxy/Dockerfile|]
+FROM nginx:1.22.0-alpine
+
+WORKDIR /
+
+COPY ./src/nxconf.sh /
+
+RUN chmod +x /nxconf.sh && /nxconf.sh
+
+RUN mkdir -p /var/log/nginx /var/cache/nginx /var/run/nginx && \
+    chown -R nginx:nginx /var/log/nginx /var/run/nginx /var/cache/nginx /etc/nginx && \
+    sed -e 's#/var/run/nginx.pid#/var/run/nginx/nginx.pid#' -e '/user  nginx;/d'  -i /etc/nginx/nginx.conf
+
+RUN echo "server_names_hash_bucket_size 128;" >/etc/nginx/conf.d/_server_name_hash.conf
+
+RUN echo "client_max_body_size 1g;" >/etc/nginx/conf.d/my_proxy.conf
+RUN echo -e "map \$http_upgrade \$connection_upgrade {\n default upgrade;\n '' close;\n}" >/etc/nginx/conf.d/_websocks.conf
+
+EXPOSE 3080
+
+USER nginx
+
+CMD ["nginx", "-g", "daemon off;"]
+\end{lstlisting}
+
+\begin{lstlisting}[caption=Plik \lstinline|/infrastructure/reverse-proxy/src/nxconf.sh|]
+#!/bin/sh
+out="/etc/nginx/conf.d/default.conf"
+domain="ablaszkiewicz.pl"
+frontend_path="http://192.168.1.104:3000"
+backend_path="http://192.168.1.104:3001/"
+
+echo -n > "$out"
+
+config=$(cat <<EOF
+server {
+    listen       80;
+    listen  [::]:80;
+    server_name  $domain;
+
+    location = / {
+        proxy_pass $frontend_path;
+        proxy_set_header Host \$host;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection \$connection_upgrade;
+        proxy_ssl_name \$host;
+        proxy_ssl_server_name on;
+        proxy_ssl_verify off;
+        proxy_ssl_protocols  TLSv1 TLSv1.1 TLSv1.2;
+        proxy_ssl_session_reuse off;
+        proxy_set_header X-Forwarded-For \$remote_addr;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_read_timeout 120;
+        proxy_send_timeout 120;
+        proxy_connect_timeout 120;
+    }
+
+    location /api/ {
+        proxy_pass $backend_path;
+        proxy_set_header Host \$host;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection \$connection_upgrade;
+        proxy_ssl_name \$host;
+        proxy_ssl_server_name on;
+        proxy_ssl_verify off;
+        proxy_ssl_protocols  TLSv1 TLSv1.1 TLSv1.2;
+        proxy_ssl_session_reuse off;
+        proxy_set_header X-Forwarded-For \$remote_addr;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_read_timeout 120;
+        proxy_send_timeout 120;
+        proxy_connect_timeout 120;
+    }
+}
+EOF
+)
+
+echo "$config" >> "$out"
+\end{lstlisting}
+
+W celu przetestowania podejścia wykonałem na serwerze serię komend
+
+\begin{lstlisting}[caption=Komendy włączające reverse proxy na serwerze]
+git clone https://github.com/ablaszkiewicz/devops-sandbox.git
+cd devops-sandbox/infrastructure/reverse-proxy
+docker build -t reverse-proxy .
+docker run -p 80:80 -d reverse-proxy
+docker run -p 3000:80 -d nginx
+docker run -p 3001:80 -d httpd
+\end{lstlisting}
+
+Powyższe komendy uruchamiają serwisy w następującej konfiguracji:
+\begin{itemize}
+    \item port 80 - napisane reverse proxy,
+    \item port 3000 - bazowy obraz nginx,
+    \item port 3001 - bazowy obraz apache
+\end{itemize}
+
+Po włączeniu wszystkich kontenerów po wejściu na \lstinline|https://ablaszkiewicz.pl| powinna ukazać się strona startowa nginx
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{reverseProxyNginx.png}
+    \caption{Strona startowa nginx}
+    \label{fig:enter-label}
+\end{figure}
+
+A po wejściu na \lstinline|https://ablaszkiewicz.pl/api| powinna ukazać się strona startowa apache
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{reverseProxyApache.png}
+    \caption{Strona startowa Apache}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Sekrety}
 
 \begin{thebibliography}{9}
 
