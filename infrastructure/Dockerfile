@@ -2,7 +2,7 @@ FROM nginx:1.22.0-alpine
 
 WORKDIR /
 
-COPY ./nxconf.sh /
+COPY ./src/nxconf.sh /
 
 RUN chmod +x /nxconf.sh && /nxconf.sh
 
