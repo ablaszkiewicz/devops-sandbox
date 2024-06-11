@@ -1,0 +1,11 @@
+name: Print message to the screen
+
+inputs:
+  message:
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Print message to the screen
+      run: echo "${{ inputs.message }}"

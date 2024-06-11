@@ -1,0 +1,14 @@
+name: Print message to the screen workflow (A)
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Invoke print message to the screen
+        uses: ./.github/templates/templateA.yml
+        with:
+          message: "Hello world A!"
