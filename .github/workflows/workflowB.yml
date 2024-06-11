@@ -9,6 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Invoke print message to the screen
-        uses: ./.github/templates/templateA.yml
+        uses: ./.github/templates/templateA
         with:
           message: "Hello world B!"
