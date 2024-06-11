@@ -8,4 +8,4 @@ runs:
   using: "composite"
   steps:
     - name: Print message to the screen
-      run: echo "${{ inputs.message }}"
+      script: echo "${{ inputs.message }}"
