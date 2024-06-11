@@ -5,7 +5,7 @@ on:
     branches:
       - main
 jobs:
-  deploy:
+  main:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -13,4 +13,4 @@ jobs:
       - name: Invoke print message to the screen
         uses: ./.github/templates/templateA
         with:
-          message: "Hello world"
+          message: "Hello world A!"
