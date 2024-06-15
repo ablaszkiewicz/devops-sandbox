@@ -775,7 +775,7 @@ Z początkowego 1.64GB udało się zejść do 175MB, przy tym samym przyspieszaj
 
 \subsection{Wprowadzenie}
 
-\subsubsection{Co chcemy osiągnąć}
+\subsubsection{Cel}
 
 Zadaniem CI/CD jest zautomatyzowanie czynności związanych z testowaniem, budowaniem i wdrażaniem aplikacji. Chcemy osiągnąć ciągłość integracji (Continuous Integration) oraz ciągłość dostarczania (Continuous Delivery/Deployment), co pozwoli na:
 
@@ -793,32 +793,7 @@ Najpopularniejszą platformą i oferującą jednocześnie najwięcej opcji jest 
 
 Ja jako platformę CI/CD wybrałem \textbf{Github Actions}, ponieważ jest darmowa dla publicznych projektów, bardzo dobrze udokumentowana i nie wymaga żadnej początkowej konfiguracji. Językiem opisu są tutaj pliki \lstinline|.yml| mieszczone w folderze \lstinline|.github| w głównym folderze projektu.
 
-\subsubsection{Sekrety}
-
-Sekrety w kontekście CI/CD to poufne informacje, takie jak klucze API, dane logowania, tokeny dostępu czy hasła, które są niezbędne do działania różnych etapów pipeline'u, ale które nie powinny być ujawniane publicznie. Wiele platform CI/CD, takich jak Github Actions, Gitlab CI czy Jenkins, umożliwia przechowywanie i zarządzanie sekretami w bezpieczny sposób.
-
-Mimo że pliki konfiguracyjne pipeline'ów mogą być publiczne, same sekrety są ukryte i niedostępne dla osób postronnych. Nawet gdy pipeline jest otwarty dla publicznego wglądu, wartości sekretów pozostają niewidoczne. Sekrety są wstrzykiwane do pipeline'u jako zmienne środowiskowe tylko w momencie wykonywania pipeline'u, co zapewnia ich bezpieczeństwo. W publicznym do wglądu logu pipeline wyświetlane są tak:
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\linewidth]{actionsLogSecrets.png}
-    \caption{Przykład wyświetlania wartości sekretu w logach pipeline}
-    \label{fig:enter-label}
-\end{figure}
-
-Na przykład w Github Actions, sekrety można skonfigurować w ustawieniach repozytorium:
-
-\begin{enumerate}
-\item Przejdź do sekcji "Settings" w swoim repozytorium.
-\item Wybierz "Secrets and variables" z menu po lewej stronie.
-\item Kliknij "New repository secret", aby dodać nowy sekret.
-\end{enumerate}
-
-Po dodaniu sekrety można używać w plikach YAML definiujących pipeline, w ten sposób
-
-\begin{lstlisting}[caption=Przykładowa konfiguracja pipeline'u w Github Actions]
-- value: ${{ secrets.MY_SECRET }}
-\end{lstlisting}
+\subsection{Pojęcia}
 
 \subsubsection{Pipeline}
 
@@ -869,6 +844,33 @@ Gotowe akcje można znaleźć w oficjalnym GitHub Marketplace, gdzie dostępne s
 \end{itemize}
 
 Korzystanie z gotowych akcji pozwala na znaczące zmniejszenie ilości kodu konfiguracyjnego oraz eliminację potencjalnych błędów wynikających z ręcznego definiowania skomplikowanych kroków. Na przykład, zamiast samodzielnie pisać skrypty do instalacji zależności i uruchamiania testów, można skorzystać z gotowych akcji, takich jak \lstinline|actions/setup-node| dla Node.js czy \lstinline|actions/checkout| do pobierania kodu źródłowego.
+
+\subsubsection{Sekrety}
+
+Sekrety w kontekście CI/CD to poufne informacje, takie jak klucze API, dane logowania, tokeny dostępu czy hasła, które są niezbędne do działania różnych etapów pipeline'u, ale które nie powinny być ujawniane publicznie. Wiele platform CI/CD, takich jak Github Actions, Gitlab CI czy Jenkins, umożliwia przechowywanie i zarządzanie sekretami w bezpieczny sposób.
+
+Mimo że pliki konfiguracyjne pipeline'ów mogą być publiczne, same sekrety są ukryte i niedostępne dla osób postronnych. Nawet gdy pipeline jest otwarty dla publicznego wglądu, wartości sekretów pozostają niewidoczne. Sekrety są wstrzykiwane do pipeline'u jako zmienne środowiskowe tylko w momencie wykonywania pipeline'u, co zapewnia ich bezpieczeństwo. W publicznym do wglądu logu pipeline wyświetlane są tak:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{actionsLogSecrets.png}
+    \caption{Przykład wyświetlania wartości sekretu w logach pipeline}
+    \label{fig:enter-label}
+\end{figure}
+
+Na przykład w Github Actions, sekrety można skonfigurować w ustawieniach repozytorium:
+
+\begin{enumerate}
+\item Przejdź do sekcji "Settings" w swoim repozytorium.
+\item Wybierz "Secrets and variables" z menu po lewej stronie.
+\item Kliknij "New repository secret", aby dodać nowy sekret.
+\end{enumerate}
+
+Po dodaniu sekrety można używać w plikach YAML definiujących pipeline, w ten sposób
+
+\begin{lstlisting}[caption=Przykładowa konfiguracja pipeline'u w Github Actions]
+- value: ${{ secrets.MY_SECRET }}
+\end{lstlisting}
 
 \subsection{Najlepsze praktyki}
 Pisanie dobrych pipelinów ma zasady bardzo podobne do zasad pisania czystego kodu. Przytoczę kilka z nich
@@ -931,6 +933,121 @@ Przydatne może się to okazać w przypadku próby rollbacku do poprzedniej dzia
 \end{itemize}
 
 Można odszukać konkretny pipeline wdrażający wersję A i po prostu ponownie go włączyć. Zagwarantuje to ponowne wdrożenie działającej wersji.
+
+\subsection{Więcej o języku opisu Github Actions}
+
+W dalszej części pracy będę używał wiele takich samych wzorców. Wypiszę tutaj podstawowe wzorce używane w Github actions
+
+\subsubsection{Triggery}
+
+Zwykle chcemy, żeby pipeline włączał się po wykonaniu jakiejś akcji powiązanej z gitem. Język opisu Github actions udostępnia triggery, w środku których definiuje się, co ma spowodować rozpoczęcie danego pipeline. Najprostszym przykładem jest włączenia pipeline po zrobieniu akcji push na main.
+
+\begin{lstlisting}[caption=Fragment kodu z triggerem ustawionym na push na main]
+on:
+  push:
+    branches:
+      - main
+\end{lstlisting}
+
+
+\subsubsection{Template}
+
+Najprostszym sposobem napisania pipeline jest ten przytoczony wyżej. Stworzenie pliku \lstinline|.yml| i pisanie w nim kroków. Nie jest to jednak optymalny sposób, ponieważ uniemożliwia ponowne wykorzystanie powtarzalnych fragmentów kodu.
+
+Powszechnie stosowaną praktyką jest podzielenie folderu z pipelinami na \lstinline|templates| oraz \lstinline|workflows|. Folder z templatami zawiera akcje konfigurowalne za pomocą parametrów. Folder z workflows natomiast po prostu je wywołuje.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{templatesAndWorkflows.png}
+    \caption{Diagram przedstawiający w jaki sposób workflows korzystają z templates}
+    \label{fig:enter-label}
+\end{figure}
+
+Aby przedstawić to na przykładzie, przygotowałem następujące pliki
+\begin{lstlisting}[caption=Plik \lstinline|.github/templates/templateA/action.yml|]
+name: Print message to the screen
+
+inputs:
+  message:
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Print message to the screen
+      shell: bash
+      run: echo "${{ inputs.message }}"
+\end{lstlisting}
+
+\begin{lstlisting}[caption=Plik \lstinline|.github/workflows/workflowA.yml|]
+name: Print message to the screen workflow (A)
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Invoke print message to the screen
+        uses: ./.github/templates/templateA
+        with:
+          message: "Hello world A!"
+\end{lstlisting}
+
+\begin{lstlisting}[caption=Plik \lstinline|.github/workflows/workflowB.yml|]
+name: Print message to the screen workflow (B)
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Invoke print message to the screen
+        uses: ./.github/templates/templateA
+        with:
+          message: "Hello world B!"
+\end{lstlisting}
+
+Efektem wykonania akcji push na main jest włączenie dwóch pipelinów.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{testPipelinesInGithubActionsDashboard.png}
+    \caption{Wycinek panelu Github actions}
+    \label{fig:enter-label}
+\end{figure}
+
+I w każdym z nich odpowiedni tekst wypisany do konsoli 
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{testPipelinesPipelineA.png}
+        \caption{Efekt wykonania pipeline A}
+        \label{fig:enter-label-a}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{testPipelinesPipelineB.png}
+        \caption{Efekt wykonania pipeline B}
+        \label{fig:enter-label-b}
+    \end{minipage}
+\end{figure}
+
+Przykładem stosowania templatów są multi środowiska. W dzisiejszym świecie kultura devops jest na tyle rozwinięta, że stosowanie kilku środowisk stało się standardem. Oznacza to, że oprócz produkcyjnego środowiska istnieje kopia (a czasem kilka) całkowicie wyizolowana od pozostałych środowisk. Zwykle dostępna pod adresem \lstinline|https://nazwa-środowiska.oryginalna-domena.pl|.
+
+Rozwiązanie to jest wygodne, ponieważ pozwala przetestować zmiany w semi-realnym scenariuszu nie narażając środowiska produkcyjnego na błędy.
 
 \section{Konfiguracja infrastruktury}
 
@@ -1058,10 +1175,8 @@ Następnie w sekcji \textbf{DNS} panelu konfiguracyjnego domeny w Cloudflare nal
     \label{fig:enter-label}
 \end{figure}
 
-Aby upewnić się, że konfiguracja działa, należy na serwerze postawić testowy kontener z obrazem \textbf{nginx} używając.
+Aby upewnić się, że konfiguracja działa, należy na serwerze postawić testowy kontener z obrazem \textbf{nginx} używając \lstinline|docker run -p 80:80 nginx|
 
-\begin{lstlisting}[caption=Komenda uruchamiająca kontener z obrazem nginx w celu przetestowania] docker run -p 80:80 nginx
-\end{lstlisting}
 
 W celu weryfikacji poprawności wszystkich kroków należy udać się na stronę domeny (w tym wypadku ablaszkiewicz.pl). Strona powinna pokazać stronę startową \textbf{nginx}.
 
@@ -1073,11 +1188,17 @@ W celu weryfikacji poprawności wszystkich kroków należy udać się na stronę
 \end{figure}
 
 
-\subsection{Reverse proxy}
+\section{Reverse proxy}
+
+\subsection{Idea}
 
 W aktualnej konfiguracji z poziomu domeny można dostać się tylko do jednego serwisu działającego na serwerze - konkretnie do serwisu działającego na porcie 80. Jest to oczywiście niechciane rozwiązanie, ponieważ w aktualnej konfiguracji na serwerze włączone będą minimum 2 serwisy - frontend oraz backend.
 
 Aby radzić sobie z takimi sytuacjami, wykorzystuje się mechanizm zwany \textbf{reverse proxy}. Zamiast uruchamiać serwis bezpośrednio na porcie 80, to na porcie 80 stawia się reverse proxy, któremu podaje się zestaw reguł, na podstawie których kieruje ono ruch na inne, wewnętrzne porty serwera.
+
+W klasycznym podejściu do reverse proxy instaluje się narzędzie typu nginx w warstwie systemowej i to tutaj się je konfiguruje. Znacząco lepszym pomysłem i łatwiejszym pomysłem jest jednak zdockeryzowanie reverse proxy. Ingerencja w usługi systemowe zawsze wiąże się z ryzykiem - możliwe, że konfiguracja będzie błędna i bardzo dużo czasu zajmie odnalezienie błędu - zdockeryzowanie narzędzia pozwoli uodpornić się na błędy konfiguracji oraz zapewni powrót do poprzednich, działających wersji w przypadku błędów.
+
+\subsection{Implementacja}
 
 Narzędziem realizującym to zadanie w moim przypadku będzie nginx. Oprócz wyżej wymienionego zadania warto wiedzieć, że narzędzia tego typu zwykle zbierają logi wszystkiego, co związane z przekierowaniami. Będzie to bardzo przydatne w dalszej części pracy.
 
@@ -1174,6 +1295,8 @@ EOF
 echo "$config" >> "$out"
 \end{lstlisting}
 
+\subsection{Test}
+
 W celu przetestowania podejścia wykonałem na serwerze serię komend
 
 \begin{lstlisting}[caption=Komendy włączające reverse proxy na serwerze]
@@ -1210,7 +1333,76 @@ A po wejściu na \lstinline|https://ablaszkiewicz.pl/api| powinna ukazać się s
     \label{fig:enter-label}
 \end{figure}
 
-\subsection{Sekrety}
+\subsection{Zestawienie}
+
+Przygotowałem poniżej zestawienie, które prezentuje wyższość rozwiązania wykorzystującego reverse proxy ponad standardowym.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Cecha} & \textbf{Brak reverse proxy} & \textbf{Reverse proxy} & \textbf{+docker} \\ \hline
+Kilka serwisów na tym samym porcie & \cellcolor{red!50}nie & \cellcolor{green!50}tak & \cellcolor{green!50}tak \\ \hline
+Bogate logi  & \cellcolor{yellow!50}po stronie aplikacji & \cellcolor{green!50}tak & \cellcolor{green!50}tak \\ \hline
+Ukrycie wewnętrznych zasad routingu & \cellcolor{red!50}nie & \cellcolor{green!50}tak & \cellcolor{green!50}tak \\ \hline
+Banowanie lokalizacji & \cellcolor{yellow!50}po stronie aplikacji & \cellcolor{green!50}tak & \cellcolor{green!50}tak \\ \hline
+Centralne zarządzanie ruchem & \cellcolor{red!50}nie & \cellcolor{green!50}tak & \cellcolor{green!50}tak \\ \hline
+Odporność na błędy konfiguracji & \cellcolor{yellow!50}nie dotyczy & \cellcolor{red!50}nie & \cellcolor{green!50}tak \\ \hline
+Wersjonowanie konfiguracji & \cellcolor{yellow!50}nie dotyczy & \cellcolor{red!50}nie & \cellcolor{green!50}tak \\ \hline
+Poziom skomplikowanie & \cellcolor{green!50}niski & \cellcolor{yellow!50}średni & \cellcolor{red!50}wysoki \\ \hline
+\end{tabular}
+\caption{Porównanie podejść z reverse proxy}
+\label{tab:porownanie-metod-wdrazania}
+\end{table}
+
+\subsection{Wiele środowisk}
+
+W idealnym świecie każde środowisko powinno być oddzielną maszynę. Z uwagi na budżet u mnie jednak obydwa środowiska będą działały na jednej maszynie i wytłumaczę podejście, które zastosowałem do osiągnięcia dobrze zarządzalnego kierowania ruchem. Poprzednio zaimplementowane reverse proxy działa na poziomie lokalizacji (dobiera to, co znajduje się już po \lstinline|.pl|), dlatego nazwę je \lstinline|location reverse proxy|. Nowe reverse proxy będzie dobierało to, co znajduje się przed nazwą domeny, dlatego nazwę je \lstinline|domain reverse proxy|.
+
+W mojej konfiguracji będzie istniało środowisko produkcyjne dostępne pod standardową domeną oraz środowisko deweloperskie dostępne z prefixem \lstinline|dev.|.
+
+Nowo powstałe reverse proxy zostanie wpięte przed reverse proxy odpowiedzialnymi za lokalizację, tworząc następującą strukturę
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{domainReverseProxy.png}
+    \caption{Diagram przedstawiający zasadę działania reverse proxy przy wielu środowiskach na jednej maszynie}
+    \label{fig:enter-label}
+\end{figure}
+
+
+Zasada konfiguracji reverse proxy jest analogiczna do poprzednich. Jako że zasady przekierowań są tutaj bardzo proste, skorzystam z wrappera \lstinline|https://github.com/unkn0w/proxer|, który udostępnia prosty plik konfiguracyjny definiujący zasady przekierowań i też jest zdockeryzowany.
+
+\begin{lstlisting}[caption=Plik \lstinline|/infrastructure/reverse-proxy/src/nxconf.sh|]
+my.domain1.com=http://192.168.1.123:3000
+my.domain2.com=http://192.168.1.222:8080
+my.otherdomain.org=http://somedomain.com
+\end{lstlisting}
+
+\subsection{Pipeline}
+
+\section{Backend}
+\section{Frontend}
+\section{Observability i monitoring}
+\subsection{Co chcemy osiągnąć}
+\subsection{Przegląd narzędzi}
+\subsubsection{Uptime Kuma}
+\subsubsection{Grafana}
+\subsubsection{Prometheus}
+\subsection{Provisioning}
+
+\subsection{Implementacja}
+\subsubsection{Prometheus}
+\subsubsection{Grafana}
+\subsubsection{Logi nginx}
+\subsubsection{Promtail}
+\subsubsection{Loki}
+
+\subsection{Optymalizacja}
+\subsubsection{Cachowanie buildów}
+\subsubsection{Odporność na restarty}
+
+
 
 \begin{thebibliography}{9}
 
