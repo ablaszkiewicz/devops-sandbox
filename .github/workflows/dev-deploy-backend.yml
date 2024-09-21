@@ -15,8 +15,8 @@ jobs:
       - name: Build and push
         uses: './.github/templates/build-and-push'
         with:
-          context: ./backend
-          file: ./backend/Dockerfile
+          context: ./frontend
+          file: ./frontend/Dockerfile
           dockerhub-username: ${{ secrets.DOCKERHUB_USERNAME }}
           dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}
           image-name: ablaszkiewicz/magisterka-frontend
