@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - 'dev'
+      - 'main'
 
 jobs:
   deploy:
@@ -15,6 +15,8 @@ jobs:
       - name: Build and push
         uses: './.github/templates/build-and-push'
         with:
+          context: ./backend
+          file: ./backend/Dockerfile
           dockerhub-username: ${{ secrets.DOCKERHUB_USERNAME }}
           dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}
-          image-name: jerzywisniewski/smartmenu-backend-dev
+          image-name: ablaszkiewicz/magisterka-backend
