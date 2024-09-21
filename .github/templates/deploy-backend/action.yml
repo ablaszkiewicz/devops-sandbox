@@ -14,7 +14,7 @@ inputs:
   # Docker
   image-name:
     required: true
-  container-port:
+  server-port:
     required: true
   container-name:
     required: true
@@ -33,8 +33,9 @@ runs:
         KEY: ${{ inputs.ssh-private-key }}
         script: |
           docker rm -f ${{ inputs.container-name }}
+          docker pull ${{ inputs.image-name }}
           docker run -d \
-          -p ${{ inputs.container-port }}:${{ inputs.application-port }} \
+          -p ${{ inputs.server-port }}:${{ inputs.application-port }} \
           --restart=always \
           --name ${{ inputs.container-name }} \
           ${{ inputs.image-name }}
