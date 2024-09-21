@@ -1,0 +1,40 @@
+name: Deploy
+
+inputs:
+  # SSH
+  host:
+    required: true
+  username:
+    required: true
+  port:
+    required: true
+  ssh-private-key:
+    required: true
+
+  # Docker
+  image-name:
+    required: true
+  container-port:
+    required: true
+  container-name:
+    required: true
+  application-port:
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Update image inside VPS
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ inputs.host }}
+        USERNAME: ${{ inputs.username }}
+        PORT: ${{ inputs.port }}
+        KEY: ${{ inputs.ssh-private-key }}
+        script: |
+          docker rm -f ${{ inputs.container-name }}
+          docker run -d \
+          -p ${{ inputs.container-port }}:${{ inputs.application-port }} \
+          --restart=always \
+          --name ${{ inputs.container-name }} \
+          ${{ inputs.image-name }}
