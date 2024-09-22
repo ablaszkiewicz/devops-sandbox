@@ -12,8 +12,8 @@ server {
     listen  [::]:80;
     server_name  $domain;
 
-    location = / {
-        proxy_pass $frontend_path;
+    location /api/ {
+        proxy_pass $backend_path;
         proxy_set_header Host \$host;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
@@ -30,8 +30,8 @@ server {
         proxy_connect_timeout 120;
     }
 
-    location /api/ {
-        proxy_pass $backend_path;
+    location / {
+        proxy_pass $frontend_path;
         proxy_set_header Host \$host;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
