@@ -27,7 +27,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           port: ${{ secrets.SSH_PORT }}
           ssh-private-key: ${{ secrets.SSH_KEY }}
-          server-port: 3000
+          server-port: 4000
           application-port: 3000
           image-name: ablaszkiewicz/magisterka-frontend
           container-name: magisterka-frontend-dev
