@@ -1,4 +1,4 @@
-name: Deploy backend (dev)
+name: Deploy backend (prod)
 
 on:
   workflow_dispatch:
@@ -19,7 +19,7 @@ jobs:
           file: ./backend/Dockerfile
           dockerhub-username: ${{ secrets.DOCKERHUB_USERNAME }}
           dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}
-          image-name: ablaszkiewicz/magisterka-backend-dev
+          image-name: ablaszkiewicz/magisterka-backend-prod
       - name: Deploy
         uses: './.github/templates/deploy-container'
         with:
@@ -29,5 +29,5 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_KEY }}
           server-port: 3001
           application-port: 3000
-          image-name: ablaszkiewicz/magisterka-backend-dev
-          container-name: magisterka-backend-dev
+          image-name: ablaszkiewicz/magisterka-backend-prod
+          container-name: magisterka-backend-prod
