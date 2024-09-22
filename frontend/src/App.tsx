@@ -19,10 +19,8 @@ function App() {
         flexDir="column"
         alignItems={'center'}
       >
-        <Heading fontSize={108} color={'white'}>
-          1338
-        </Heading>
-        <Button color={'white'}>Increment</Button>
+        <Heading fontSize={108}>1338</Heading>
+        <Button>Increment</Button>
       </Flex>
     </Flex>
   );
