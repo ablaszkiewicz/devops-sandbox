@@ -1,6 +1,30 @@
 import { Button, Flex, Heading } from '@chakra-ui/react';
+import { useEffect, useMemo, useState } from 'react';
 
 function App() {
+  const [counter, setCounter] = useState(0);
+  const backendUrl = useMemo(() => window.location.href + 'api', []);
+
+  useEffect(() => {
+    void refreshCounter();
+  }, []);
+
+  const refreshCounter = async () => {
+    const response = await fetch(`${backendUrl}/counter`, {
+      method: 'GET',
+    });
+
+    const data = await response.json();
+
+    setCounter(data.counter);
+  };
+
+  const increaseCounter = async () => {
+    await fetch(`${backendUrl}/counter`, {
+      method: 'POST',
+    });
+  };
+
   return (
     <Flex
       flexDir={'column'}
@@ -19,8 +43,12 @@ function App() {
         flexDir="column"
         alignItems={'center'}
       >
-        <Heading fontSize={108}>1338</Heading>
-        <Button>Increment</Button>
+        <Heading fontSize={108} color={'white'}>
+          {counter}
+        </Heading>
+        <Button color={'white'} onClick={increaseCounter}>
+          Increment
+        </Button>
       </Flex>
     </Flex>
   );
