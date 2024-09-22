@@ -16,13 +16,15 @@ function App() {
 
     const data = await response.json();
 
-    setCounter(data.counter);
+    setCounter(data.count);
   };
 
   const increaseCounter = async () => {
     await fetch(`${backendUrl}/counter`, {
       method: 'POST',
     });
+
+    await refreshCounter();
   };
 
   return (
