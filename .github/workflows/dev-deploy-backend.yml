@@ -1,4 +1,4 @@
-name: Deploy frontend (dev)
+name: Deploy backend (dev)
 
 on:
   workflow_dispatch:
@@ -15,11 +15,11 @@ jobs:
       - name: Build and push
         uses: './.github/templates/build-and-push'
         with:
-          context: ./frontend
-          file: ./frontend/Dockerfile
+          context: ./backend
+          file: ./backend/Dockerfile
           dockerhub-username: ${{ secrets.DOCKERHUB_USERNAME }}
           dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}
-          image-name: ablaszkiewicz/magisterka-frontend
+          image-name: ablaszkiewicz/magisterka-backend-dev
       - name: Deploy
         uses: './.github/templates/deploy-container'
         with:
@@ -27,7 +27,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           port: ${{ secrets.SSH_PORT }}
           ssh-private-key: ${{ secrets.SSH_KEY }}
-          server-port: 4000
+          server-port: 4001
           application-port: 3000
-          image-name: ablaszkiewicz/magisterka-frontend
-          container-name: magisterka-frontend-dev
+          image-name: ablaszkiewicz/magisterka-backend-dev
+          container-name: magisterka-backend-dev
