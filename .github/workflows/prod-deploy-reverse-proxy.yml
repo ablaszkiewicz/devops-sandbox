@@ -1,0 +1,33 @@
+name: Deploy reverse proxy (prod)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build and push
+        uses: './.github/templates/build-and-push'
+        with:
+          context: ./infrastructure/reverse-proxy-prod
+          file: ./infrastructure/reverse-proxy-prod/Dockerfile
+          dockerhub-username: ${{ secrets.DOCKERHUB_USERNAME }}
+          dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}
+          image-name: ablaszkiewicz/magisterka-reverse-proxy-prod
+      - name: Deploy
+        uses: './.github/templates/deploy-container'
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+          server-port: 3080
+          application-port: 80
+          image-name: ablaszkiewicz/magisterka-reverse-proxy-prod
+          container-name: magisterka-reverse-proxy-prod
