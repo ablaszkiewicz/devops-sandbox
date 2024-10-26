@@ -1,0 +1,41 @@
+name: Deploy grafana
+
+inputs:
+  ssh-host:
+    required: true
+  ssh-username:
+    required: true
+  ssh-port:
+    required: true
+  ssh-key:
+    required: true
+
+  grafana-username:
+    required: true
+  grafana-password:
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Deploy grafana
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ inputs.ssh-host }}
+        USERNAME: ${{ inputs.ssh-username }}
+        PORT: ${{ inputs.ssh-port }}
+        KEY: ${{ inputs.ssh-key }}
+        script: |
+          docker run \
+            -d \
+            -p 2000:3000 \
+            --add-host=host.docker.internal:host-gateway \
+            --name=monitoring-grafana \
+            -e "GF_INSTALL_PLUGINS=grafana-worldmap-panel" \
+            -e "GF_PATHS_PROVISIONING=/etc/grafana/provisioning" \
+            -e "GF_SECURITY_ADMIN_USER=${{ inputs.grafana-username }}" \
+            -e "GF_SECURITY_ADMIN_PASSWORD=${{ inputs.grafana-password }}" \
+            -v ~/provisioning/grafana/infrastructure/grafana/dashboards:/etc/grafana/provisioning/dashboards \
+            -v ~/provisioning/grafana/infrastructure/grafana/datasources:/etc/grafana/provisioning/datasources \
+            --restart=always \
+            grafana/grafana:10.3.3
