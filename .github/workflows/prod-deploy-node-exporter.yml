@@ -1,0 +1,27 @@
+name: Deploy node exporter (dev)
+on:
+  workflow_dispatch: null
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Stop old containers
+        uses: ./.github/templates/stop-old-containers
+        with:
+          ssh-host: ${{ secrets.DEV_SSH_HOST }}
+          ssh-username: ${{ secrets.DEV_SSH_USER }}
+          ssh-port: ${{ secrets.DEV_SSH_PORT }}
+          ssh-key: ${{ secrets.DEV_SSH_KEY }}
+          names: 'monitoring-node-exporter'
+      - name: Deploy node exporter
+        uses: ./.github/templates/deploy-node-exporter
+        with:
+          ssh-host: ${{ secrets.DEV_SSH_HOST }}
+          ssh-username: ${{ secrets.DEV_SSH_USER }}
+          ssh-port: ${{ secrets.DEV_SSH_PORT }}
+          ssh-key: ${{ secrets.DEV_SSH_KEY }}
