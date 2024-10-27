@@ -1,0 +1,37 @@
+name: Deploy prometheus
+
+inputs:
+  # ssh
+  ssh-host:
+    required: true
+  ssh-username:
+    required: true
+  ssh-port:
+    required: true
+  ssh-key:
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Deploy prometheus
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ inputs.ssh-host }}
+        USERNAME: ${{ inputs.ssh-username }}
+        PORT: ${{ inputs.ssh-port }}
+        KEY: ${{ inputs.ssh-key }}
+        script: |
+          rm -rf ~/provisioning/prometheus
+          mkdir -p ~/provisioning/prometheus
+          cd ~/provisioning/prometheus
+          git clone https://github.com/ablaszkiewicz/devops-sandbox.git
+          cd devops-sandbox/infrastructure/prometheus
+
+          docker run -d \
+          --name="monitoring-prometheus" \
+          --add-host=host.docker.internal:host-gateway \
+          -p 9090:9090 \
+          -v $PWD/prometheus.yml:/etc/prometheus/prometheus.yml \
+          --restart=always \
+          prom/prometheus:v2.49.1
