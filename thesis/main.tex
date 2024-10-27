@@ -1333,28 +1333,6 @@ A po wejściu na \lstinline|https://ablaszkiewicz.pl/api| powinna ukazać się s
     \label{fig:enter-label}
 \end{figure}
 
-\subsection{Zestawienie}
-
-Przygotowałem poniżej zestawienie, które prezentuje wyższość rozwiązania wykorzystującego reverse proxy ponad standardowym.
-
-\begin{table}[H]
-\centering
-\begin{tabular}{|l|c|c|c|}
-\hline
-\textbf{Cecha} & \textbf{Brak reverse proxy} & \textbf{Reverse proxy} & \textbf{+docker} \\ \hline
-Kilka serwisów na tym samym porcie & \cellcolor{red!50}nie & \cellcolor{green!50}tak & \cellcolor{green!50}tak \\ \hline
-Bogate logi  & \cellcolor{yellow!50}po stronie aplikacji & \cellcolor{green!50}tak & \cellcolor{green!50}tak \\ \hline
-Ukrycie wewnętrznych zasad routingu & \cellcolor{red!50}nie & \cellcolor{green!50}tak & \cellcolor{green!50}tak \\ \hline
-Banowanie lokalizacji & \cellcolor{yellow!50}po stronie aplikacji & \cellcolor{green!50}tak & \cellcolor{green!50}tak \\ \hline
-Centralne zarządzanie ruchem & \cellcolor{red!50}nie & \cellcolor{green!50}tak & \cellcolor{green!50}tak \\ \hline
-Odporność na błędy konfiguracji & \cellcolor{yellow!50}nie dotyczy & \cellcolor{red!50}nie & \cellcolor{green!50}tak \\ \hline
-Wersjonowanie konfiguracji & \cellcolor{yellow!50}nie dotyczy & \cellcolor{red!50}nie & \cellcolor{green!50}tak \\ \hline
-Poziom skomplikowanie & \cellcolor{green!50}niski & \cellcolor{yellow!50}średni & \cellcolor{red!50}wysoki \\ \hline
-\end{tabular}
-\caption{Porównanie podejść z reverse proxy}
-\label{tab:porownanie-metod-wdrazania}
-\end{table}
-
 \subsection{Wiele środowisk}
 
 W idealnym świecie każde środowisko powinno być oddzielną maszynę. Z uwagi na budżet u mnie jednak obydwa środowiska będą działały na jednej maszynie i wytłumaczę podejście, które zastosowałem do osiągnięcia dobrze zarządzalnego kierowania ruchem. Poprzednio zaimplementowane reverse proxy działa na poziomie lokalizacji (dobiera to, co znajduje się już po \lstinline|.pl|), dlatego nazwę je \lstinline|location reverse proxy|. Nowe reverse proxy będzie dobierało to, co znajduje się przed nazwą domeny, dlatego nazwę je \lstinline|domain reverse proxy|.
@@ -1381,26 +1359,1260 @@ my.otherdomain.org=http://somedomain.com
 
 \subsection{Pipeline}
 
+\subsubsection{Definicja pipeline'u}
+
+Pipeline dla backendu będzie składał się z następujących kroków:
+
+\begin{itemize}
+    \item zbudowanie obrazu Docker,
+    \item wypchnięcie obrazu Docker do rejestru,
+    \item wdrożenie aplikacji na serwer.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{githubActionsSchema.png}
+    \caption{Diagram przedstawiający zasadę działania pipeline do wdrożenia}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsubsection{Template}
+
+Jako że akcja zbudowania i wypchnięcia obrazu do rejestru jest wspólna nie tylko dla reverse proxy, stworzyłem dedykowany, generyczny template \lstinline|.github/templates/build-and-push/action.yml|, który jako parametry wejściowe przyjmuje dane uwierzytelniające do Dockerhub, kontekst, ścieżkę do pliku \lstinline|Dockerfile| oraz nazwę obrazku. Akcja buduje obraz, a następnie wypycha go do rejestru zgodnie z podanymi danymi.
+
+
+Akcja wdrożenia reverse proxy również jest wspólna nie tylko dla reverse proxy, dlatego stworzyłem template \lstinline|.github/templates/deploy-container/action.yml|, który jako parametry wejściowe przyjmuje dane uwierzytelniające do serwera, nazwę obrazu, nazwę kontenera oraz parę portów. Akcja loguje się do serwera i włącza kontener zgodnie z podanymi danymi
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{reverseProxyTemplatesSchema.png}
+    \caption{Diagram przedstawiający użycie template i workflow przy wdrażaniu reverse proxy}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{lstlisting}[caption=Plik \texttt{.github/templates/build-and-push/action.yml}]
+name: Build and push
+
+inputs:
+  # Context
+  context:
+    required: true
+  file:
+    required: true
+
+  # Dockerhub
+  dockerhub-username:
+    required: true
+  dockerhub-token:
+    required: true
+  image-name:
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ inputs.dockerhub-username }}
+        password: ${{ inputs.dockerhub-token }}
+    - name: Build and push
+      id: docker_build
+      uses: docker/build-push-action@v2
+      with:
+        context: ${{ inputs.context }}
+        file: ${{ inputs.file }}
+        push: true
+        tags: ${{ inputs.image-name }}:latest
+\end{lstlisting}
+
+\begin{lstlisting}[caption=Plik \texttt{.github/templates/deploy-container/action.yml}]
+name: Deploy
+
+inputs:
+  # SSH
+  host:
+    required: true
+  username:
+    required: true
+  port:
+    required: true
+  ssh-private-key:
+    required: true
+
+  # Docker
+  image-name:
+    required: true
+  server-port:
+    required: true
+  container-name:
+    required: true
+  application-port:
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Update image inside VPS
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ inputs.host }}
+        USERNAME: ${{ inputs.username }}
+        PORT: ${{ inputs.port }}
+        KEY: ${{ inputs.ssh-private-key }}
+        script: |
+          docker rm -f ${{ inputs.container-name }}
+          docker pull ${{ inputs.image-name }}
+          docker run -d \
+          -p ${{ inputs.server-port }}:${{ inputs.application-port }} \
+          --restart=always \
+          --name ${{ inputs.container-name }} \
+          ${{ inputs.image-name }}
+\end{lstlisting}
+
+\subsubsection{Workflow}
+
+Poprzednio zdefiniowane template wystarczy teraz tylko wywołać. W sumie będą to 3 pliki workflow tworzące wcześniej wspomniane
+
+\begin{itemize}
+    \item domain reverse proxy - odpowiedzialne za dzielenie ruchu pomiędzy środowiskami,
+    \item 2 location reverse proxy - odpowiedzialne za dzielenie ruchu pomiędzy frontend a backend na konkretnym środowisku.
+\end{itemize}
+
+Warto zauważyć, że pliki mają bardzo mało różnic. Głównie będzie to nazwa obrazu i port, na którym włączony zostanie kontener. Przyjmuję, że kontenery produkcyjne będą działały na portach \lstinline|30XX|, a deweloperskie na \lstinline|40XX|. 
+
+\begin{lstlisting}[caption=Plik \texttt{.github/workflows/dev-deploy-reverse-proxy.yml}]
+name: Deploy reverse proxy (dev)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build and push
+        uses: './.github/templates/build-and-push'
+        with:
+          context: ./infrastructure/reverse-proxy-dev
+          file: ./infrastructure/reverse-proxy-dev/Dockerfile
+          dockerhub-username: ${{ secrets.DOCKERHUB_USERNAME }}
+          dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}
+          image-name: ablaszkiewicz/magisterka-reverse-proxy-dev
+      - name: Deploy
+        uses: './.github/templates/deploy-container'
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+          server-port: 4080
+          application-port: 80
+          image-name: ablaszkiewicz/magisterka-reverse-proxy-dev
+          container-name: magisterka-reverse-proxy-dev
+
+\end{lstlisting}
+
+\begin{lstlisting}[caption=Plik \texttt{.github/workflows/prod-deploy-reverse-proxy.yml}]
+name: Deploy reverse proxy (prod)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build and push
+        uses: './.github/templates/build-and-push'
+        with:
+          context: ./infrastructure/reverse-proxy-prod
+          file: ./infrastructure/reverse-proxy-prod/Dockerfile
+          dockerhub-username: ${{ secrets.DOCKERHUB_USERNAME }}
+          dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}
+          image-name: ablaszkiewicz/magisterka-reverse-proxy-prod
+      - name: Deploy
+        uses: './.github/templates/deploy-container'
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+          server-port: 3080
+          application-port: 80
+          image-name: ablaszkiewicz/magisterka-reverse-proxy-prod
+          container-name: magisterka-reverse-proxy-prod
+
+\end{lstlisting}
+
+\begin{lstlisting}[caption=Plik \texttt{.github/workflows/shared-deploy-reverse-proxy.yml}]
+name: Deploy reverse proxy (shared)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build and push
+        uses: './.github/templates/build-and-push'
+        with:
+          context: ./infrastructure/reverse-proxy-shared
+          file: ./infrastructure/reverse-proxy-shared/Dockerfile
+          dockerhub-username: ${{ secrets.DOCKERHUB_USERNAME }}
+          dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}
+          image-name: ablaszkiewicz/magisterka-reverse-proxy-shared
+      - name: Deploy
+        uses: './.github/templates/deploy-container'
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+          server-port: 80
+          application-port: 80
+          image-name: ablaszkiewicz/magisterka-reverse-proxy-shared
+          container-name: magisterka-reverse-proxy-shared
+
+\end{lstlisting}
+
+\subsection{Zestawienie}
+
+Przygotowałem poniżej zestawienie, które prezentuje wyższość rozwiązania wykorzystującego zdockeryzowane reverse proxy ponad standardowym.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Cecha} & \textbf{Brak reverse proxy} & \textbf{Reverse proxy} & \textbf{+docker} \\ \hline
+Kilka serwisów na tym samym porcie & \cellcolor{red!50}nie & \cellcolor{green!50}tak & \cellcolor{green!50}tak \\ \hline
+Bogate logi  & \cellcolor{yellow!50}po stronie aplikacji & \cellcolor{green!50}tak & \cellcolor{green!50}tak \\ \hline
+Ukrycie wewnętrznych zasad routingu & \cellcolor{red!50}nie & \cellcolor{green!50}tak & \cellcolor{green!50}tak \\ \hline
+Banowanie lokalizacji & \cellcolor{yellow!50}po stronie aplikacji & \cellcolor{green!50}tak & \cellcolor{green!50}tak \\ \hline
+Centralne zarządzanie ruchem & \cellcolor{red!50}nie & \cellcolor{green!50}tak & \cellcolor{green!50}tak \\ \hline
+Odporność na błędy konfiguracji & \cellcolor{yellow!50}nie dotyczy & \cellcolor{red!50}nie & \cellcolor{green!50}tak \\ \hline
+Wersjonowanie konfiguracji & \cellcolor{yellow!50}nie dotyczy & \cellcolor{red!50}nie & \cellcolor{green!50}tak \\ \hline
+Poziom skomplikowanie & \cellcolor{green!50}niski & \cellcolor{yellow!50}średni & \cellcolor{red!50}wysoki \\ \hline
+\end{tabular}
+\caption{Porównanie podejść z reverse proxy}
+\label{tab:porownanie-metod-wdrazania}
+\end{table}
+
 \section{Backend}
+
+W tej sekcji skupię się na konfiguracji pipeline'u dla aplikacji backendowej, wykorzystując narzędzia stworzone wcześniej. Jako że użyję tych samych template, to konieczne jest tylko zdefiniowanie workflow.
+
+
+\subsection{Workflow}
+
+Poprzednio zdefiniowane template wystarczy teraz tylko wywołać. 
+
+\begin{lstlisting}[caption=Plik \texttt{.github/workflows/prod-deploy-backend.yml}]
+name: Deploy backend (prod)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build and push
+        uses: './.github/templates/build-and-push'
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          dockerhub-username: ${{ secrets.DOCKERHUB_USERNAME }}
+          dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}
+          image-name: ablaszkiewicz/magisterka-backend-prod
+      - name: Deploy
+        uses: './.github/templates/deploy-container'
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+          server-port: 3001
+          application-port: 3000
+          image-name: ablaszkiewicz/magisterka-backend-prod
+          container-name: magisterka-backend-prod
+
+\end{lstlisting}
+
+\begin{lstlisting}[caption=Plik \texttt{.github/workflows/dev-deploy-backend.yml}]
+name: Deploy backend (dev)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build and push
+        uses: './.github/templates/build-and-push'
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          dockerhub-username: ${{ secrets.DOCKERHUB_USERNAME }}
+          dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}
+          image-name: ablaszkiewicz/magisterka-backend-dev
+      - name: Deploy
+        uses: './.github/templates/deploy-container'
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+          server-port: 4001
+          application-port: 3000
+          image-name: ablaszkiewicz/magisterka-backend-dev
+          container-name: magisterka-backend-dev
+
+\end{lstlisting}
+
+Po wypchnięciu kodu do githuba, akcja włącza się automatycznie.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{pierwszaAkcjaBackendu.png}
+    \caption{Rezultat wykonania akcji wdrożenia backendu}
+    \label{fig:enter-label}
+\end{figure}
+
+W celu przetestowania, czy wszystko działa poprawnie, udałem się pod adres\lstinline|https://ablaszkiewicz.pl/api/counter|. Jak widać na zdjęciu poniżej, wszystko działa poprawnie.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{rezultatPierwszejWizytyPodBackend.png}
+    \caption{Rezultat wejścia na stronę backendu}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Podsumowanie}
+
+Przeprowadziłem eksperyment i poprosiłem osobę, która nie miała wcześniej styczności z serwerem ani aplikacją, aby wdrożyła ręcznie aplikację na serwer. Zajęło to 7 minut. Dla porównania - automatyczne wdrożenie zajmuje 1 minutę.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    ybar,
+    bar width=30pt,
+    width=0.6\textwidth, % Zmniejszenie szerokości wykresu
+    height=8cm,
+    symbolic x coords={Ręczne, Automatyczne},
+    xtick=data,
+    xlabel={Metoda wdrożenia}, % Dodanie opisu osi X
+    ylabel={Czas (minuty)},
+    ymin=0,
+    ymax=8,
+    nodes near coords,
+    nodes near coords align={vertical},
+    title={Porównanie czasu wdrożenia aplikacji},
+    enlarge x limits=0.5, % Wyśrodkowanie słupków
+]
+\addplot coordinates {(Ręczne,7) (Automatyczne,1)};
+\end{axis}
+\end{tikzpicture}
+\caption{Porównanie czasu potrzebnego do ręcznego i automatycznego wdrożenia aplikacji}
+\label{fig:czas_wdrozenia}
+\end{figure}
+
+Oprócz tego należy pamiętać, że wspomniana minuta, to nie jest czas dewelopera, w którym podejmuje jakiejś interakcje z infrastrukturą. W czasie wdrażania może robić inne rzeczy. 7 minut w metodzie ręcznej to natomiast czysty czas dewelopera, który musi poświecić na wdrażanie.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Cecha} & \textbf{Ręczne wdrożenie} & \textbf{Automatyczne wdrożenie} \\ \hline
+Konieczność dzielenia sekretów & \cellcolor{red!50}tak & \cellcolor{green!50}nie \\ \hline
+Zajmowanie czasu dewelopera & \cellcolor{red!50}tak & \cellcolor{green!50}nie \\ \hline
+Odporność na błędy konfiguracji & \cellcolor{red!50}nie & \cellcolor{green!50}tak \\ \hline
+Zduplikowanie podejścia dla innych aplikacji & \cellcolor{red!50}nie & \cellcolor{green!50}tak \\ \hline
+\end{tabular}
+\caption{Porównanie metod wdrożenia}
+\label{tab:porownanie-metod-wdrazania}
+\end{table}
+
+
+
 \section{Frontend}
+
+W tej sekcji skupię się na konfiguracji pipeline’u dla aplikacji frontendowej, wykorzystując narzędzia
+stworzone wcześniej. Jako że użyję tych samych template, to konieczne jest tylko zdefiniowanie
+workflow.
+
+\subsection{Workflow}
+
+Znów - poprzednio zdefiniowane template wystarczy teraz tylko wywołać. 
+
+\begin{lstlisting}[caption=Plik \texttt{.github/workflows/prod-deploy-frontend.yml}]
+name: Deploy frontend (prod)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build and push
+        uses: './.github/templates/build-and-push'
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          dockerhub-username: ${{ secrets.DOCKERHUB_USERNAME }}
+          dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}
+          image-name: ablaszkiewicz/magisterka-frontend-prod
+      - name: Deploy
+        uses: './.github/templates/deploy-container'
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+          server-port: 3000
+          application-port: 3000
+          image-name: ablaszkiewicz/magisterka-frontend-prod
+          container-name: magisterka-frontend-prod
+
+\end{lstlisting}
+
+\begin{lstlisting}[caption=Plik \texttt{.github/workflows/dev-deploy-frontend.yml}]
+name: Deploy frontend (dev)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build and push
+        uses: './.github/templates/build-and-push'
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          dockerhub-username: ${{ secrets.DOCKERHUB_USERNAME }}
+          dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}
+          image-name: ablaszkiewicz/magisterka-frontend-dev
+      - name: Deploy
+        uses: './.github/templates/deploy-container'
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+          server-port: 4000
+          application-port: 3000
+          image-name: ablaszkiewicz/magisterka-frontend-dev
+          container-name: magisterka-frontend-dev
+
+\end{lstlisting}
+
+Po wypchnięciu kodu do githuba, akcja włącza się automatycznie.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{rezultatPierwszejAkcjiFrontend.png}
+    \caption{Rezultat wdrożenia akcji backendu}
+    \label{fig:enter-label}
+\end{figure}
+
+W celu przetestowania, czy wszystko działa poprawnie, udałem się pod adres \lstinline|https://ablaszkiewicz.pl|. Jak widać na zdjęciu poniżej, wszystko działa poprawnie. Licznik się aktualizuje.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{rezultatWejsciaNaFrontend.png}
+    \caption{Rezultat wejścia na stronę frontendu}
+    \label{fig:enter-label}
+\end{figure}
+
+\section{Podsumowanie dotychczasowej pracy}
+
+Podsumowując, co zrobiłem w poprzednich działach:
+\begin{itemize}
+    \item zbadanie podejść budowy aplikacji,
+    \item zbadanie podejść budowy obrazów,
+    \item zbadanie podejść kierowania ruchem,
+    \item konfiguracja infrastruktury,
+    \item przygotowanie infrastruktury pod wiele środowisk,
+    \item dockeryzacja wszystkich aplikacji oraz elementów infrastruktury,
+    \item stworzenie reużywalnych templatów,
+    \item stworzenie workflow do wszystkich aplikacji oraz elementów infrastruktury.
+\end{itemize}
+
+Co w rezultacie daje aplikację, która sama się wdraża na środowisku produkcyjnym przy każdym wypchnięciu kodu na \lstinline|main| oraz na środowisku deweloperskim przy wypchnięciu na \lstinline|dev|.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{diagramInfrasturkturaPolowaPracy.png}
+    \caption{Diagram przedstawiający aktualny stan infrastruktury}
+    \label{fig:enter-label}
+\end{figure}
+
+
 \section{Observability i monitoring}
-\subsection{Co chcemy osiągnąć}
+\subsection{Co chcę osiągnąć}
+
+W poprzednich rozdziałach skoncentrowałem się na automatyzacji procesów budowania i wdrażania aplikacji, co pozwoliło na efektywne wprowadzenie kultury DevOps do mojego projektu. Jednak jednym z kluczowych elementów tej kultury jest również zapewnienie wysokiego poziomu obserwowalności i monitoringu systemów. Bez odpowiednich narzędzi i mechanizmów monitorujących trudno jest utrzymać stabilność aplikacji oraz szybko reagować na potencjalne problemy.
+
+Celem tego rozdziału jest wprowadzenie rozwiązań, które umożliwią:
+
+\begin{itemize}
+    \item \textbf{Monitorowanie stanu serwera} — chcę na bieżąco śledzić takie parametry jak zajętość miejsca na dysku, zużycie pamięci RAM oraz obciążenie procesora CPU. Pozwoli to na szybkie wykrywanie anomalii i zapobieganie awariom wynikającym z braku zasobów,
+    \item \textbf{Zbieranie metryk frontendowych} — zależy mi na zrozumieniu interakcji użytkowników z naszą aplikacją. Chcę wiedzieć, ile unikalnych osób odwiedza stronę, z jakich krajów pochodzą oraz jak długo trwa ładowanie poszczególnych komponentów interfejsu,
+    \item \textbf{Implementację niestandardowych metryk backendowych} — planuję stworzyć własne metryki, które będą monitorować kluczowe aspekty działania serwera aplikacji, takie jak liczba obsłużonych żądań,
+    \item \textbf{Konfigurację systemu alertów} — zależy mi na tym, aby w przypadku wystąpienia krytycznych błędów lub przekroczenia ustalonych progów zużycia zasobów, system automatycznie powiadamiał odpowiednie osoby. Pozwoli to na szybką reakcję i minimalizację potencjalnych strat.
+\end{itemize}
+
+Dążę do stworzenia kompleksowego systemu monitoringu, który nie tylko zbierze kluczowe dane, ale również przedstawi je w czytelny i zrozumiały sposób. W ten sposób zwiększymy niezawodność i wydajność naszej aplikacji, a także zapewni lepsze doświadczenia użytkownikom końcowym.
+
+W kolejnych sekcjach dokonam przeglądu dostępnych narzędzi do realizacji tych celów, takich jak Prometheus, Grafana czy Uptime Kuma. Porównam ich możliwości, zalety i wady, a następnie opiszę proces implementacji wybranych rozwiązań w kontekście naszego projektu.
+
 \subsection{Przegląd narzędzi}
-\subsubsection{Uptime Kuma}
-\subsubsection{Grafana}
+
+\subsubsection{Małe narzędzia}
+
+Małe narzędzia do monitorowania i \textit{observability} są często wybierane w małych projektach ze względu na swoją prostotę, łatwość wdrożenia oraz niskie koszty. Do najpopularniejszych z nich należą:
+
+\begin{itemize}
+    \item \textbf{Gatus} – lekki serwer monitorujący, który umożliwia monitorowanie usług poprzez proste konfiguracje w formacie YAML. Oferuje podstawowe powiadomienia i łatwą integrację z istniejącą infrastrukturą. Jest idealny dla prostych zastosowań, gdzie wymagana jest szybka konfiguracja,
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{przykladGatus.png}
+    \caption{Przykładowy panel Gatus}
+    \label{fig:enter-label}
+\end{figure}
+
+    \item \textbf{Uptime Kuma} – przyjazny dla użytkownika monitor serwisów z interfejsem podobnym do Uptime Robot. Pozwala na monitorowanie HTTP(s), TCP, Ping oraz oferuje powiadomienia przez różne kanały, takie jak Telegram czy Slack. Jest łatwy w instalacji i oferuje atrakcyjny interfejs użytkownika,
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{przykladKuma.png}
+    \caption{Przykładowy panel Uptime Kuma}
+    \label{fig:enter-label}
+\end{figure}
+
+    \item \textbf{Statping} - narzędzie open source do monitorowania statusu usług, które oferuje prosty interfejs i możliwość hostowania własnej strony statusu. Umożliwia monitorowanie usług HTTP(s) i TCP oraz wysyłanie powiadomień. Jest odpowiedni dla małych projektów wymagających podstawowego monitoringu,
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{przykladStatping.png}
+    \caption{Przykładowy panel Statping}
+    \label{fig:enter-label}
+\end{figure}
+    
+    \item \textbf{Uptime Robot} – popularna usługa SaaS do monitorowania dostępności stron i serwisów. Oferuje darmowy plan z podstawowymi funkcjami oraz płatne plany z dodatkowymi możliwościami i profesjonalnym wsparciem. Dzięki temu jest łatwo dostępny bez konieczności instalacji własnej infrastruktury.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{przykladUptimeRobot.png}
+    \caption{Przykładowy panel Uptime Robot}
+    \label{fig:enter-label}
+\end{figure}
+\end{itemize}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|c|c|c|c|}
+        \hline
+        \textbf{Cecha} & \textbf{Gatus} & \textbf{Uptime Kuma} & \textbf{Statping} & \textbf{Uptime Robot} \\ \hline
+        Typ & Open Source & Open Source & Open Source & Usługa SaaS \\ \hline
+        Sposób instalacji & Samodzielna & Samodzielna & Samodzielna & Brak instalacji \\ \hline
+        Powiadomienia & Tak & Tak & Tak & Tak \\ \hline
+        Wspierane protokoły & HTTP, TCP & HTTP(s), TCP, Ping & HTTP(s), TCP & HTTP(s), Ping \\ \hline
+        Interfejs użytkownika & Podstawowy & Przyjazny & Podstawowy & Przyjazny \\ \hline
+        Skalowalność & Niska & Niska & Niska & Wysoka \\ \hline
+        Bezpieczeństwo & Podstawowe & Podstawowe & Podstawowe & Wysokie \\ \hline
+        Wsparcie & Społeczność & Społeczność & Społeczność & Profesjonalne \\ \hline
+    \end{tabular}
+    \caption{Porównanie małych narzędzi monitorujących}
+    \label{tab:porownanie-malych-narzedzi}
+\end{table}
+
+Małe narzędzia, takie jak wymienione powyżej, są doskonałe dla małych projektów lub indywidualnych potrzeb. Ich zaletą jest prostota oraz możliwość szybkiego wdrożenia bez konieczności angażowania dużych zasobów. Jednak w przypadku projektów o charakterze \textit{enterprise-grade} mogą okazać się niewystarczające.
+
+Często narzędzia te powstawały jako projekty hobbystyczne tworzone przez jedną osobę lub mały zespół. Z tego powodu mogą nie być optymalnie wydajne ani super bezpieczne. Brak regularnych aktualizacji oraz ograniczonego wsparcia mogą 
+
+
 \subsubsection{Prometheus}
+
+Prometheus jest otwartoźródłowym narzędziem do monitorowania i alertowania, pierwotnie stworzonym w firmie SoundCloud. Obecnie jest rozwijany jako niezależny projekt open source i jest częścią Fundacji Cloud Native Computing Foundation (CNCF). Prometheus został zaprojektowany z myślą o monitorowaniu wysoko dynamicznych środowisk chmurowych.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{prometheusPrzyklad.png}
+    \caption{Wynik zapytania o metrykę w panelu Prometheusa}
+    \label{fig:enter-label}
+\end{figure}
+
+Główne cechy Prometheusa:
+
+\begin{itemize}
+    \item \textbf{Model danych oparty na szeregach czasowych} — dane są przechowywane jako szeregi czasowe identyfikowane przez nazwę metryki oraz pary klucz-wartość (tzw. \textit{label}),
+    \item \textbf{Język zapytań PromQL} — elastyczny język zapytań umożliwiający agregację i analizę danych,
+    \item \textbf{Autonomiczny serwer} — Prometheus nie polega na zewnętrznych systemach przechowywania danych, co zwiększa jego niezawodność,
+    \item \textbf{Model pull} — dane są pobierane z monitorowanych usług poprzez HTTP, co ułatwia integrację,
+    \item \textbf{Odkrywanie usług} — wsparcie dla dynamicznego odkrywania usług poprzez integracje z systemami takimi jak Kubernetes czy Consul,
+    \item \textbf{Alerting} — wbudowany mechanizm alertowania z możliwością integracji z różnymi systemami powiadomień.
+\end{itemize}
+
+Prometheus jest idealnym narzędziem dla środowisk \textit{enterprise-grade} ze względu na swoją skalowalność, niezawodność oraz bogaty ekosystem. Pozwala na monitorowanie tysięcy metryk w czasie rzeczywistym, co jest kluczowe w dużych organizacjach. Ponadto, dzięki wsparciu społeczności oraz ciągłemu rozwojowi, Prometheus oferuje aktualne i bezpieczne rozwiązania.
+
+Warto jednak zauważyć, że wdrożenie Prometheusa wymaga pewnej wiedzy i doświadczenia. Konfiguracja może być skomplikowana, a niewłaściwe ustawienia mogą prowadzić do problemów z wydajnością. Dlatego też Prometheus jest często wybierany przez zespoły z odpowiednimi zasobami i kompetencjami technicznymi.
+
+\subsubsection{Grafana}
+
+Grafana to otwartoźródłowa platforma do wizualizacji danych i analizy metryk. Umożliwia tworzenie interaktywnych i dynamicznych dashboardów, które pomagają w monitorowaniu systemów, aplikacji oraz infrastruktury. Grafana integruje się z wieloma źródłami danych, w tym z Prometheusem, Elasticsearch, InfluxDB czy Graphite.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{grafanaPrzyklad.png}
+    \caption{Przykładowy panel w Grafanie}
+    \label{fig:enter-label}
+\end{figure}
+
+Główne cechy Grafany:
+
+\begin{itemize}
+    \item \textbf{Bogate możliwości wizualizacji} — szeroki wybór wykresów, paneli i formatów prezentacji danych,
+    \item \textbf{Elastyczność} — możliwość dostosowania dashboardów do indywidualnych potrzeb poprzez edycję paneli i tworzenie własnych wtyczek,
+    \item \textbf{Alerting} — wbudowany system alertowania z integracją z różnymi kanałami powiadomień, takimi jak e-mail, Slack czy PagerDuty,
+    \item \textbf{Autentykacja i autoryzacja} — wsparcie dla różnych metod uwierzytelniania, w tym LDAP, OAuth czy Grafana Auth,
+    \item \textbf{Społeczność i wsparcie} — aktywna społeczność użytkowników oraz regularne aktualizacje i ulepszenia.
+\end{itemize}
+
+Grafana jest często wykorzystywana w środowiskach \textit{enterprise-grade} ze względu na swoją skalowalność i możliwości dostosowania. Umożliwia monitorowanie w czasie rzeczywistym oraz analizę historycznych danych, co jest kluczowe dla dużych organizacji. Ponadto, interaktywne dashboardy ułatwiają zrozumienie złożonych zależności i szybkie reagowanie na problemy.
+
+Podobnie jak w przypadku Prometheusa, wdrożenie Grafany może wymagać zaawansowanej wiedzy technicznej. Konfiguracja źródeł danych, tworzenie zaawansowanych dashboardów czy integracja z systemami alertowania może być skomplikowana dla mniej doświadczonych zespołów.
+
+\subsubsection{VictoriaMetrics}
+
+VictoriaMetrics to wysoko wydajny i skalowalny system przechowywania szeregów czasowych oraz narzędzie monitorujące, które jest kompatybilne z ekosystemem Prometheusa. Został stworzony jako odpowiedź na niektóre ograniczenia Prometheusa, szczególnie w kontekście przechowywania długoterminowych danych oraz skalowalności w dużych środowiskach.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{victoriaMetricsPrzyklad.png}
+    \caption{Przykładowy panel VictoriaMetrics}
+    \label{fig:enter-label}
+\end{figure}
+
+Główne cechy VictoriaMetrics:
+
+\begin{itemize}
+    \item \textbf{Wysoka wydajność i skalowalność} — zaprojektowana do obsługi dużych ilości danych z minimalnym zużyciem zasobów,
+    \item \textbf{Kompresja danych} — efektywne algorytmy kompresji, które redukują zużycie przestrzeni dyskowej,
+    \item \textbf{Kompatybilność z Prometheusem} — obsługuje protokół zdalnego przechowywania (\textit{Remote Write/Read}), co umożliwia łatwą integrację,
+    \item \textbf{Łatwość wdrożenia} — prosty w instalacji i konfiguracji, dostępny jako pojedynczy plik binarny,
+    \item \textbf{Wsparcie dla klastrów} — możliwość uruchomienia w trybie klastrowym dla wysokiej dostępności i równoważenia obciążenia.
+\end{itemize}
+
+\paragraph{Historia powstania}\mbox{} \\
+
+
+VictoriaMetrics została stworzona przez zespół inżynierów, którzy zauważyli ograniczenia w istniejących rozwiązaniach do monitorowania i przechowywania danych szeregów czasowych, takich jak Prometheus i InfluxDB. Ich celem było stworzenie narzędzia, które będzie bardziej wydajne pod względem zużycia zasobów oraz lepiej skalowalne w dużych środowiskach.
+
+Pierwsza publiczna wersja VictoriaMetrics została wydana w 2018 roku. Od tego czasu projekt zyskał na popularności wśród firm i organizacji, które potrzebują skalowalnego i wydajnego systemu do monitorowania dużych ilości danych.
+
+\paragraph{Porównanie z Prometheusem}\mbox{} \\
+
+
+Choć VictoriaMetrics i Prometheus mają wiele wspólnego, istnieją między nimi istotne różnice:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|c|c|}
+        \hline
+        \textbf{Cecha} & \textbf{Prometheus} & \textbf{VictoriaMetrics} \\ \hline
+        Model danych & Szeregi czasowe & Szeregi czasowe \\ \hline
+        Skalowalność & Ograniczona & Wysoka \\ \hline
+        Długoterminowe przechowywanie & Ograniczone & Efektywne \\ \hline
+        Kompresja danych & Podstawowa & Zaawansowana \\ \hline
+        Obsługa klastrów & Eksperymentalna & Pełne wsparcie \\ \hline
+        Instalacja & Wymaga konfiguracji & Pojedynczy plik binarny \\ \hline
+        Ekosystem & Szeroki, duża społeczność & Kompatybilny z Prometheusem \\ \hline
+    \end{tabular}
+    \caption{Porównanie Prometheusa i VictoriaMetrics}
+    \label{tab:porownanie-prometheus-victoriametrics}
+\end{table}
+
+\paragraph{Zalety VictoriaMetrics nad Prometheusem:}
+
+\begin{itemize}
+    \item \textbf{Lepsza skalowalność} — VictoriaMetrics jest w stanie obsłużyć większe obciążenia przy mniejszym zużyciu zasobów,
+    \item \textbf{Efektywne przechowywanie długoterminowe} — dzięki zaawansowanym algorytmom kompresji, VictoriaMetrics jest bardziej efektywna w przechowywaniu danych historycznych,
+    \item \textbf{Prostsza instalacja i utrzymanie} — pojedynczy plik binarny ułatwia wdrożenie i zarządzanie,
+    \item \textbf{Wsparcie dla klastrów} — wbudowane wsparcie dla uruchamiania w trybie klastrowym.
+\end{itemize}
+
+\paragraph{Wady w porównaniu z Prometheusem:}
+
+\begin{itemize}
+    \item \textbf{Mniejsza społeczność} — Prometheus ma większą bazę użytkowników i bardziej rozbudowany ekosystem,
+    \item \textbf{Mniej wtyczek i integracji} — niektóre narzędzia i wtyczki mogą nie być kompatybilne lub wymagać dodatkowej konfiguracji,
+    \item \textbf{Mniejsza elastyczność w niektórych obszarach} — niektóre zaawansowane funkcje Prometheusa mogą być trudniejsze do zaimplementowania w VictoriaMetrics.
+\end{itemize}
+
+
+VictoriaMetrics jest potężnym narzędziem dla organizacji, które potrzebują skalowalnego i wydajnego systemu monitorowania z możliwością długoterminowego przechowywania danych. Dzięki kompatybilności z ekosystemem Prometheusa, migracja lub integracja jest stosunkowo prosta. Jednak wybór pomiędzy Prometheusem a VictoriaMetrics zależy od konkretnych potrzeb i zasobów organizacji. Prometheus może być lepszym wyborem dla środowisk z mniejszymi wymaganiami skalowalności i potrzebą korzystania z szerokiego ekosystemu narzędzi i wtyczek.
+
+\subsubsection{Podsumowanie}
+
+Prometheus i Grafana to potężne narzędzia, które w połączeniu oferują kompleksowe rozwiązanie do monitorowania i wizualizacji danych w środowiskach o wysokich wymaganiach. Są one znacznie bardziej zaawansowane niż małe narzędzia omówione wcześniej i są odpowiednie dla projektów \textit{enterprise-grade}.
+
+Ich wdrożenie i utrzymanie wymaga jednak większych zasobów oraz wiedzy technicznej. W zamian oferują skalowalność, wydajność oraz szerokie możliwości dostosowania, co sprawia, że są preferowanym wyborem w dużych organizacjach, gdzie niezawodność i bezpieczeństwo są priorytetem.
+
 \subsection{Provisioning}
 
+Tak, jak dotychczas w tej pracy opisywałem proces automatyzacji wdrażania i konfiguracji poszczególnych narzędzi, tak też będę robił w przypadku infrastruktury. W tym przypadku monitoringu to podejście nie jest oczywiste i w przypadku każdego narzędzia będą występowały różnice, jednak twórcy takich rozwiązań są świadomi potrzeb i większość narzędzi jest do tego przystosowana.
+
+Ominę kroki ręcznego wdrażania i przejdę po prostu do wdrażania za pomocą zautomatyzowanych akcji.
+
 \subsection{Implementacja}
+
+\subsubsection{Node Exporter}
+
+Node Exporter to narzędzie stworzone specjalnie do monitorowania serwera. Zbierane metryki obejmują zasoby sprzętowe, takie jak procesor, pamięć RAM, przestrzeń dyskową, oraz inne parametry systemowe. W celu integracji Node Exportera z Prometheusem i wdrożenia go na serwerze, wystarczy uruchomić go w kontenerze.
+
+Stworzyłem pomocniczy template, który stopuje stare kontenery na podstawie listy nazw oddzielonych przecinkiem dostarczonych jako parametr.
+
+\begin{lstlisting}[caption=Plik \texttt{.github/templates/stop-old-containers/action.yml}]
+name: Stop old containers
+
+inputs:
+  # ssh
+  ssh-host:
+    required: true
+  ssh-username:
+    required: true
+  ssh-port:
+    required: true
+  ssh-key:
+    required: true
+
+  names:
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Stop old containers
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ inputs.ssh-host }}
+        USERNAME: ${{ inputs.ssh-username }}
+        PORT: ${{ inputs.ssh-port }}
+        KEY: ${{ inputs.ssh-key }}
+        script: |
+          IFS=',' read -r -a container_names <<< "${{ inputs.names }}"
+
+          # Loop through each container name in the array
+          for container in "${container_names[@]}"
+          do
+              echo "Stopping and removing containers with exact name: $container"
+
+              # Find container IDs with exact name match
+              container_ids=$(docker ps -aq --filter "name=^${container}$")
+
+              if [ ! -z "$container_ids" ]; then
+                  echo "Containers found for ${container}, stopping and removing..."
+                  docker stop $container_ids
+                  docker rm $container_ids
+              else
+                  echo "No containers found with the exact name: $container"
+              fi
+          done
+\end{lstlisting}
+
+Następnie stworzyłem template, który włączy Node Exportera z potrzebnymi flagami. Nadają one Node Exporterowi szerokie uprawnienia, a to dlatego, że działa on w warstwie hosta.
+
+\begin{lstlisting}[caption=Plik \texttt{.github/templates/deploy-node-exporter/action.yml}]
+name: Deploy node exporter
+
+inputs:
+  # ssh
+  ssh-host:
+    required: true
+  ssh-username:
+    required: true
+  ssh-port:
+    required: true
+  ssh-key:
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Deploy node exporter
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ inputs.ssh-host }}
+        USERNAME: ${{ inputs.ssh-username }}
+        PORT: ${{ inputs.ssh-port }}
+        KEY: ${{ inputs.ssh-key }}
+        script: |
+          docker run -d \
+          --name="monitoring-node-exporter" \
+          --net="host" \
+          --pid="host" \
+          -v "/:/host:ro,rslave" \
+          --restart=always \
+          quay.io/prometheus/node-exporter:v1.7.0 \
+          --path.rootfs=/host
+\end{lstlisting}
+
+Na koniec stworzyłem workflow, który skorzysta z wcześniej stworzonych templatów.
+
+\begin{lstlisting}[caption=Plik \texttt{.github/workflows/prod-deploy-node-exporter.yml}]
+name: Deploy node exporter (prod)
+on:
+  workflow_dispatch: null
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Stop old containers
+        uses: ./.github/templates/stop-old-containers
+        with:
+          ssh-host: ${{ secrets.SSH_HOST }}
+          ssh-username: ${{ secrets.SSH_USER }}
+          ssh-port: ${{ secrets.SSH_PORT }}
+          ssh-key: ${{ secrets.SSH_KEY }}
+          names: 'monitoring-node-exporter'
+      - name: Deploy node exporter
+        uses: ./.github/templates/deploy-node-exporter
+        with:
+          ssh-host: ${{ secrets.SSH_HOST }}
+          ssh-username: ${{ secrets.SSH_USER }}
+          ssh-port: ${{ secrets.SSH_PORT }}
+          ssh-key: ${{ secrets.SSH_KEY }}
+
+\end{lstlisting}
+
+Weryfikację poprawności wdrożenia dokonałem poprzez wykonanie \lstinline|curl localhost:9100/metrics|.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{metrykiNodeExporterRaw.png}
+    \caption{Weryfikacja poprawności działania Node Exportera}
+    \label{fig:enter-label}
+\end{figure}
+
 \subsubsection{Prometheus}
+
+Narzędziem, które będzie zbierało metryki produkowane przez Node Exportera jest Prometheus. Konfiguracja narzędzia odbywa się poprzez plik \lstinline|.yaml|.
+
+Pomysł na automatyczną konfigurację tego narzędzia jest taki, że plik konfiguracyjny będzie znajdował się w repozytorium z infrastrukturą. Całe repozytorium zostanie pobrane do specjalnie utworzonego katalogu na serwerze i w momencie włączania Prometheusa zamontuję ten plik jako \textbf{volume} i podam odpowiedni argument.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{diagramProvisionPrometheus.png}
+    \caption{Diagram przedstawiający strategię provisioningu Prometheusa}
+    \label{fig:enter-label}
+\end{figure}
+
+Zacząłem od stworzenia wspomnianego pliku konfiguracyjnego. Określa się w nim, pod jakimi adresami dostępne są metryki. Dodatkowo możliwe jest ustawienie częstotliwości zbierania metryk oraz nadanie im nazw.
+
+W tym przypadku Prometheus będzie posiadał tylko jeden job i będzie nim zbieranie metryk Node Exportera.
+
+\begin{lstlisting}[caption=Plik \texttt{infrastructure/prometheus/prometheus.yml}]
+global:
+  scrape_interval: 5s
+  external_labels:
+    monitor: 'node'
+scrape_configs:
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['host.docker.internal:9100']
+
+\end{lstlisting}
+
+Następnie stworzyłem template, który kolejno:
+\begin{itemize}
+    \item stworzy specjalny katalog na rzeczy związane z Prometheusem,
+    \item wejdzie do niego,
+    \item pobierze repozytorium git,
+    \item włączy kontener montując plik konfiguracyjny prometheusa jako volume.
+\end{itemize}
+
+\begin{lstlisting}[caption=Plik \texttt{.github/templates/deploy-prometheus/action.yml}]
+name: Deploy prometheus
+
+inputs:
+  # ssh
+  ssh-host:
+    required: true
+  ssh-username:
+    required: true
+  ssh-port:
+    required: true
+  ssh-key:
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Deploy prometheus
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ inputs.ssh-host }}
+        USERNAME: ${{ inputs.ssh-username }}
+        PORT: ${{ inputs.ssh-port }}
+        KEY: ${{ inputs.ssh-key }}
+        script: |
+          rm -rf ~/provisioning/prometheus
+          mkdir -p ~/provisioning/prometheus
+          cd ~/provisioning/prometheus
+          git clone https://github.com/ablaszkiewicz/devops-sandbox.git
+          cd devops-sandbox/infrastructure/prometheus
+
+          docker run -d \
+          --name="monitoring-prometheus" \
+          --add-host=host.docker.internal:host-gateway \
+          -p 9090:9090 \
+          -v $PWD/prometheus.yml:/etc/prometheus/prometheus.yml \
+          --restart=always \
+          prom/prometheus:v2.49.1
+\end{lstlisting}
+
+Na końcu stworzyłem workflow, który skorzysta z wcześniej stworzonego template.
+
+\begin{lstlisting}[caption=Plik \texttt{.github/workflows/prod-deploy-prometheus.yml}]
+name: Deploy prometheus (prod)
+on:
+  workflow_dispatch: null
+  push:
+    branches:
+      - never
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Stop old containers
+        uses: ./.github/templates/stop-old-containers
+        with:
+          ssh-host: ${{ secrets.SSH_HOST }}
+          ssh-username: ${{ secrets.SSH_USER }}
+          ssh-port: ${{ secrets.SSH_PORT }}
+          ssh-key: ${{ secrets.SSH_KEY }}
+          names: 'monitoring-prometheus'
+      - name: Deploy prometheus
+        uses: ./.github/templates/deploy-prometheus
+        with:
+          ssh-host: ${{ secrets.SSH_HOST }}
+          ssh-username: ${{ secrets.SSH_USER }}
+          ssh-port: ${{ secrets.SSH_PORT }}
+          ssh-key: ${{ secrets.SSH_KEY }}
+
+\end{lstlisting}
+
+Aby przetestować poprawność konfiguracji mogę użyć komendy \lstinline|ssh -L 9090:localhost:9090 magisterka|, aby przekierować ruch portu \textbf{Prometheusa} na moją lokalną maszynę, po czym mogę odwiedzić \lstinline|http://localhost:9090/targets|, aby zobaczyć skonfigurowane cele.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{prometheusSprawdzenieKonfiguracji.png}
+    \caption{Skonfigurowane cele scrapowania w panelu Prometheus}
+    \label{fig:enter-label}
+\end{figure}
+
+Na rysunku widać, że \textbf{Prometheus} poprawnie scrapuje dane z \textbf{Node Exportera}
+
 \subsubsection{Grafana}
+
+Grafana jest narzędziem wizualizacyjnym, które umożliwia przeglądanie i analizowanie danych zbieranych przez Prometheusa. Dzięki integracji z Prometheusem użytkownik może z łatwością tworzyć zaawansowane panele do wizualizacji danych.
+
+Stworzyłem template, który włącza kontener z Grafaną.
+
+\begin{lstlisting}[caption=Plik \texttt{.github/templates/deploy-grafana/action.yml}]
+name: Deploy grafana
+
+inputs:
+  ssh-host:
+    required: true
+  ssh-username:
+    required: true
+  ssh-port:
+    required: true
+  ssh-key:
+    required: true
+
+  grafana-username:
+    required: true
+  grafana-password:
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Deploy grafana
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ inputs.ssh-host }}
+        USERNAME: ${{ inputs.ssh-username }}
+        PORT: ${{ inputs.ssh-port }}
+        KEY: ${{ inputs.ssh-key }}
+        script: |
+          docker run \
+            -d \
+            -p 2000:3000 \
+            --add-host=host.docker.internal:host-gateway \
+            --name=monitoring-grafana \
+            -e "GF_SECURITY_ADMIN_USER=${{ inputs.grafana-username }}" \
+            -e "GF_SECURITY_ADMIN_PASSWORD=${{ inputs.grafana-password }}" \
+            --restart=always \
+            grafana/grafana:10.3.3
+\end{lstlisting}
+
+Dodatkowo stworzyłem workflow, który korzysta z dwóch poprzednich plików.
+
+\begin{lstlisting}[caption=Plik \texttt{.github/workflows/prod-deploy-grafana.yml}]
+name: Deploy grafana (prod)
+on:
+  workflow_dispatch: null
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Stop old containers
+        uses: ./.github/templates/stop-old-containers
+        with:
+          ssh-host: ${{ secrets.SSH_HOST }}
+          ssh-username: ${{ secrets.SSH_USER }}
+          ssh-port: ${{ secrets.SSH_PORT }}
+          ssh-key: ${{ secrets.SSH_KEY }}
+          names: 'monitoring-grafana'
+      - name: Deploy grafana
+        uses: ./.github/templates/deploy-grafana
+        with:
+          ssh-host: ${{ secrets.SSH_HOST }}
+          ssh-username: ${{ secrets.SSH_USER }}
+          ssh-port: ${{ secrets.SSH_PORT }}
+          ssh-key: ${{ secrets.SSH_KEY }}
+          grafana-username: ${{ secrets.MONITORING_USERNAME }}
+          grafana-password: ${{ secrets.MONITORING_PASSWORD }}
+\end{lstlisting}
+
+Pozostało stworzyć sekrety w repozytorium.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{sekretyGrafana.png}
+    \caption{Sekrety uwierzytelniania do grafany dodane do repozytorium}
+    \label{fig:enter-label}
+\end{figure}
+
+Oraz podłączyć domenę w cloudflare.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{grafanaDNS.png}
+    \caption{Ustawienia DNS Grafana}
+    \label{fig:enter-label}
+\end{figure}
+
+I na koniec zmienić konfigurację wcześniej stworzonego współdzielonego reverse proxy tak, aby ruch z \lstinline|grafana.ablaszkiewicz.pl| kierował na \lstinline|localhost:2000|, na którym zostanie wdrożona Grafana.
+
+\begin{lstlisting}[caption=Zaktualizowany plik \texttt{infrastructure/reverse-proxy-shared/config}]
+grafana.ablaszkiewicz.pl=http://192.168.1.104:2000
+dev.ablaszkiewicz.pl=http://192.168.1.104:4080
+ablaszkiewicz.pl=http://192.168.1.104:3080
+\end{lstlisting}
+
+Po konfiguracji jestem w stanie wejść na stronę swojej grafany.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{grafanaLogowanie.png}
+    \caption{Odwiedzenie adresu Grafany}
+    \label{fig:enter-label}
+\end{figure}
+
+Pomyślnie loguje się zapisanymi w sekretach danymi.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{grafanaPomyslneZalogowanie.png}
+    \caption{Pomyślne zalogowanie do Grafany}
+    \label{fig:enter-label}
+\end{figure}
+
+Aby zweryfikować poprawność działania poprzednich kroków, spróbuję dodać \textbf{Prometheusa} jako \textbf{Data Srouce}. W tym celu udałem się do zakładki Data Sources i po kliknięciu Add data source wpisałem adres prometheusa
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{prometheusDodanieGrafana.png}
+    \caption{Dodanie Prometheusa w Grafanie}
+    \label{fig:enter-label}
+\end{figure}
+
+Po zapisaniu nowego źródła widać wiadomość sygnalizującą, że połączenie jest skonfigurowane poprawnie.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{grafanaPoprawnyPrometheus.png}
+    \caption{Wiadomość sygnalizująca poprawne skonfigurowanie Prometheusa}
+    \label{fig:enter-label}
+\end{figure}
+
+Aby zobaczyć zwizualizowane statystyki serwera, mogę stworzyć w Grafanie nowy dashboard i jako źródło podać ID dashboardu stworzonego przez społeczność \lstinline|https://grafana.com/grafana/dashboards/1860-node-exporter-full/|.
+
+Po zapisaniu zmian widzę już zwizualizowane statystyki serwera.
+
+Należy jednak pamiętać, że zrestartowanie kontenera z \textbf{Grafaną} spowoduje utratę zmian. W tym celu użyję takiego samego podejścia, jak w przypadku \textbf{Prometheusa}. Konfigurację \textbf{Grafany} przeniosę do pliku i zamontuję go jako plik konfiguracyjny przy starcie kontenera.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{grafanaNodeExporterDashboard.png}
+    \caption{Dashboard Node Exportera w Grafanie}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{lstlisting}[caption=Plik \texttt{infrastructure/grafana/datasources/datasources.yml}]
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    uid: prometheus_datasource_uid
+    url: http://192.168.1.104:9090
+\end{lstlisting}
+
+\begin{lstlisting}[caption=Plik \texttt{infrastructure/grafana/dashboards/dashboards.yml}]
+apiVersion: 1
+
+providers:
+  - name: dashboards
+    type: file
+    updateIntervalSeconds: 30
+    options:
+      path: /etc/grafana/provisioning/dashboards
+      foldersFromFilesStructure: true
+\end{lstlisting}
+
+Dodatkowo używając UI Grafany wyeksportowałem aktualny dashboard jako JSON i wkleiłem go do \lstinline|infrastructure/grafana/dashboards/node-exporter.json|.
+
+Na koniec zostało zmodyfikować template wdrażający Grafanę tak, aby montował wcześniej stworzone pliki jako volume.
+
+\begin{lstlisting}[caption=Zmodyfikowany plik \texttt{.github/templates/deploy-grafana/action.yml}]
+name: Deploy grafana
+
+inputs:
+  ssh-host:
+    required: true
+  ssh-username:
+    required: true
+  ssh-port:
+    required: true
+  ssh-key:
+    required: true
+
+  grafana-username:
+    required: true
+  grafana-password:
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Deploy grafana
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ inputs.ssh-host }}
+        USERNAME: ${{ inputs.ssh-username }}
+        PORT: ${{ inputs.ssh-port }}
+        KEY: ${{ inputs.ssh-key }}
+        script: |
+          rm -rf ~/provisioning/grafana
+          mkdir -p ~/provisioning/grafana
+          cd ~/provisioning/grafana
+          git clone https://github.com/ablaszkiewicz/devops-sandbox.git
+          cd devops-sandbox/infrastructure/grafana
+
+
+          docker run \
+            -d \
+            -p 2000:3000 \
+            --add-host=host.docker.internal:host-gateway \
+            --name=monitoring-grafana \
+            -e "GF_INSTALL_PLUGINS=grafana-worldmap-panel" \
+            -e "GF_PATHS_PROVISIONING=/etc/grafana/provisioning" \
+            -e "GF_SECURITY_ADMIN_USER=${{ inputs.grafana-username }}" \
+            -e "GF_SECURITY_ADMIN_PASSWORD=${{ inputs.grafana-password }}" \
+            -v $PWD/dashboards:/etc/grafana/provisioning/dashboards \
+            -v $PWD/datasources:/etc/grafana/provisioning/datasources \
+            --restart=always \
+            grafana/grafana:10.3.3
+\end{lstlisting}
+
+Dokonałem teraz ponownego wdrożenia kontenera z Grafaną. Po restarcie widzę skonfigurowane źródło danych oraz dashboard.
+
 \subsubsection{Logi nginx}
+
 \subsubsection{Promtail}
+
 \subsubsection{Loki}
 
-\subsection{Optymalizacja}
-\subsubsection{Cachowanie buildów}
-\subsubsection{Odporność na restarty}
+\section{Optymalizacje}
+\subsection{Cachowanie buildów}
+\subsection{Odporność na restarty}
 
 
 
