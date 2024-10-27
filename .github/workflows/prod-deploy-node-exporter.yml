@@ -1,4 +1,4 @@
-name: Deploy node exporter (dev)
+name: Deploy node exporter (prod)
 on:
   workflow_dispatch: null
   push:
@@ -13,15 +13,15 @@ jobs:
       - name: Stop old containers
         uses: ./.github/templates/stop-old-containers
         with:
-          ssh-host: ${{ secrets.DEV_SSH_HOST }}
-          ssh-username: ${{ secrets.DEV_SSH_USER }}
-          ssh-port: ${{ secrets.DEV_SSH_PORT }}
-          ssh-key: ${{ secrets.DEV_SSH_KEY }}
+          ssh-host: ${{ secrets.SSH_HOST }}
+          ssh-username: ${{ secrets.SSH_USER }}
+          ssh-port: ${{ secrets.SSH_PORT }}
+          ssh-key: ${{ secrets.SSH_KEY }}
           names: 'monitoring-node-exporter'
       - name: Deploy node exporter
         uses: ./.github/templates/deploy-node-exporter
         with:
-          ssh-host: ${{ secrets.DEV_SSH_HOST }}
-          ssh-username: ${{ secrets.DEV_SSH_USER }}
-          ssh-port: ${{ secrets.DEV_SSH_PORT }}
-          ssh-key: ${{ secrets.DEV_SSH_KEY }}
+          ssh-host: ${{ secrets.SSH_HOST }}
+          ssh-username: ${{ secrets.SSH_USER }}
+          ssh-port: ${{ secrets.SSH_PORT }}
+          ssh-key: ${{ secrets.SSH_KEY }}
