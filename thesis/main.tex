@@ -14,8 +14,11 @@
 \usepackage{xpatch}
 \usepackage{xcolor}
 \usepackage{realboxes}
+\usepackage{cleveref}
 
 \usepackage{listings}
+\newcommand{\chapref}[1]{[p. Rozdział~\ref{#1}]}
+
 
 %New colors defined below
 \definecolor{mygray}{rgb}{0.8,0.8,0.8}
@@ -68,48 +71,48 @@
 \section{Wstęp}
 Kultura DevOps reprezentuje syntezę filozofii, praktyk oraz narzędzi, które są kluczowe w zwiększaniu zdolności organizacji do efektywnego dostarczania aplikacji i usług w akcelerowanym tempie. Ta koncepcja ewoluowała jako odpowiedź na rosnącą potrzebę lepszej komunikacji, współpracy i integracji między działami rozwoju oprogramowania (Dev) i operacjami IT (Ops).
 
-Za rok, w którym narodziła się ta kultura uważa się rok 2009. To wtedy John Allspaw (starszy wiceprezes ds. operacji technicznych) oraz Paul Hammond (dyrektor inżynieryjny) wygłosili słynną prezentację "10+ Deploys per Day: Dev and Ops Cooperation at Flickr"\cite{flickr}. Z kolei za ojca tej kultury uważa się Patricka Deboisa - który zainspirowany prezentacją zorganizował własną konferencję o nazwie DevOpsDays, która popularna jest aż do dzisiaj \cite{devOpsDays}.
+Za rok, w którym narodziła się ta kultura uważa się rok 2009. To wtedy John Allspaw (starszy wiceprezes ds. operacji technicznych) oraz Paul Hammond (dyrektor inżynieryjny) wygłosili słynną prezentację "10+ Deploys per Day: Dev and Ops Cooperation at Flickr"\cite{flickr}. Z kolei za ojca tej kultury uważa się Patricka Deboisa - który zainspirowany prezentacją zorganizował własną konferencję o nazwie DevOpsDays, która popularna jest aż do dzisiaj.
 
-Rozwój tej kultury, chociaż silnie związany z programowaniem, wydaje się być opóźniony w stosunku do ewolucji samego programowania. Kultura DevOps, będąc reakcją na dynamiczny rozwój branży programistycznej, dopiero niedawno wkroczyła w fazę ustalania i konsolidacji najlepszych praktyk, analogicznie do etapu, w którym programowanie zaczęło koncentrować się na koncepcjach takich jak "czysty kod".
+Rozwój tej kultury, chociaż silnie związany z programowaniem, wydaje się być opóźniony w stosunku do ewolucji samego programowania. Kultura DevOps, będąc reakcją na dynamiczny rozwój branży programistycznej, dopiero niedawno wkroczyła w fazę ustalania i konsolidacji najlepszych praktyk, analogicznie do etapu, w którym programowanie zaczęło koncentrować się na koncepcjach takich jak "czysty kod".\cite{stateOfDevops}
 
-Jeszcze dekadę temu, umiejętność autonomicznego wdrażania aplikacji była rzadkością, wymagającą dogłębnej wiedzy o narzędziach i zasadach działania systemów operacyjnych. Obecnie, implementacja automatycznego systemu wdrażania aplikacji wielośrodowiskowych na serwerze jest możliwa w znacznie krótszym czasie. Przypisuję to zjawisko rozwojowi narzędzi o wysokim stopniu abstrakcji, które nazwałbym "meta-narzędziami"[\ref{subsectionMetaNarzedzia}]. Pod tym terminem rozumiem narzędzia wykorzystujące inne narzędzia do jeszcze bardziej efektywnego osiągania określonych celów. Warto zauważyć, że to nie koniec - istnieją "meta-meta-narzędzia", które integrują wiele "meta-narzędzi".
+Jeszcze dekadę temu, umiejętność autonomicznego wdrażania aplikacji była rzadkością, wymagającą dogłębnej wiedzy o narzędziach i zasadach działania systemów operacyjnych. Obecnie, implementacja automatycznego systemu wdrażania aplikacji wielośrodowiskowych na serwerze jest możliwa w znacznie krótszym czasie. Przypisuję to zjawisko rozwojowi narzędzi o wysokim stopniu abstrakcji, które nazwałbym "meta-narzędziami"\chapref{subsectionMetaNarzedzia}. Pod tym terminem rozumiem narzędzia wykorzystujące inne narzędzia do jeszcze bardziej efektywnego osiągania określonych celów. Warto zauważyć, że to nie koniec - istnieją "meta-meta-narzędzia", które integrują wiele "meta-narzędzi".
 
-Obserwuje się trend, w którym końcowy użytkownik tych rozwiązań jest coraz bardziej oddalony od pierwotnego celu, który stara się osiągnąć, co skutkuje ograniczeniem jego potrzeby posiadania szczegółowej wiedzy na temat działania tych systemów. Ma to swoje zalety, jak ułatwienie osiągania celów, ale również wady, takie jak utrzymanie użytkownika w nieświadomości konsekwencji niektórych decyzji.
+Obserwuje się trend, w którym końcowy użytkownik tych rozwiązań jest coraz bardziej oddalony od pierwotnego celu, który stara się osiągnąć, co skutkuje ograniczeniem jego potrzeby posiadania szczegółowej wiedzy na temat działania tych systemów. Ma to swoje zalety, jak ułatwienie osiągania celów, ale również wady, takie jak utrzymanie użytkownika w nieświadomości konsekwencji niektórych decyzji. \cite{devOpsHandbook}
+
+Tematem niniejszej pracy jest analiza oraz praktyczne wdrożenie elementów kultury DevOps w kontekście projektu aplikacji. Praca skupia się przede wszystkim na procesach i rozwiązaniach związanych z implementacją, automatyzacją oraz utrzymaniem wysokiej jakości systemów IT. 
+
+Kluczowym celem jest ukazanie, jak różne narzędzia oraz strategie DevOps mogą zostać wykorzystane do stworzenia aplikacji charakteryzującej się wysokim poziomem bezpieczeństwa, wydajności, kontrolą nad zmianami oraz zdolnością do testowania nowych wersji w niezależnych środowiskach. Opracowanie obejmuje zarówno teoretyczne analizy, jak i praktyczne wskazówki dotyczące implementacji, dzięki czemu dostarcza kompleksowego obrazu procesu wdrażania kultury DevOps.
+
+Poruszone zagadnienia obejmują analizę i porównanie różnych podejść oraz narzędzi w zakresie budowy, wdrażania, monitorowania i utrzymania aplikacji. Każdy z aspektów został szczegółowo omówiony, wskazując zarówno wyzwania, jak i optymalne rozwiązania w kontekście współczesnych wymagań technologicznych oraz praktyk DevOps.
 
 \subsection{Cele pracy}
 
-W ramach swojej pracy stworzę bardzo prostą aplikację w architekturze frontend+backend, a następnie pokryję proces wprowadzania do takiego projektu kultury devops. Przy każdym pojęciu chciałbym się zatrzymać, aby opisać, jaki problem rozwiązuje, porównać możliwe rozwiązania problemu, wybrać jedno i krótko opisać implementację wybranego sposobu.
+Celem niniejszej pracy było stworzenie aplikacji o architekturze frontendowej i backendowej oraz szczegółowe omówienie procesu wdrażania kultury DevOps w takim projekcie. Przy każdym omawianym zagadnieniu przedstawiono problem, który dane rozwiązanie adresuje, dokonano porównania możliwych podejść, wybrano optymalne oraz krótko opisano jego implementację.
 
-Nie będę się skupiał na samej aplikacji, a na devopsowej otoczce. Aplikacja ma być bezpieczna, szybko budować, zmiany wprowadzane przez użytkowników mają być kontrolowane, nowe wersje mają być testowalne na oddzielnym środowisku. Jeżeli z serwerem lub aplikacją jest coś nie tak - chciałbym dostać alert.
+Główny nacisk położono nie na opis samej aplikacji, lecz na aspekty związane z kulturą DevOps. W efekcie aplikacja cechuje się wysokim poziomem bezpieczeństwa, szybkim procesem budowania, kontrolą nad wprowadzanymi zmianami oraz możliwością testowania nowych wersji w odrębnym środowisku. W przypadku wystąpienia problemów z serwerem lub aplikacją generowany jest alert informujący o nieprawidłowościach.
 
+Poruszone zagadnienia obejmują:
 
-Spis tematów, które chcę poruszyć:
 \begin{itemize}
-    \item porównanie strategii budowy obrazu i wdrażania aplikacji pod względem czasu, zajętego miejsca, bezpieczeństwa i developer experience, wybranie jednej oraz opis implementacji takiej strategii,
-    \item przedstawienie podejść do kontrolowania zmian w kodzie na poziomie platformy typu github oraz opis ich implemntacji:
-    \begin{itemize}
-        \item ustawienie blokad bezpośredniego pushowania na branche,
-        \item ustawienie blokad mergowania pull requestów bez wymaganych akceptacji,
-        \item ustawienie blokad mergowania pull requestów zanim powiodą się automatyczne akcje. Na przykład poprawne przejście testów, sprawdzenie stylu kodu.
-    \end{itemize}
-    \item sekrety - opis koncepcji sekretów w platformach CI/CD oraz opis implementacji,
-    \item wiele środowisk - opis potrzeby istnienia kilku środowisk oraz opis implementacji,
-    \item porównanie podejść do monitoringu i observability, wybranie najlepszych i opis ich implementacji:
-    \begin{itemize}
-        \item statystyki serwera - monitorowanie zajętości miejsca, zużycia pamięci RAM, wykorzystania CPU,
-        \item statystyki aplikacji (metryki frontendowe) - ile unikalnych użytkowników odwiedza aplikację, z jakich państw są,
-        \item statystyki aplikacji (metryki backendowe) - budowa niestandardowych metryk od podstaw,
-        \item zbieranie logów - porównanie podejść do zbierania i przeszukiwania logów oraz opis implementacji wybranego podejścia
-    \end{itemize}
+    \item porównanie strategii budowy obrazów i wdrażania aplikacji pod względem czasu, zajętości miejsca, bezpieczeństwa oraz doświadczenia deweloperów (developer experience), wybór optymalnej strategii i opis jej implementacji,
+    \item zarządzanie sekretami — opis koncepcji przechowywania wrażliwych danych w platformach CI/CD oraz implementacja tego rozwiązania,
+    \item wielośrodowiskowość — omówienie potrzeby istnienia kilku środowisk (np. testowe, produkcyjne) oraz opis ich implementacji,
+    \item porównanie podejść do monitoringu i obserwowalności, wybór najlepszych rozwiązań i opis ich implementacji,
+    \item analizę wpływu zastosowanego narzędzia budującego backend (Babel vs SWC) na wydajność i czas budowy aplikacji,
+    \item analizę wpływu narzędzia budującego frontend (CRA oraz Vite) na wydajność procesu budowy oraz użytkowania aplikacji,
+    \item porównanie platform CI/CD, uwzględniające ich zalety, wady oraz rekomendacje dotyczące wyboru rozwiązania dostosowanego do potrzeb projektu,
+    \item porównanie strategii budowy oraz zarządzania reverse proxy, uwzględniając aspekty wydajności, bezpieczeństwa oraz łatwości integracji z aplikacją,
+    \item porównanie strategii wdrażania aplikacji,
+    \item kompleksowy opis sposobu zarządzania serwerem w kontekście wdrażania i utrzymania aplikacji,
+    \item opracowanie wytycznych dotyczących pisania wydajnych i czytelnych pipeline’ów na platformie GitHub Actions.
+    \item porównanie podejść i narzędzi służących do monitorowania serwera oraz stanu aplikacji.
 \end{itemize}
 
-Wszystkie z wyżej wymienionych tematów będę testował na mojej prostej aplikacji, ponieważ zastosowane dalej metody są skalowalne i aplikuje się je analogicznie do większych aplikacji.
-
-
 \section {DevOps}
+
 \subsection{Definicja}
 
-Zacznę od przytoczenia pewnego porównania Patricka Deboisa\cite{devOpsHandbook}.
+Na początku warto przytoczyć porównanie zaproponowane przez Patricka Deboisa\cite{devOpsHandbook}.
 
 \begin{displayquote}
     I've settled on my own definition of "DevOps": everything you do to overcome the friction between silos. All the rest is plain engineering.
@@ -128,7 +131,7 @@ Ja zdefiniowałbym DevOps jako zestaw praktyk dążących do tego, żeby wytwarz
 
 
 \subsection{Filary}
-Z grupy DevOps można wyróżnić pewne pozycje:
+W ramach grupy DevOps można wyróżnić określone pozycje:
 \begin{itemize}
     \item współpraca - podstawa zasada DevOps. Oznacza współpracę pomiędzy zespołami zajmującymi się rozwojem (Dev) i operacjami (Ops). Ta metodyka przekształca tradycyjne podejście, w którym wyraźnie oddzielone były role związane z tworzeniem oprogramowania od tych związanych z jego wdrażaniem i utrzymaniem, w kierunku modelu, gdzie zespoły współpracują na każdym etapie cyklu życia aplikacji,
     \item automatyzacja - maksymalne ograniczenie ręcznych interwencji, co pozwala deweloperom skupić się na bardziej istotnych zadaniach, takich jak pisanie kodu czy rozwijanie nowych funkcji. W kontekście DevOps, automatyzacja jest nieodłącznym elementem procesu CI/CD (Continuous Integration/Continuous Delivery), co przekłada się na redukcję ludzkich błędów oraz zwiększenie produktywności zespołów,
@@ -138,37 +141,34 @@ Z grupy DevOps można wyróżnić pewne pozycje:
 
 \subsection{Dostępne narzędzia}
 
-Skategoryzuję tutaj dostępne narzędzia, a dalej w pracy rozwinę każdy z tych tematów:
+W niniejszym podrozdziale skategoryzowano dostępne narzędzia, które zostaną szczegółowo omówione w dalszej części pracy:
 
 \begin{itemize}
-    \item budowa aplikacji NodeJS[\ref{sectionBudowanieAplikacji}] - webpack, vite, SWC,
-    \item platformy CI/CD[\ref{sectionCICD}] - Gitlab, Github Actions,
-    \item wirtualizacja[\ref{sectionBudowaObrazu}] - docker,
+    \item budowa aplikacji NodeJS \chapref{sectionBudowanieAplikacji} - webpack, vite, SWC,
+    \item platformy CI/CD \chapref{sectionCICD} - Gitlab, Github Actions,
+    \item wirtualizacja \chapref{sectionBudowaObrazu} - docker,
     \item monitorowanie i observability - uptime kuma, grafana, prometheus, loki, cadvisor, promtail,
     \item konfiguracja i zarządzanie serwerem - htop, nginx, cloudflare,
 \end{itemize}
 
 \subsection{Przegląd literatury}
 
-\subsubsection{Royce, Winston. "Managing the Development of Large Software Systems." (1970)}
+\subsubsection{Royce, Winston. "Managing the Development of Large Software Systems." (1970)\cite{royceWaterfall}} 
+
 Klasyczny artykuł Winstona Royce'a, który wprowadził koncepcję modelu wodospadowego w zarządzaniu projektami oprogramowania. Choć sam model wodospadowy jest obecnie uważany za przestarzały, artykuł Royce'a jest ważny dla zrozumienia ewolucji metodologii zarządzania projektami, które doprowadziły do powstania zwinnych metod i praktyk DevOps. Royce podkreślał znaczenie planowania, dokumentacji i rygorystycznego podejścia do zarządzania dużymi projektami.
 
-\subsubsection{Allspaw, John, and Paul Hammond. "10+ Deploys per Day: Dev and Ops Cooperation at Flickr." (2009)
-}
+\subsubsection{Allspaw, John, and Paul Hammond. "10+ Deploys per Day: Dev and Ops Cooperation at Flickr." (2009)\cite{flickr}}
 Jest to całkiem stara pozycja i nie wchodzi w szczegóły, ale co ciekawe, prawie wszystko z tej prezentacji sprawdza się w dzisiejszych czasach - zostało po prostu bardziej rozwinięte. Prezentacja ta, wygłoszona podczas konferencji Velocity stała się kamieniem milowym dla ruchu DevOps. Autorzy podkreślają znaczenie nie tyle użytej technologii, co kultury wspólpracy i komunikacji. 
 
-\subsubsection{Kim, Gene, "The DevOPS Handbook: How to Create World-Class Agility, Reliability, and Security in Technology Organizations (2016)
-}
+\subsubsection{Kim, Gene, "The DevOPS Handbook: How to Create World-Class Agility, Reliability, and Security in Technology Organizations (2016)\cite{devOpsHandbook}}
 Książka ta jest kompleksowym przewodnikiem po świecie DevOps, napisanym przez uznanych ekspertów: Gene Kima, Patricka Deboisa, Johna Willisa i Jeza Humble'a. Autorzy przedstawiają fundamenty DevOps, koncentrując się na praktykach i narzędziach, które pomagają organizacjom osiągnąć wyjątkową wydajność, niezawodność i bezpieczeństwo. Książka ta jest często cytowana jako fundamentalne źródło wiedzy, które wyjaśnia, jak wdrożyć i skalować DevOps w dużych organizacjach, podając konkretne przykłady i studia przypadków.
 
-\subsubsection{
-Edwards, Damon. "What is DevOps?" (2010)
-}
+\subsubsection{Edwards, Damon. "What is DevOps?" (2010)\cite{damonEdwards}}
 W artykule tym Damon Edwards definiuje DevOps jako koncepcję parasolową obejmującą wszystkie działania mające na celu poprawę współpracy między rozwojem a operacjami. Edwards podkreśla, że DevOps nie jest jedynie zestawem narzędzi, ale przede wszystkim filozofią pracy, która promuje ciągłe doskonalenie, automatyzację i wzajemne zrozumienie między zespołami. Artykuł ten jest często cytowany jako jedno z pierwszych źródeł definiujących DevOps w sposób, który obejmuje zarówno techniczne, jak i kulturowe aspekty.
 
 \subsection{Meta narzędzia} \label{subsectionMetaNarzedzia}
 
-Podstawową metodą wdrożenia kodu na serwer jest pobranie i włączenie go na serwerze. Wraz z rozwojem IT powstały jednak bardziej abstrakcyjne metody wdrażania. Na wzór wezmę funkcje \textbf{Lambda} oferowane przez \textbf{AWS}. Oferują one środowisko uruchomieniowe, za które płaci się a wykorzystane minuty. Nie wymagają konfiguracji i posiadania własnych zasobów serwerowych. Jest to pierwsza warstwa abstrakcji - nazywam to meta-narzędziem.
+Podstawową metodą wdrożenia kodu na serwer jest pobranie i włączenie go na serwerze. Wraz z rozwojem IT powstały jednak bardziej abstrakcyjne metody wdrażania. Na wzór wzięto funkcje \textbf{Lambda} oferowane przez \textbf{AWS}. Oferują one środowisko uruchomieniowe, za które płaci się na podstawie wykorzystanych minut. Nie wymagają konfiguracji i posiadania własnych zasobów serwerowych. Jest to pierwsza warstwa abstrakcji - można nazwać to meta-narzędziem.
 
 Samo wgranie kodu do funkcji Lambda wymaga od dewelopera całkiem powtarzalnej interakcji. Kod należy skompresować do pliku zip i wgrać przez panel AWS Lambda. Aby uprościć te czynności, powstało wiele narzędzi automatyzujących ten proces. Opiszę tutaj narzędzie \textbf{Serverless Framework}. Narzędzie to jest oferowane w postaci strony internetowej z dodatkiem CLI, z poziomu którego wykonuje się komendę, która wdroży aplikację.
 
@@ -180,51 +180,21 @@ W tym wypadku nazwałbym to nawet meta-meta-meta-narzędziem, ponieważ \textbf{
 
 \section{Wdrażana aplikacja}
 
+Aplikacja, która została wdrożona w ramach pracy, jest prostym serwisem typu klient-serwer, składającym się z backendu (serwera) i frontendowej aplikacji klienckiej. Ze względu na charakter tej pracy, której głównym celem jest przedstawienie podejścia DevOps oraz mechanizmów CI/CD, aplikacja pełni funkcję „manekina” – prostej, ale funkcjonalnej struktury pozwalającej na demonstrację kluczowych praktyk DevOps, takich jak automatyzacja wdrożeń, monitorowanie czy zarządzanie konfiguracją.
+
+Taki projekt aplikacji jest celowo minimalistyczny, aby nie skupiać się na skomplikowanych funkcjonalnościach oprogramowania, a zamiast tego umożliwić pełną koncentrację na procesach związanych z jego cyklem życia. Dzięki temu ograniczonemu zestawowi funkcji aplikacja doskonale nadaje się do zilustrowania procedur wdrażania, konfiguracji, testowania i monitorowania, które są kluczowe w kulturze DevOps.
+
 \subsection{Backend}
 
-Backend aplikacji napisany jest w NodeJS, a konkretnie frameworku NestJS i języku typescipt. Cały backend to jeden kontroler RESTowy zawierający metody pobrania i zaktualizowania licznika.
-
-\begin{lstlisting}[caption=Główny kod backendu NestJS]
-import { Controller, Get, Post } from '@nestjs/common';
-
-@Controller()
-export class AppController {
-  private counter = 0;
-
-  @Get('/counter')
-  getCounter() {
-    return {
-      count: this.counter,
-    };
-  }
-
-  @Post('/counter')
-  incrementCounter() {
-    this.counter++;
-    return {
-      count: this.counter,
-    };
-  }
-}
-
-\end{lstlisting}
-
-Takie rozwiązanie uniemożliwia włączenie kilku instancji, ponieważ stan licznika przechowywany jest w pamięci pojedyńczej aplikacji, jednak wystarczy do przeprowadzenia większości testów. W dalszej części pracy konieczna będzie zmiana tego podejścia - tam skupię się na opisaniu, czym charakteryzują się aplikacje, które wspierają multi-instancyjność.
+Backend został napisany w Node.js przy użyciu frameworku NestJS. To prosty kontroler RESTowy, który zawiera metodę pobrania oraz zaktualizowania licznika. Taka struktura pozwala na przeprowadzenie podstawowych testów integracyjnych i funkcjonalnych, jak również umożliwia pokazanie, jak zmiany w backendzie są zarządzane i wdrażane w sposób automatyczny.
 
 \subsection{Frontend}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\linewidth]{frontendScreenshot.png}
-    \caption{Zrzut ekranu aplikacji frontendowej}
-\end{figure}
+Frontend aplikacji, napisany w React, jest równie prosty – pozwala użytkownikowi wysyłać żądanie do serwera, które zwiększa wartość licznika. Taki interfejs jest wystarczający do prezentacji procesów DevOps w kontekście aplikacji webowej, a zarazem nie wprowadza zbędnej złożoności, która mogłaby odwracać uwagę od głównych celów pracy.
 
-Frontend jest aplikacją napisaną również w NodeJS, a konkretniej we frameworku React i języku typescript. Po wciśnięciu przycisku wysyła request do serwera, co skutkuje podniesieniem stanu licznika o 1.
+\subsection{Środowisko testowe}
 
-\subsection{Domena}
-
-Aby konfigurować rzeczy w realnym środowisku, na czas trwania pisania pracy wykupiłem domenę 
-\lstinline|https://aleksanderblaszkiewicz.pl|, na której będę przeprowadzał testy.
+Aby symulować proces wdrażania aplikacji w rzeczywistym środowisku, na czas realizacji pracy zakupiono domenę \lstinline|https://aleksanderblaszkiewicz.pl|. Domenę tę wykorzystuję do przeprowadzania testów środowiskowych, co pozwala na pełną implementację cyklu CI/CD oraz monitorowanie działania aplikacji w rzeczywistym środowisku, zbliżonym do produkcyjnego.
 
 \section{Budowanie aplikacji} \label{sectionBudowanieAplikacji}
 
@@ -232,17 +202,17 @@ Aby wdrożyć kod aplikacji na serwer, konieczne jest przekonwertowanie go z kod
 
 \subsection{Backend}
 
-Jako \textbf{framework backendowy} wybrałem \textbf{NestJS}, jako że jest to prawdopodobnie najpopularniejszy wybór jeżeli chodzi o \textbf{backendy} pisane w \textbf{NodeJS}.
+Jako \textbf{framework backendowy} wybrano \textbf{NestJS}, który jest jednym z popularniejszych rozwiązań dla projektów backendowych tworzonych w \textbf{NodeJS}.
 
-Po skorzystaniu z komendy:
+Po wykonaniu poniższej komendy:
 \begin{lstlisting}[caption=Komenda uruchamiająca scaffolding projektu NestJS]
 npm i -g @nestjs/cli
 npx nest new backend --skip-git
 \end{lstlisting}
 
-Powstał nowy projekt NestJS gotowy do użycia. Warto się w tym miejscu zatrzymać i przeanalizować, co dzieje się po skorzystaniu z początkowych ustawień. Transpiler, którego domyślnie używa NestJS to Babel. Jest to narzędzie do "tłumaczenia" kodu z jednej wersji języka na inną. Jako że projekt pisany jest w TypeScript, przed wdrożeniem musi zostać przetłumaczony na JavaScript.
+stworzono nowy projekt NestJS gotowy do użycia. Warto w tym miejscu przeanalizować proces inicjalizacji. Domyślnym narzędziem do transpilacji w NestJS jest Babel, który „tłumaczy” kod z jednej wersji języka na inną. Ponieważ projekt tworzony jest w TypeScript, przed wdrożeniem musi zostać przetłumaczony na JavaScript.
 
-Zasada działania Babela to rozłożenie kodu na proste klocki reprezentujące pomocniczy meta-język nazywane AST (Abstract Syntax Tree), a następnie złożenie tych klocków w kod odpowiadający wybranej wersji JavaScript.
+Działanie Babela\cite{BabelWikipedia} polega na analizie kodu, który zostaje przekształcony na proste elementy reprezentujące pomocniczy meta-język zwany AST (Abstract Syntax Tree), a następnie ponownym składaniu tych elementów w kod odpowiadający wybranej wersji JavaScript.
 
 
 \begin{figure}[H]
@@ -252,11 +222,11 @@ Zasada działania Babela to rozłożenie kodu na proste klocki reprezentujące p
     \label{fig:ast}
 \end{figure}
 
-Dlatego właśnie mimo tego, że JavaScript nie jest kompilowany, to jednak istnieje proces buildu, który przygotowuje kod do wdrożenia. Proces ten nazywany jest \textbf{transpilacją}. Babel nie jest obecnie szybkim transpilatorem. Swoją popularność zawdzięcza czasom, w których był jedynym rozwiązaniem na rynku.
+Pomimo że JavaScript nie jest kompilowany, istnieje proces budowania, który przygotowuje kod do wdrożenia, zwany \textbf{transpilacją}. Babel nie jest obecnie najszybszym transpilatorem\cite{BabelDailyDev}. Swoją popularność zawdzięcza jednak czasom, w których stanowił jedno z nielicznych dostępnych rozwiązań.
 
-Dosyć niedawno spopularyzowanym narzędziem jest SWC. Produkt zajmujący się transpilacją oraz \textbf{bundlowaniem} kodu JavaScriptowego. Obiecuje 20 krotne zwiększenie wydajności na jednym rdzeniu oraz aż 70 krotne zwiększenie wydajności w środowisku 4 rdzeniowym.
+Niedawno spopularyzowanym narzędziem jest SWC, zajmujący się transpilacją oraz \textbf{bundlowaniem} kodu JavaScript. Obiecuje on do 20-krotnego zwiększenia wydajności na jednym rdzeniu oraz nawet 70-krotnego wzrostu w środowiskach czterordzeniowych\cite{BabelLogRocket}.
 
-Produkty związane z JavaScript adaptują swoje środowiska tak, by korzystanie z SWC było proste. NestJS udostępnia plik konfiguracyjny, w którym dodanie transpilatora SWC sprowadza się do dodania:
+Środowiska programistyczne związane z JavaScript wspierają integrację z SWC, a NestJS umożliwia jego łatwe włączenie poprzez dodanie odpowiednich ustawień do pliku konfiguracyjnego:
 
 \begin{lstlisting}[caption=Fragment pliku konfiguracyjnego nest-cli.json]
 "compilerOptions": {
@@ -264,13 +234,14 @@ Produkty związane z JavaScript adaptują swoje środowiska tak, by korzystanie 
 }
 \end{lstlisting}
 
-Zmierzę teraz czas budowania kodu porównując domyślny transpilator (Babel) oraz SWC. W każdym wypadku powtórzę proces 5 razy i wyciągnę średnią korzystając z
+W dalszej części porównano czas budowania kodu z wykorzystaniem domyślnego transpilatora (Babel) oraz SWC. Każdy proces budowania powtórzono pięciokrotnie, obliczając średni czas przy pomocy poniższej komendy:
+
 \begin{lstlisting}[caption=Komenda mierząca czas wykonania komendy w systemie Windows]
 PS >> Measure-Command { start-process npm 'run build' -wait}
 \end{lstlisting}
 
 
-Dodatkowo projekt sztucznie powiększę, aby zasymulować, jak zachowają się obydwa transpilatory przy bardziej złożonych projektach. Poniższe zestawienia przedstawiają porównanie wyników czasu transpilacji.
+Dodatkowo projekt został sztucznie rozbudowany, aby przetestować wydajność obu transpilatorów na bardziej złożonych projektach. Poniższa tabela przedstawia zestawienie wyników transpilacji.
 
 \begin{table}[H]
 \centering
@@ -288,7 +259,7 @@ Dodatkowo projekt sztucznie powiększę, aby zasymulować, jak zachowają się o
 \label{tab:czas_wykonania}
 \end{table}
 
-Oszczędność czasu SWC mimo że przy małym projekcie jest niska, to jednak widoczna. Prawdziwą wyższość SWC widać, gdy w projekcie rośnie liczba linijek kodu. Mimo że obiecana poprawa wydajności w tym wypadku nie została osiągnięta (20 krotne przyspieszenie), na poniższym wykresie zestawiłem te czasy, aby pokazać, że widoczna zależność wskazuje na to, że obiecywana optymalizacja jest jak najbardziej osiągalna przy większej liczbie linijek kodu.
+Mimo że różnica czasu transpilacji przy małym projekcie jest niewielka, w bardziej rozbudowanych projektach wydajność SWC jest znacząco wyższa. Na poniższym wykresie przedstawiono te zależności, aby zilustrować, że obiecane zwiększenie wydajności jest bardziej odczuwalne w przypadku większych projektów.
 
 \begin{center}
     \begin{tikzpicture}
@@ -330,9 +301,9 @@ Oszczędność czasu SWC mimo że przy małym projekcie jest niska, to jednak wi
 
 \subsection{Frontend}
 
-Jako framework frontendowy wybrałem \textbf{ReactJS}. Tutaj znowu skupię się na początkowej, domyślnej konfiguracji. Narzędziem polecanym przez oficjalną dokumentację React nadal jest CRA (Create React App). Mimo bardzo dużej popularności nie jest to narzędzie optymalne.
+Jako framework frontendowy wybrano \textbf{ReactJS}. Analiza skupia się na domyślnej konfiguracji początkowej. Narzędziem do niedawna rekomendowanym przez oficjalną dokumentację React było CRA\cite{DevCra} (Create React App). Mimo dużej popularności nie jest to jednak narzędzie optymalne.
 
-U podstawy CRA stoi Webpack, który jest całkiem wolny, ponieważ w momencie procesu budowania musi dokonać zbundlowania wszystkich assetów aplikacji w statyczne pliki.
+CRA opiera się na Webpacku, który jest stosunkowo wolny, ponieważ w procesie budowania aplikacji wszystkie zasoby muszą zostać zbundlowane do statycznych plików.
 
 \begin{figure}[H]
     \centering
@@ -341,11 +312,11 @@ U podstawy CRA stoi Webpack, który jest całkiem wolny, ponieważ w momencie pr
     \label{fig:ast}
 \end{figure}
 
-W dużym projekcie proces ten potrafi być bardzo wolny. Razem z rozwojem ekosystemu JavaScript powstała opcja dynamicznych modułów ESM. Projektem realizującym ten mechanizm jest Vite. Dostarcza on rozwiązanie pozwalające budować i uruchamiać aplikacje Reactowe o wiele szybciej. Sprawa on, że kod, który aktualnie nie musi być używany, nie jest załadowany do pamięci - jest ładowany dynamicznie. Zasadniczym plusem takiego rozwiązania jest wsparcie dla HMR (Hot Module Reload) dzięki któremu w środowisku deweloperskim po wprowadzeniu drobnej zmiany nie jest konieczne ponowne zbundlowanie całego projektu, a tylko podmiana niewielkiego fragmentu kodu.
+W przypadku dużych projektów proces ten może być bardzo czasochłonny. Wraz z rozwojem ekosystemu JavaScript pojawiła się możliwość stosowania dynamicznych modułów ESM. Narzędziem wykorzystującym tę technikę jest Vite, które pozwala na szybkie budowanie i uruchamianie aplikacji React\cite{ViteSite}. Vite ładuje kod dynamicznie, co pozwala na pominięcie nieużywanych fragmentów w pamięci. Dzięki wsparciu dla HMR (Hot Module Reload) w środowisku deweloperskim, po wprowadzeniu drobnej zmiany nie trzeba budować całej aplikacji od nowa, co znacząco przyspiesza pracę.
 
-W tej części porównam czasy włączenia serwera deweloperskiego oraz zbudowania aplikacji.
+W tej części porównano czas uruchamiania serwera deweloperskiego oraz budowania aplikacji.
 
-Aplikację korzystającą z CRA stworzyłem korzystając z następujących komend:
+Aplikacja korzystająca z CRA została stworzona za pomocą następujących komend:
 
 \begin{lstlisting}[caption=Stworzenie i włączenie aplikacji React (CRA)]
 npx create-react-app frontend-cra
@@ -353,7 +324,7 @@ cd frontend-cra
 npm run start
 \end{lstlisting}
 
-Aplikację korzystającą z Vite stworzyłem używając: 
+Aplikację korzystającą z Vite stworzono używając: 
 
 \begin{lstlisting}[caption=Stworzenie i włączenie aplikacji React (CRA)]
 npm create vite@latest frontend-vite -- --template react-ts
@@ -361,14 +332,14 @@ cd frontend-vite
 npm run dev
 \end{lstlisting}
 
-Obydwie aplikacje mają około 200 linijek kodu na starcie. W celu badania w drugim kroku rozszerzyłem je do około 10,000 linijek kodu. Poniższa zestawienie prezentuje czasy wykonywania poszczególnych operacji.
+Obie aplikacje na starcie miały około 200 linijek kodu. W celu dalszych testów rozszerzono je do około 10,000 linijek kodu. Poniższe zestawienia przedstawiają czasy poszczególnych operacji.
 
 \begin{table}[H]
 \centering
 \begin{tabular}{|l|l|l|}
 \hline
 \textbf{Operacja} & \textbf{Liczba linijek} & \textbf{Czas wykonania (s)} \\ \hline
-\multirow{2}{*}{Włączenia serwera deweloperskieogo} & 200 & 10 \\ 
+\multirow{2}{*}{Włączenie serwera deweloperskieogo} & 200 & 10 \\ 
 & 10,000 & 39 \\ \hline
 \multirow{2}{*}{Zbudowanie aplikacji} & 200 & 19 \\ 
 & 10,000 & 50 \\ \hline
@@ -382,7 +353,7 @@ Obydwie aplikacje mają około 200 linijek kodu na starcie. W celu badania w dru
 \begin{tabular}{|l|l|l|}
 \hline
 \textbf{Operacja} & \textbf{Liczba linijek} & \textbf{Czas wykonania (s)} \\ \hline
-\multirow{2}{*}{Włączenia serwera deweloperskieogo} & 200 & 2 \\ 
+\multirow{2}{*}{Włączenie serwera deweloperskieogo} & 200 & 2 \\ 
 & 10,000 & 3 \\ \hline
 \multirow{2}{*}{Zbudowanie aplikacji} & 200 & 5 \\ 
 & 10,000 & 8 \\ \hline
@@ -455,30 +426,34 @@ Poniżej czasy zestawione na wykresie:
 \label{fig:cra_vs_vite}
 \end{figure}
 
-Jak widać, Vite oferuje niewiarygodne przyspieszenie czasu budowania. Co zdumiewające, nachylenie funkcji czasu wykonywania od liczby linijek jest bardzo niewielkie, co powoduje, że czym większy projekt, tym ta oszczędność staje się większa.
+Z badań wynika, że Vite oferuje znaczne przyspieszenie procesu budowania. Co istotne, zwiększenie liczby linijek kodu nie wpływa znacząco na czas wykonania operacji, co oznacza, że im większy projekt, tym bardziej widoczna staje się przewaga Vite.
+
+W ciągu ostatnich lat zainteresowanie Vite wykazało dynamiczny wzrost, co znajduje odzwierciedlenie w danych Google Trends. Jak wskazuje praca Bhabishya Gurung\cite{babisha}, do około 2023 roku Create React App (CRA) dominowało w wynikach popularności wśród deweloperów. Jednak od tego momentu zauważalny jest wyraźny spadek zainteresowania CRA, podczas gdy Vite zdobywa coraz większą popularność. Zmiana ta może być związana z przewagami Vite w kontekście szybkości budowania i skalowalności, co czyni go bardziej atrakcyjnym dla dużych projektów i zaawansowanych aplikacji internetowych.
 
 \subsection{Podsumowanie}
 
-Powyższe badania udowadniają, że często domyślne zestawy narzędzi są dalekie od optymalnych. Optymalizację devops warto zacząć już od samego dobrania narzędzi najlepiej jeszcze przed rozpoczęciem projektu. Zmiany rozmiaru tych opisanych w powyższym rozdziale mogą być bardzo kosztowne w późniejszych fazach projektu.
+Powyższe badania pokazują, że domyślne narzędzia nie zawsze są optymalne. Optymalizację DevOps warto rozpocząć od wyboru odpowiednich narzędzi jeszcze przed rozpoczęciem projektu, gdyż zmiana tych narzędzi na późniejszych etapach może być czasochłonna i kosztowna.
 
 \section{Metody wdrażania} \label{sectionMetodyWdrazania}
 
-Po zbudowaniu aplikacji trzeba jej kod w jakiś sposób przenieść na serwer i na nim włączyć. Wypiszę teraz zarys sposobów, a w następnych działach każdy z nich opiszę dokładniej:
+Po zbudowaniu aplikacji konieczne jest przeniesienie jej kodu na serwer oraz jej uruchomienie. Poniżej przedstawiono ogólne metody wdrażania, które zostaną szczegółowo opisane w kolejnych sekcjach:
 
 \begin{itemize}
-    \item całkowicie ręczne wdrażanie na serwer - deweloper dostaje się na serwer, pobiera kod, instaluje potrzebne zależności i włącza na nim aplikację,
-    \item ręczne wdrażanie z dodatkiem - deweloper nadal robi wszystko ręcznie, ale nad działaniem aplikacji czuwa pewien framework. Np. \textbf{Nodemon} do aplikacji NodeJS,
-    \item manualna wirtualizacja - deweloper samodzielnie buduje obraz i wysyła go do repozytorium artefaktów. Następnie dostaje się do serwera i tam włącza obraz,
-    \item automatyczna wirtuzalicja - istnieje proces, który po wprowadzeniu zmian automatycznie buduje obraz i wdraża go na serwer.
+    \item całkowicie ręczne wdrażanie na serwer – deweloper uzyskuje dostęp do serwera, pobiera kod, instaluje potrzebne zależności i uruchamia aplikację,
+    \item ręczne wdrażanie z dodatkiem – deweloper wykonuje czynności ręcznie, jednak nad działaniem aplikacji czuwa odpowiedni framework, np. \textbf{Nodemon} dla aplikacji NodeJS\cite{NodemonArticle},
+    \item manualna wirtualizacja – deweloper samodzielnie buduje obraz, przesyła go do repozytorium artefaktów, a następnie uruchamia go na serwerze,
+    \item automatyczna wirtualizacja – istnieje proces, który po wprowadzeniu zmian automatycznie buduje obraz i wdraża go na serwer.
 \end{itemize}
 
 Wszystkie powyższe techniki zakładają, że deweloper ma dostęp do serwera poprzez SSH, a sam serwer jest uwierzytelniony do repozytorium kodu.
 
 \subsection{Całkowicie ręczne wdrażanie}
 
-Deweloper włącza manualnie aplikacje na serwerze. Musi podjąć większość kroków wykonywanych w środowisku lokalnym plus upewnić się, że serwer poprawnie obsługuje zapytania przychodzące z zewnątrz.
+W tej metodzie deweloper ręcznie uruchamia aplikację na serwerze, podejmując większość kroków wykonywanych wcześniej w środowisku lokalnym, oraz zapewnia, że serwer poprawnie obsługuje zapytania przychodzące z zewnątrz.
 
-Szczególnie uciążliwa może być pierwsza konfiguracja. Należy w jej obrębie pobrać i skonfigurować narzędzia potrzebne do budowania i wdrażania aplikacji w danej technologii. W przypadku NodeJS będzie to npm. Dodatkowo może się okazać, że niektóre z zależności potrzebnych do działania aplikacji były zainstalowane globalnie na komputerze dewelopera, co spowoduje, że aplikacja nie zadziała i przysporzy to problemów natury debugowania.
+Pierwsza konfiguracja może być szczególnie pracochłonna, obejmując pobranie i konfigurację narzędzi potrzebnych do budowania i wdrażania aplikacji w danej technologii (np. npm dla NodeJS). Występuje również ryzyko, że niektóre zależności potrzebne do działania aplikacji były zainstalowane globalnie na komputerze dewelopera, co może prowadzić do problemów w działaniu aplikacji na serwerze.
+
+W książce "Continuous Delivery: Reliable Software Releases through Build, Test, and Deployment Automation" \cite{continuousDelivery} autorzy Jez Humble i David Farley opisują tradycyjne podejście do wdrażania aplikacji, gdzie deweloperzy ręcznie kopiują kod na serwer, instalują zależności i uruchamiają aplikację. Podkreślają, że takie podejście jest podatne na błędy i trudne do skalowania.
 
 \begin{figure}[H]
     \centering
@@ -496,21 +471,25 @@ Szczególnie uciążliwa może być pierwsza konfiguracja. Należy w jej obrębi
 
 \subsubsection{Zalety}
 
-Metoda ta ma tylko jedną zaletę - czas. Pierwsze wdrożenie na serwer odbędzie się z pewnością szybciej. Nie ma potrzeby konfiguracji narzędzi automatyzujących pracę.
+\begin{itemize}
+    \item brak potrzeby konfiguracji narzędzi automatyzujących, co sprawia, że pierwsze wdrożenie jest szybkie.
+\end{itemize}
 
 \subsubsection{Wady}
 
 \begin{itemize}
-    \item tracenie czasu na bardzo powtarzalne czynności przy każdym wdrożeniu,
-    \item możliwość, że aplikacja nie będzie działać z uwagi na różnice w konfiguracji środowiska,
-    \item brak możliwości dobrego monitorowania aplikacji,
-    \item brak zarządzania stanem aplikacji (po restarcie serwera lub krytycznym błędzie w aplikacji pozostanie ona wyłączona),
-    \item aplikacja ma bezpośredni dostęp do systemu operacyjnego hosta.
+    \item czasochłonność związana z powtarzaniem ręcznych czynności przy każdym wdrożeniu,
+    \item możliwość wystąpienia problemów wynikających z różnic w konfiguracji środowiska,
+    \item brak możliwości monitorowania aplikacji,
+    \item brak zarządzania stanem aplikacji brak zarządzania stanem aplikacji (po restarcie serwera lub błędzie aplikacja pozostaje wyłączona),
+    \item bezpośredni dostęp do systemu operacyjnego hosta.
 \end{itemize}
 
 \subsection{Ręczne wdrażanie z dodatkiem}
 
-Jako dodatek do ręcznego wdrożenia wybrałem Nodemon. Jest to narzędzie wprowadzające warstwę abstrakcji na aplikację NodeJS. Jest w stanie zarządzać stanem aplikacji - monitoruje, czy aplikacja jest "zdrowa". Dodatkowo pozwala na skalowanie aplikacji i zapewnia automatyczny load balancing. 
+W tej metodzie wdrożenie wspomaga dodatkowe narzędzie, np. Nodemon, które wprowadza warstwę abstrakcji dla aplikacji NodeJS. Nodemon zarządza stanem aplikacji, monitorując jej "zdrowie", umożliwia skalowanie oraz automatyczny load balancing.
+
+W swojej pracy \cite{characterizationFramework} Carzaniga, Fugetta, Hall oraz Heimbigner przedstawiają technologie wspierające proces wdrażania aplikacji, podkreślając znaczenie narzędzi, które pomagają zarządzać wdrożeniem i jego etapami. Opisują, jak narzędzia te umożliwiają bardziej efektywne wdrażanie aplikacji przez automatyzację powtarzalnych zadań, takich jak kopiowanie plików czy konfiguracja serwera. Dzięki temu proces staje się mniej podatny na błędy i łatwiejszy do kontrolowania. Autorzy zwracają uwagę, że użycie takich technologii pozwala na szybsze i bardziej spójne wdrażanie, co jest kluczowe w przypadku dużych i dynamicznych środowisk, gdzie aktualizacje muszą być wprowadzane regularnie.
 
 \begin{figure}[H]
     \centering
@@ -522,9 +501,9 @@ Jako dodatek do ręcznego wdrożenia wybrałem Nodemon. Jest to narzędzie wprow
 \subsubsection{Zalety}
 
 \begin{itemize}
-    \item podstawowe możliwości monitorowania aplikacji,
-    \item zarządzanie stanem aplikacji (aplkacja sama się restartuje, jeżeli jest taka potrzeba),
-    \item udostępnienie interfejsu do prostego skalowania aplikacji oraz automatycznego load balancera.
+    \item podstawowe monitorowania aplikacji,
+    \item zarządzanie stanem aplikacji (automatyczne restartowanie, jeśli wystąpi taka potrzeba),
+    \item możliwość prostego skalowania oraz automatyczny load balancing.
 \end{itemize}
 
 \subsubsection{Wady}
@@ -536,7 +515,7 @@ Jako dodatek do ręcznego wdrożenia wybrałem Nodemon. Jest to narzędzie wprow
 
 \subsection{Manualna wirtualizacja}
 
-W tym przypadku deweloper buduje manualnie obraz na swoim komputerze i wysyła go do repozytorium artefaktów. Następnie dostaje się do maszyny, pobiera na niej obraz i włącza kontener z nową wersją aplikacji.
+W tej metodzie deweloper ręcznie buduje obraz na komputerze lokalnym i wysyła go do repozytorium artefaktów. Następnie loguje się na serwerze, pobiera obraz i uruchamia kontener z nową wersją aplikacji.
 
 \begin{figure}[H]
     \centering
@@ -548,21 +527,21 @@ W tym przypadku deweloper buduje manualnie obraz na swoim komputerze i wysyła g
 \subsubsection{Zalety}
 
 \begin{itemize}
-    \item o wiele szybsza konfiguracja środowiska. Na serwerze musi być tylko zainstalowany narzędzie obsługujące wirtualizację,
-    \item drastycznie zredukowana szansa wystąpienia błędów w wyniku różnic w konfiguracji. Deweloper może obraz najpierw przetestować na swojej lokalnej maszynie,
-    \item aplikacja nie ma dostępu do systemu operacyjnego hosta.
+    \item szybsza konfiguracja środowiska, wymagająca jedynie narzędzi do obsługi wirtualizacji na serwerze,
+    \item zredukowane ryzyko błędów wynikających z różnic w konfiguracji. Deweloper może przetestować obraz lokalnie,
+    \item brak dostępu aplikacji do systemu operacyjnego hosta.
 \end{itemize}
 
 \subsubsection{Wady}
 
 \begin{itemize}
-    \item znaczne skomplikowanie infrastruktury projektu. Od teraz trzeba utrzymywać repozytorium obrazów,
-    \item utrudnienie zmian w konfiguracji aplikacji. Możliwe, że zwykły deweloper nie będzie potrafił wprowadzić zmian obejmujących rzeczy poza samym kodem do aplikacji,
+    \item skomplikowanie infrastruktury projektu - konieczność utrzymania repozytorium obrazów,
+    \item trudność wprowadzenia zmian w konfiguracji aplikacji, zwłaszcza dla deweloperów bez doświadczenia poza kodem samej aplikacji,
 \end{itemize}
 
 \subsection{Wirtualizacja + CI/CD}
 
-W tym podejściu deweloper buduje infrastrukturę CI/CD umożliwiając całkowicie automatyczne wdrażanie aplikacji. Po wgraniu do repozytorium kodu zmian, agent automatycznie się uruchamia, buduje obraz, a następnie dostaje się do serwera i na nim włącza kontener
+W tym podejściu wdrażanie jest w pełni zautomatyzowane dzięki infrastrukturze CI/CD. Po wprowadzeniu zmian w repozytorium agent CI/CD automatycznie uruchamia się, buduje obraz i wdraża go na serwer, uruchamiając kontener z nową wersją aplikacji.
 
 \begin{figure}[H]
     \centering
@@ -576,7 +555,7 @@ W tym podejściu deweloper buduje infrastrukturę CI/CD umożliwiając całkowic
 \begin{itemize}
     \item znaczące usprawnienie procesu wdrażania aplikacji,
     \item minimalizacja błędów konfiguracji,
-    \item bardzo łatwe rozszerzenie na kilka środowisk.
+    \item łatwe rozszerzenie na wiele środowisk.
 \end{itemize}
 
 \subsubsection{Wady}
@@ -604,14 +583,14 @@ Monitorowanie aplikacji                 & \cellcolor{red!50}nie & \cellcolor{red
 \label{tab:porownanie-metod-wdrazania}
 \end{table}
 
-Zasadniczym plusem ręcznego wdrażania jest szybkość pierwszej konfiguracji. Nie trzeba konfigurować praktycznie nic, tylko włączyć aplikację na serwerze. Uważam jednak, że liczba zalet wirtualizacji z użyciem CI/CD przewyższa zysk czasowy manualnego wdrażania. Warto poświęcić na początku więcej czasu na dobrą konfigurację aby zaoszczędzić go w późniejszych fazach rozwoju aplikacji.
+Zasadniczym plusem ręcznego wdrażania jest szybkość pierwszej konfiguracji. Konfiguracja upraszcza się do włączenia aplikacji na serwerze. Udowodniono jednak, że liczba zalet wirtualizacji z użyciem CI/CD przewyższa zysk czasowy manualnego wdrażania. Warto poświęcić na początku więcej czasu na dobrą konfigurację aby zaoszczędzić go w późniejszych fazach rozwoju aplikacji.
 
 
 \section{Budowa obrazu} \label{sectionBudowaObrazu}
 
 \subsection{Podstawowy obraz}
 
-Zacznę od przeanalizowania najprostszego obrazu dockerowego, aby aplikacja po prostu działała. W tym celu dodałem do folderu z aplikacją plik \textbf{Dockerfile} o następującej treści
+Analizę rozpoczęto od przygotowania najprostszego obrazu Dockerowego, zapewniającego jedynie poprawne działanie aplikacji. W tym celu do katalogu aplikacji dodano plik \textbf{Dockerfile} o poniższej zawartości:
 
 \begin{lstlisting}[caption=Podstawowy plik Dockerfile]
 FROM node:18
@@ -631,28 +610,24 @@ CMD [ "node", "dist/main.js" ]
 
 Z definicji pliku wynika, że wybiera on obraz bazowy, przenosi pliki konfiguracyjne, instaluje potrzebne zależności, przenosi pliki źródłowe, buduje aplikacje i ją włącza.
 
-Czas potrzebny na zbudowanie obrazu to \textbf{85 sekund}. Rozmiar obrazu to \textbf{1.64GB}. Warto zwrócić uwagę na to, który krok zajął najwięcej czasu. Był to krok \lstinline|[internal] load build context|.
+Z powyższej definicji wynika, że plik wybiera obraz bazowy, przenosi pliki konfiguracyjne, instaluje niezbędne zależności, kopiuje pliki źródłowe, buduje aplikację i uruchamia ją. Czas budowy obrazu wynosi \textbf{85 sekund}, a jego rozmiar to \textbf{1.64 GB}. Najwięcej czasu zajmuje krok \lstinline|[internal] load build context|.
 
 \subsection{Dockerignore}
 
-Warto wiedzieć, że NodeJS potrzebne zależności przechowuje w folderze, w którym znajdują się pliki projektu. Oznacza to, że instrukcja \lstinline|COPY . .| z pliku Dockerfile przeniesie je wszystkie do obrazu, co nie jest konieczne, ponieważ w obrazie i tak trzeba je pobrać.
+Warto zauważyć, że NodeJS przechowuje potrzebne zależności w katalogu z plikami projektu, co oznacza, że instrukcja \lstinline|COPY . .| w pliku Dockerfile przeniesie te zależności do obrazu, choć nie jest to konieczne, gdyż będą one pobrane w procesie budowy.
 
-W takim celu używa się pliku \lstinline|.dockerignore|, w którym podaje się listę rzeczy, które Docker ma ignorować podczas instrukcji kopiowania
+Aby uniknąć kopiowania zbędnych plików, stosuje się plik \lstinline|.dockerignore|, w którym można określić elementy ignorowane przez Docker podczas kopiowania.
 
 \begin{lstlisting}[caption=Plik .dockerignore]
 dist
 node_modules
 \end{lstlisting}
 
-Oprocz folderu z zależnościami dobrze nie przenosić również folderu ze zbudowaną aplikacją, ponieważ ta i tak musi się zbudować ponownie w obrazie
-
-Po wprowadzeniu pliku \lstinline|.dockerignore| proces zajmuje teraz \textbf{24 sekundy}, a rozmiar zbudowanego obrazu to \textbf{1.42GB}.
+Oprócz katalogu z zależnościami, warto także wykluczyć katalog z plikami wynikowymi aplikacji, gdyż muszą one być zbudowane ponownie w obrazie. Po dodaniu pliku \lstinline|.dockerignore| czas budowy obrazu wynosi \textbf{24 sekundy}, a jego rozmiar zmniejszył się do \textbf{1.42 GB}.
 
 \subsection{Multi stage build}
 
-Node dzieli swoje zależności na standardowe i deweloperskie. Standardowe to te, które są potrzebne do tego, żeby aplikacja działała. Deweloperskie natomiast to takie, które są potrzebne tylko w momencie budowania aplikacji.
-
-Dobrym przykładem zależności deweloperskiej jest \textbf{Typescript}. Jest to paczka, która zawiera definicje potrzebne do przetłumaczenia Typescript na Javascript, ale po przetłumaczeniu nie jest już potrzebna,
+Node.js dzieli swoje zależności na produkcyjne oraz deweloperskie. Zależności produkcyjne są wymagane do działania aplikacji, natomiast deweloperskie, takie jak \textbf{TypeScript}, są potrzebne jedynie w fazie budowania\cite{NodejsAviary}.
 
 \begin{lstlisting}[caption=Multistage plik Dockerfile]
 FROM node:18 AS development
@@ -678,31 +653,25 @@ COPY --from=build /usr/src/app/dist ./dist
 CMD [ "node", "dist/main.js" ]
 \end{lstlisting}
 
-Wylistowany wyżej plik \lstinline|Dockerfile| stosuje 3 etapowy proces budowania.
+Powyższy plik \lstinline|Dockerfile| definiuje trójetapowy proces budowy:
 
 \begin{enumerate}
-    \item development - ta część odpowiedzialna jest za zainstalowanie zależności i skopiowanie plików źródłowych do obrazu,
-    \item build - ta część kopiuje zależności, które pobrał pierwszy krok, buduje aplikacje, a następnie wywołuje komendę \lstinline|npm ci -f --only=production && npm cache clean --force|, która nadpisuje zależności w taki sposób, że zostaną tylko te wymagane do poprawnego działania aplikacji (zignoruje zależności deweloperskie,
-    \item production - ostatni krok kopiuje potrzebne zależności oraz kod źródłowy i włącza aplikację
+    \item development - instaluje zależności i kopiuje pliki źródłowe do obrazu,
+    \item build - kopiuje zależności z pierwszego etapu, buduje aplikację, a następnie usuwa zależności deweloperskie,
+    \item production - kopiuje niezbędne zależności oraz zbudowaną aplikację i uruchamia ją.
 \end{enumerate}
 
-Ta konfiguracja zajmuje \textbf{30 sekund}, a rozmiar zbudowanego obrazu to \textbf{1.09GB}
+W wyniku tego procesu czas budowy wynosi \textbf{30 sekund}, a rozmiar obrazu to \textbf{1.09 GB}.
 
 \subsection{Alpine}
 
-Dotychczas korzystałem z obrazu bazowego \lstinline|node:18|. Jest on całkiem spory, ponieważ zawiera pełną dystrubucję linuxa. W przypadku tej (i zdecydowanej większości) aplikacji nie jest potrzebne większość narzędzi z oficjalnej dystrybucji linuxa. 
+Dotychczas używany obraz bazowy \lstinline|node:18| zawiera pełną dystrybucję Linuxa, co wpływa na jego rozmiar. Alternatywą jest użycie wersji \textbf{alpine}, która jest znacznie mniejsza, gdyż zawiera minimalny zestaw narzędzi systemowych \cite{DockerAlpine}.
 
-Można w tym celu użyć dystrybucji typu \textbf{alpine}. Nazwa obrazu to wtedy \lstinline|node:18-alpine|.
-
-W tej konfiguracji obraz buduje się \textbf{33 sekundy} i zajmuje \textbf{148MB} miejsca.
+Po zastosowaniu obrazu \lstinline|node:18-alpine| czas budowy wynosi \textbf{33 sekundy}, a rozmiar obrazu zmniejsza się do \textbf{148 MB}.
 
 \subsection{Distroless}
 
-Działania opisane w poprzednich krokach miały na celu przyspieszenie procesu budowania lub zmniejszenie rozmiaru obrazu. Istnieje jednak pewna praktyka, którą stosuje się w celu zwiększenie bezpieczeństwa aplikacji.
-
-Sama wirtualizacja zapewnia to, że jeżeli atakujący dostanie się na maszynę, na której włączona jest aplikacja, to nie ma dostępu do systemu operacyjnego hosta, tylko jest "zamknięty" w kontenerze. Ogranicza to znacząco liczbę niechcianych rzeczy, które może zrobić, ale jednak wciąż może coś wykraść z wewnątrz kontenera lub wysłać jakieś requesty sieciowe.
-
-Istnieje odmiana obrazów nazywana \textbf{distroless} i charakteryzuje się ona tym, że taki obraz nie posiada warstwy \textbf{shell}. Nie da się na nic wywołać żadnych komend. Nie da się użyć tego obrazu w dwóch pierwszych krokach budowania, ponieważ tam wywoływane są jakieś komendy \lstinline|RUN|. Używa się go tylko w ostatnim kroku budowy, usuwając jednocześnie \lstinline|node| z polecenia \lstinline|CMD|. 
+Dotychczasowe optymalizacje miały na celu skrócenie czasu budowy i zmniejszenie rozmiaru obrazu. Istnieje jednak praktyka zwiększająca bezpieczeństwo aplikacji poprzez zastosowanie obrazu \textbf{distroless}. Taki obraz nie zawiera powłoki systemowej (\textbf{shell}), uniemożliwiając wywoływanie poleceń wewnątrz kontenera. Obrazy distroless są używane tylko w końcowym etapie budowy, przy czym polecenie \lstinline|node| usuwa się z instrukcji \lstinline|CMD| \cite{MediumDistroless}.
 
 \begin{lstlisting}[caption=Ostatni etap distroless Dockerfile]
 FROM gcr.io/distroless/nodejs18-debian12 AS production
@@ -712,20 +681,25 @@ COPY --from=build /usr/src/app/dist ./dist
 CMD [ "dist/main.js" ]
 \end{lstlisting}
 
-Taki obraz buduje się \textbf{34 sekundy}, zajmuje \textbf{175MB} miejsca, ale jest bardzo bezpieczny.
+Obraz distroless buduje się w czasie \textbf{34 sekund}, zajmuje \textbf{175 MB} miejsca i znacznie poprawia bezpieczeństwo aplikacji.
 
 \subsection{Cache}
 
-Na potrzeby wyżej przeprowadzonych badań używałem komendy budującej obraz z argumentem \lstinline|--no-cache|. W rzeczywistych warunkach się tego nie robi. Docker sprytnie cachuje warstwy, przez co powtarzalne kroki nie muszą zostać ponownie wywołane. Głównie czas oszczędza się na instalowaniu zależności. Nowe zależności zostaną pobrane tylko wtedy, gdy zmieni się zawartość pliku \lstinline|package.json| lub \lstinline|package-lock.json|.
+W powyższych eksperymentach zastosowano budowę obrazu z argumentem \lstinline|--no-cache|, aby uniknąć wpływu pamięci podręcznej na wyniki. W rzeczywistych warunkach Docker stosuje caching, co pozwala zaoszczędzić czas w powtarzalnych krokach, np. podczas instalacji zależności.
 
-W przypadku użycia cache obraz buduje się około 5 sekund.
+Dzięki cashowaniu budowa obrazu trwa około 5 sekund.
 
 \newpage
 
 \subsection{Podsumowanie}
 
-Z początkowego 1.64GB udało się zejść do 175MB, przy tym samym przyspieszając budowę 3 krotnie. Dodatkowo użycie obrazu distroless sprawiło, że aplikacja jest o wiele bardziej bezpieczna.
+Początkowy rozmiar wynoszący 1.64 GB został zmniejszony do 175 MB i jednocześnie trzykrotnie przyspieszono proces budowy. Dodatkowo, użycie obrazu distroless zwiększyło bezpieczeństwo aplikacji.
 
+W procesie budowania wieloetapowego (multi-stage build), zaprezentowanym w Dockerfile, można zidentyfikować główne etapy mające na celu redukcję rozmiaru obrazu i przyspieszenie budowy aplikacji. Zastosowanie tej techniki pozwala na oddzielenie środowiska deweloperskiego od produkcyjnego, eliminując zbędne zależności w finalnym obrazie, co jest zgodne z analizą efektywności opisaną w literaturze (Eda, Srinivasu i Bulla)\cite{efficientDocker}. Autorzy wskazują, że multi-stage buildy przyczyniają się do optymalizacji obrazów przez wyodrębnienie kluczowych kroków procesu w osobnych warstwach, co zmniejsza ich wielkość i pozwala na ponowne wykorzystanie fragmentów kodu tam, gdzie jest to możliwe.
+
+Jak opisuje Tiigi\cite{smallerContainers}, multi-stage buildy pozwalają również na usprawnienie procesu wdrażania aplikacji, dzięki zastosowaniu tzw. „clean builds”, które tworzą zoptymalizowany obraz bez zbędnych zasobów. Dzięki temu aplikacja uruchamiana na serwerze zawiera tylko niezbędne zależności produkcyjne, co redukuje nie tylko rozmiar obrazu, ale i ryzyko podatności bezpieczeństwa.
+
+Dodatkowo, dzięki eliminacji nadmiarowych zależności i zoptymalizowanemu zarządzaniu zasobami, multi-stage builds przyczyniają się do skrócenia czasu wdrożenia, co jest szczególnie istotne w środowiskach ciągłej integracji i dostarczania (CI/CD)\cite{reduceDockerImages}.
 
 \begin{figure}[H]
 \centering
@@ -777,27 +751,47 @@ Z początkowego 1.64GB udało się zejść do 175MB, przy tym samym przyspieszaj
 
 \subsubsection{Cel}
 
-Zadaniem CI/CD jest zautomatyzowanie czynności związanych z testowaniem, budowaniem i wdrażaniem aplikacji. Chcemy osiągnąć ciągłość integracji (Continuous Integration) oraz ciągłość dostarczania (Continuous Delivery/Deployment), co pozwoli na:
+Celem CI/CD jest zautomatyzowanie czynności związanych z testowaniem, budowaniem oraz wdrażaniem aplikacji, co umożliwia realizację ciągłej integracji (Continuous Integration) oraz ciągłego dostarczania lub wdrażania (Continuous Delivery/Deployment). Dzięki temu można osiągnąć:
 
 \begin{itemize}
-\item Automatyczne uruchamianie testów jednostkowych i integracyjnych po każdym commitcie, co zapewnia wczesne wykrywanie błędów.
-\item Automatyczne budowanie aplikacji po każdym commitcie, co umożliwia szybsze wdrażanie nowych wersji.
-\item Automatyczne wdrażanie aplikacji na środowiska testowe i produkcyjne, co przyspiesza proces wydawania nowych wersji i minimalizuje ryzyko błędów wynikających z ręcznego wdrażania.
-\item Zapewnienie spójności środowisk poprzez zautomatyzowane procesy budowania i wdrażania.
-\item Zwiększenie produktywności zespołu poprzez automatyzację powtarzalnych zadań.
+    \item automatyczne uruchamianie testów jednostkowych i integracyjnych po każdym zatwierdzeniu zmian, co zapewnia wczesne wykrywanie błędów,
+    \item automatyczne budowanie aplikacji po każdym wypchnięciu kodu, co umożliwia szybsze wdrażanie nowych wersji,
+    \item automatyczne wdrażanie aplikacji na środowiska testowe i produkcyjne, co przyspiesza proces wydawania nowych wersji i minimalizuje ryzyko błędów wynikających z ręcznego wdrażania.
+    \item zapewnienie spójności środowisk poprzez zautomatyzowane procesy budowania i wdrażania.
+    \item zwiększenie efektywności zespołu poprzez automatyzację powtarzalnych zadań.
 \end{itemize}
 
 \subsubsection{Wybór platformy}
 
-Najpopularniejszą platformą i oferującą jednocześnie najwięcej opcji jest z pewnością Gitlab, ale wymaga bardzo czasochłonnej konfiguracji jeszcze przed samym zaczęciem konfiguracji CI/CD.
+Obecnie na rynku dostępnych jest wiele platform CI/CD, które umożliwiają automatyzację procesów związanych z testowaniem, budowaniem oraz wdrażaniem aplikacji. Wśród najpopularniejszych platform znajdują się \textbf{Azure DevOps}, \textbf{GitLab CI/CD}, \textbf{CircleCI} oraz \textbf{GitHub Actions}. Poniżej przedstawiono krótką charakterystykę każdej z platform, popartą literaturą.
 
-Ja jako platformę CI/CD wybrałem \textbf{Github Actions}, ponieważ jest darmowa dla publicznych projektów, bardzo dobrze udokumentowana i nie wymaga żadnej początkowej konfiguracji. Językiem opisu są tutaj pliki \lstinline|.yml| mieszczone w folderze \lstinline|.github| w głównym folderze projektu.
+\paragraph{Azure DevOps}\mbox{} \\
+
+Azure DevOps to rozbudowane narzędzie firmy Microsoft, które integruje funkcje CI/CD, zarządzanie kodem, planowanie projektów oraz współpracę z chmurą Azure. Jest szczególnie popularne w organizacjach pracujących w ekosystemie Microsoft \cite{AzureDevOpsGitHubActionsComparison}.
+
+\paragraph{GitLab CI/CD}\mbox{} \\
+
+GitLab CI/CD to moduł wbudowany w platformę GitLab, pozwalający na definiowanie procesów ciągłej integracji i wdrażania bezpośrednio w repozytorium projektu. GitLab jest ceniony za kompleksowość oraz szerokie możliwości integracji z narzędziami takimi jak Docker czy Kubernetes \cite{GitLabAzureDevOpsComparison}.
+
+\paragraph{CircleCI}\mbox{} \\
+
+CircleCI to platforma skoncentrowana na szybkości i elastyczności, która integruje się z popularnymi repozytoriami Git. Umożliwia tworzenie pipeline'ów CI/CD o dużej wydajności, a jej konfiguracja jest stosunkowo prosta \cite{CircleCIGitHubActionsGitLab}.
+
+\paragraph{GitHub Actions}\mbox{} \\
+
+GitHub Actions to narzędzie CI/CD natywnie zintegrowane z GitHubem, umożliwiające automatyzację procesów bezpośrednio w repozytorium. Jest szczególnie przyjazne dla mniejszych zespołów, ze względu na prostą konfigurację i szeroki wybór gotowych akcji \cite{GitHubActionsImporter}.
+
+\paragraph{Podsumowanie}\mbox{} \\
+
+Wybór odpowiedniej platformy CI/CD zależy od specyficznych wymagań projektu oraz dostępnego budżetu. Azure DevOps jest preferowane w środowiskach Microsoftu, oferując głęboką integrację z chmurą Azure i szerokie możliwości zarządzania projektami. GitLab CI/CD z kolei zapewnia kompleksowość i elastyczność, zwłaszcza dla zespołów pracujących z kontenerami i narzędziami takimi jak Docker oraz Kubernetes. CircleCI jest dobrym wyborem dla organizacji poszukujących szybkiej i wydajnej konfiguracji CI/CD opartej na repozytoriach Git. 
+
+W ramach tej pracy wybrano \textbf{GitHub Actions} jako platformę CI/CD. Jest to rozwiązanie stosunkowo proste do skonfigurowania, dzięki natywnej integracji z GitHubem i szerokiej dostępności gotowych akcji. Dodatkowo, GitHub Actions jest dostępne bezpłatnie dla projektów publicznych, co czyni je ekonomicznym wyborem dla mniejszych zespołów oraz projektów open-source \cite{GitHubActionsImporter}.
 
 \subsection{Pojęcia}
 
 \subsubsection{Pipeline}
 
-Pipeline CI/CD składa się z serii kroków, które są wykonywane automatycznie po każdym commitcie. W przypadku Github Actions, konfiguracja pipeline'u odbywa się za pomocą plików YAML, które definiują kroki, jakie mają być wykonane. Poniżej przedstawiam przykładowy pipeline
+Pipeline CI/CD jest sekwencją kroków, które są automatycznie wykonywane po każdym zatwierdzeniu zmian (commicie). W przypadku GitHub Actions konfiguracja pipeline’u odbywa się za pomocą plików YAML, które definiują poszczególne kroki. Poniżej przedstawiono przykładową konfigurację pipeline'u:
 
 \begin{lstlisting}[caption=Przykładowa konfiguracja pipeline'u w Github Actions]
 name: CI/CD Pipeline
@@ -817,39 +811,38 @@ steps:
 
 \end{lstlisting}
 
-Pipeline składa się z sekcji konfiguracyjnej, w której wyspecyfikowane jest, co ma go włączać. W tym przypadku jest to akcja push na branch main.
+Pipeline składa się z sekcji konfiguracyjnej, określającej warunki jego uruchamiania. W powyższym przykładzie jest to operacja wypchnięcia na gałęzi main.
 
-W następnej sekcji zdefiniowane jest, jakiego typu agent zostanie przydzielony. W tym wypadku jest to ubuntu.
+Kolejna sekcja definiuje rodzaj agenta, który zostanie użyty do wykonania zadania, w tym przypadku jest to środowisko Ubuntu.
 
-W ostatniej sekcji zdefiniowane są kroki pipeline. Tutaj włączany jest tylko jeden krok, który wywołuje komendę bezpośrednio na agencie, która wypisze na ekran "Hello world"
+Ostatnia sekcja zawiera kroki pipeline’u, które będą wykonywane przez agenta. W przedstawionym przykładzie wykonywany jest jeden krok, który uruchamia komendę wypisującą "Hello world".
 
 \subsubsection{Agent}
 
-W kontekście CI/CD, agent jest to bezstanowa maszyna wirtualna lub kontener, na którym wykonywane są kroki zdefiniowane w pipeline. Agent jest odpowiedzialny za wykonanie zadań takich jak budowanie, testowanie i wdrażanie aplikacji. W Github Actions, agentem jest maszyna uruchomiona przez Github, na której uruchamiane są kroki zdefiniowane w pliku YAML.
+Agent w kontekście CI/CD to bezstanowa maszyna wirtualna lub kontener, na którym wykonywane są kroki zdefiniowane w pipeline. Agent odpowiada za realizację zadań takich jak budowanie, testowanie i wdrażanie aplikacji. W GitHub Actions agentem jest maszyna udostępniana przez GitHub, na której uruchamiane są kroki określone w pliku YAML.
 
-Agent jest kluczowym elementem w procesie CI/CD, ponieważ to na nim wykonywane są wszystkie operacje, które składają się na cały proces. Każdy job w pipeline jest uruchamiany na oddzielnym agencie, co pozwala na równoległe wykonywanie zadań i zwiększa efektywność procesu. Agenty są bezstanowe, co oznacza, że każde uruchomienie joba zaczyna się od nowej, czystej maszyny, co minimalizuje ryzyko wystąpienia problemów wynikających z zależności między zadaniami.
-
+Agent odgrywa kluczową rolę w procesie CI/CD, gdyż to na nim realizowane są wszystkie operacje składające się na pipeline. Każde zadanie (job) w pipeline jest uruchamiane na oddzielnym agencie, co pozwala na równoległe wykonywanie zadań i zwiększa efektywność całego procesu. Agenty są bezstanowe, co oznacza, że każde uruchomienie zadania odbywa się na nowej, czystej maszynie, minimalizując ryzyko problemów wynikających ze współzależności między zadaniami.
 
 \subsubsection{Gotowe akcje GitHub Actions}
 
-Jedną z zalet korzystania z GitHub Actions jest dostępność gotowych akcji (actions), które upraszczają i przyspieszają konfigurację pipeline'ów CI/CD. Akcje te są predefiniowanymi, wielokrotnego użytku fragmentami kodu, które można łatwo zintegrować z własnym pipeline'em. Dzięki nim, można nałożyć abstrakcję na powtarzalne i skomplikowane zadania, co znacząco upraszcza proces automatyzacji.
+Jedną z zalet GitHub Actions jest dostępność gotowych akcji (actions), które ułatwiają i przyspieszają konfigurację pipeline'ów CI/CD. Akcje te to predefiniowane, wielokrotnego użytku moduły, które można łatwo zintegrować z własnym pipeline’em. Dzięki nim możliwe jest uproszczenie powtarzalnych i złożonych zadań w procesie automatyzacji.
 
-Gotowe akcje można znaleźć w oficjalnym GitHub Marketplace, gdzie dostępne są tysiące akcji przygotowanych przez społeczność oraz samych twórców GitHub. Akcje te mogą obejmować różnorodne zadania, takie jak:
+Gotowe akcje dostępne są w GitHub Marketplace i obejmują szeroki wachlarz zadań, m.in.:
 
 \begin{itemize}
-\item Analiza kodu: Integracja z narzędziami do analizy statycznej kodu, linterami oraz sprawdzanie jakości kodu.
-\item Bezpieczeństwo: Automatyczne skanowanie kodu w poszukiwaniu podatności, zarządzanie sekretami oraz zapewnienie zgodności z politykami bezpieczeństwa.
-\item Wdrażanie: Akcje do wdrażania aplikacji na różne środowiska, w tym na serwery, usługi chmurowe (np. AWS, Azure, Google Cloud) oraz platformy kontenerowe (np. Docker, Kubernetes).
-\item Powiadomienia: Integracja z narzędziami do komunikacji i zarządzania projektem, takimi jak Slack, Microsoft Teams, czy e-mail, w celu wysyłania powiadomień o stanie pipeline'u.
+\item analiza kodu - Integracja z narzędziami do analizy statycznej kodu, linterami oraz sprawdzanie jakości kodu,
+\item bezpieczeństwo - automatyczne skanowanie kodu w poszukiwaniu podatności, zarządzanie sekretami oraz zapewnienie zgodności z politykami bezpieczeństwa,
+\item wdrażanie - akcje do wdrażania aplikacji na różne środowiska, w tym na serwery, usługi chmurowe (np. AWS, Azure, Google Cloud) oraz platformy kontenerowe (np. Docker, Kubernetes).
+\item powiadomienia - integracja z narzędziami do komunikacji i zarządzania projektem, takimi jak Slack, Microsoft Teams, czy e-mail, w celu wysyłania powiadomień o stanie pipeline'u.
 \end{itemize}
 
-Korzystanie z gotowych akcji pozwala na znaczące zmniejszenie ilości kodu konfiguracyjnego oraz eliminację potencjalnych błędów wynikających z ręcznego definiowania skomplikowanych kroków. Na przykład, zamiast samodzielnie pisać skrypty do instalacji zależności i uruchamiania testów, można skorzystać z gotowych akcji, takich jak \lstinline|actions/setup-node| dla Node.js czy \lstinline|actions/checkout| do pobierania kodu źródłowego.
+Wykorzystanie gotowych akcji pozwala na znaczące zredukowanie ilości kodu konfiguracyjnego i eliminuje potencjalne błędy wynikające z ręcznego definiowania złożonych kroków. Na przykład, zamiast samodzielnie tworzyć skrypty do instalacji zależności i uruchamiania testów, można skorzystać z gotowych akcji, takich jak \lstinline|actions/setup-node| dla Node.js czy \lstinline|actions/checkout| do pobierania kodu źródłowego.
 
 \subsubsection{Sekrety}
 
-Sekrety w kontekście CI/CD to poufne informacje, takie jak klucze API, dane logowania, tokeny dostępu czy hasła, które są niezbędne do działania różnych etapów pipeline'u, ale które nie powinny być ujawniane publicznie. Wiele platform CI/CD, takich jak Github Actions, Gitlab CI czy Jenkins, umożliwia przechowywanie i zarządzanie sekretami w bezpieczny sposób.
+Sekrety w kontekście CI/CD to poufne informacje, takie jak klucze API, dane logowania, tokeny dostępu oraz hasła, które są niezbędne do realizacji poszczególnych etapów pipeline’u, lecz nie powinny być ujawniane publicznie. Wiele platform CI/CD, takich jak GitHub Actions, GitLab CI czy Jenkins, oferuje bezpieczne przechowywanie i zarządzanie sekretami.
 
-Mimo że pliki konfiguracyjne pipeline'ów mogą być publiczne, same sekrety są ukryte i niedostępne dla osób postronnych. Nawet gdy pipeline jest otwarty dla publicznego wglądu, wartości sekretów pozostają niewidoczne. Sekrety są wstrzykiwane do pipeline'u jako zmienne środowiskowe tylko w momencie wykonywania pipeline'u, co zapewnia ich bezpieczeństwo. W publicznym do wglądu logu pipeline wyświetlane są tak:
+Mimo że pliki konfiguracyjne pipeline’ów mogą być publiczne, sekrety pozostają ukryte i niedostępne dla osób nieuprawnionych. Nawet w przypadku pipeline’u dostępnego do publicznego wglądu wartości sekretów pozostają niewidoczne. Sekrety są przekazywane do pipeline’u jako zmienne środowiskowe jedynie podczas jego wykonywania, co zapewnia ich bezpieczeństwo. W publicznych logach pipeline'u wartości sekretów wyświetlane są w sposób zamaskowany:
 
 \begin{figure}[H]
     \centering
@@ -858,7 +851,7 @@ Mimo że pliki konfiguracyjne pipeline'ów mogą być publiczne, same sekrety s�
     \label{fig:enter-label}
 \end{figure}
 
-Na przykład w Github Actions, sekrety można skonfigurować w ustawieniach repozytorium:
+W GitHub Actions sekrety można skonfigurować w ustawieniach repozytorium poprzez następujące kroki:
 
 \begin{enumerate}
 \item Przejdź do sekcji "Settings" w swoim repozytorium.
@@ -866,28 +859,30 @@ Na przykład w Github Actions, sekrety można skonfigurować w ustawieniach repo
 \item Kliknij "New repository secret", aby dodać nowy sekret.
 \end{enumerate}
 
-Po dodaniu sekrety można używać w plikach YAML definiujących pipeline, w ten sposób
+Po dodaniu, sekrety mogą być używane w plikach YAML definiujących pipeline w następujący sposób:
 
 \begin{lstlisting}[caption=Przykładowa konfiguracja pipeline'u w Github Actions]
 - value: ${{ secrets.MY_SECRET }}
 \end{lstlisting}
 
 \subsection{Najlepsze praktyki}
-Pisanie dobrych pipelinów ma zasady bardzo podobne do zasad pisania czystego kodu. Przytoczę kilka z nich
+Zasady tworzenia efektywnych pipeline'ów CI/CD są zbliżone do zasad tworzenia przejrzystego i czytelnego kodu. Poniżej przedstawiono kluczowe aspekty optymalnego projektowania pipeline'ów.
 
 \subsubsection{Odpowiedzialność}
 
-Każda akcja w pipeline CI/CD powinna spełniać zasadę pojedynczej odpowiedzialności, czyli wykonywać tylko jedno, dobrze zdefiniowane zadanie. Unikanie dużych, złożonych plików konfiguracyjnych, które realizują wszystkie kroki procesu, jest kluczowe dla utrzymania przejrzystości i łatwości zarządzania. Dzięki temu podejściu, można również uruchamiać wiele akcji równocześnie tam, gdzie to możliwe, co zwiększa efektywność i skraca czas wykonania całego pipeline'u.
+Każda akcja w pipeline CI/CD powinna realizować zasadę pojedynczej odpowiedzialności, wykonując jedno, dobrze określone zadanie. Unikanie dużych, złożonych plików konfiguracyjnych, które zawierają wszystkie etapy procesu, jest kluczowe dla zachowania przejrzystości oraz łatwości zarządzania pipeline’em. Takie podejście umożliwia również równoczesne wykonywanie różnych akcji tam, gdzie jest to możliwe, co zwiększa efektywność i skraca czas realizacji całego pipeline’u.
 
-Przykładowy proces budowania aplikacji może obejmować kroki takie jak:
+Zasada pojedynczej odpowiedzialności (Single Responsibility Principle) jest kluczowa w projektowaniu zarówno kodu, jak i pipeline'ów CI/CD. Robert C. Martin w swojej książce "Clean Architecture: A Craftsman's Guide to Software Structure and Design" \cite{cleanArchitecture} podkreśla, że każda klasa czy moduł powinny mieć tylko jeden powód do zmiany, co przekłada się na lepszą czytelność i łatwość utrzymania kodu.
+
+Przykładowo, proces budowania aplikacji może obejmować następujące kroki:
 
 \begin{itemize}
     \item zbudowanie,
     \item przetestowanie,
-    \item analiza kodu sonarqube
+    \item analiza kodu (np. przy użyciu SonarQube).
 \end{itemize}
 
-Zakładając, że wszystkie te kroki opisane są w jednej akcji i że każda z czynności zajmuje 1 jednostkę czasu, to cały pipeline wykona się w 3 jednostki czasu.
+Jeśli wszystkie te kroki są opisane w jednej akcji, a każda z czynności zajmuje 1 jednostkę czasu, cały pipeline zakończy się po 3 jednostkach czasu.
 
 \begin{figure}[H]
     \centering
@@ -896,7 +891,7 @@ Zakładając, że wszystkie te kroki opisane są w jednej akcji i że każda z c
     \label{fig:enter-label}
 \end{figure}
 
-Warto jednak zauważyć, że krok \textbf{zbudowanie} musi być wykonany pierwszy, a kroki \textbf{przetestowanie} oraz \textbf{analiza kodu sonarqube} mogą być wykonane współbieżnie, ponieważ nie wpływają na siebie wzajemnie. Dobry rozdział na akcje pozwala w tym przypadku zaoszczędzić czas - cały pipeline wykona się teraz w 2 jednostki czasu.
+Warto jednak zauważyć, że krok \textbf{budowanie aplikacji} musi być wykonany jako pierwszy, natomiast kroki \textbf{testowanie} oraz \textbf{analiza kodu} mogą być realizowane równolegle, gdyż nie są od siebie zależne. Podział na oddzielne akcje pozwala w takim przypadku skrócić czas wykonania całego pipeline’u do 2 jednostek.
 
 \begin{figure}[H]
     \centering
@@ -907,7 +902,7 @@ Warto jednak zauważyć, że krok \textbf{zbudowanie} musi być wykonany pierwsz
 
 \subsubsection{Abstrakcja}
 
-Dobrze napisane akcje powinny być konfigurowalne i elastyczne, aby można było je wykorzystywać w różnych kontekstach, takich jak wdrażanie na środowiska deweloperskie i produkcyjne. Konfiguracja powinna odbywać się za pomocą parametrów, co pozwala na wielokrotne użycie tej samej akcji bez konieczności modyfikowania jej kodu.
+Efektywnie zaprojektowane akcje powinny być elastyczne i konfigurowalne, umożliwiając ich wykorzystanie w różnych kontekstach, takich jak wdrażanie na środowiska deweloperskie i produkcyjne. Parametryzacja akcji pozwala na ich wielokrotne użycie bez potrzeby modyfikacji kodu każdorazowo.
 
 \begin{figure}[H]
     \centering
@@ -916,31 +911,31 @@ Dobrze napisane akcje powinny być konfigurowalne i elastyczne, aby można było
     \label{fig:enter-label}
 \end{figure}
 
-Możliwe jest także wyniesienie akcji na poziom wyższy niż obejmujący jedno repozytorium. Możliwe jest, że na przykład w skład projektu wchodzi kilka mikroserwisów napisanych w tej samej technologii. Wygodne jest wtedy stworzenie oddzielnego repozytorium na akcje i zdefiniowanie tam akcji powtarzalnych dla wszystkich tych mikroserwisów.
+Dodatkowo, możliwe jest wyniesienie akcji na poziom wyższy niż repozytorium. W przypadku projektu obejmującego kilka mikroserwisów napisanych w tej samej technologii, zasadne może być stworzenie oddzielnego repozytorium dla akcji, w którym zostaną zdefiniowane powtarzalne kroki wspólne dla wszystkich mikroserwisów.
 
 \subsubsection{Idempotencja}
 
-Idempotencja jest kluczową zasadą w projektowaniu akcji CI/CD. Oznacza to, że wykonanie tej samej akcji wielokrotnie powinno dawać ten sam efekt, niezależnie od stanu początkowego. Idempotentne akcje minimalizują ryzyko wystąpienia błędów i nieprzewidzianych zachowań podczas wielokrotnego uruchamiania pipeline'u.
+Idempotencja jest kluczowym pojęciem w inżynierii oprogramowania, szczególnie w kontekście systemów rozproszonych i pipeline'ów CI/CD. W artykule "Understanding Idempotency: A Key to Reliable and Scalable Data Pipelines" \cite{understandingIdempotency} opublikowanym na stronie Airbyte, autorzy omawiają znaczenie idempotencji w zapewnianiu spójności i niezawodności w pipeline'ach danych. Podkreślają, że operacje idempotentne mogą być wykonywane wielokrotnie bez zmiany końcowego rezultatu, co jest kluczowe w kontekście powtarzalnych procesów w pipeline'ach CI/CD.
 
-Przykładem nieidempotentnej akcji byłaby akcja budująca obraz dockerowy, która zaciąga repozytorium po prostu z brancha main. W tym wypadku o tym, co zostanie zbudowane decyduje aktualny stan brancha main. Po włączeniu pipeline, a następnie zmiany na branchu main i potem ponownym włączeniem tego samego pipeline zostanie zbudowany inny obraz.
+Przykładem akcji nieidempotentnej byłaby akcja budująca obraz Dockerowy, która pobiera repozytorium z głównej gałęzi (main). W takim przypadku rezultat budowy obrazu zależy od bieżącego stanu gałęzi main, co oznacza, że uruchomienie pipeline’u, następnie zmiana na gałęzi main, a ponowne uruchomienie pipeline’u może skutkować budową innego obrazu.
 
-Poprawnym rozwiązaniem tej sytuacji byłoby pobranie dokładnego commita, do którego referencji jest dostęp w samym pipeline. Ponowne włączenie tego samego pipeline zawsze będzie miało referencję do tego samego commita.
+Poprawnym rozwiązaniem w tej sytuacji jest pobranie konkretnego commitu, do którego odniesienie znajduje się w pipeline. Powtórne uruchomienie tego samego pipeline’u zawsze będzie odnosić się do tego samego commitu.
 
-Przydatne może się to okazać w przypadku próby rollbacku do poprzedniej działającej wersji. Zakładając, że wdrożone zostały wersje:
+Praktyczne zastosowanie tej zasady może być szczególnie istotne w przypadku potrzeby rollbacku do poprzedniej, działającej wersji aplikacji. Przykładowo, jeśli wdrożono następujące wersje:
 \begin{itemize}
-    \item wersja A - ta wersja zadziałała poprawnie,
-    \item wersja B - ta wersja nie działa poprawnie
+    \item wersja A - wersja funkcjonująca prawidłowo,
+    \item wersja B - wersja zawierająca błędy
 \end{itemize}
 
-Można odszukać konkretny pipeline wdrażający wersję A i po prostu ponownie go włączyć. Zagwarantuje to ponowne wdrożenie działającej wersji.
+Możliwe jest odnalezienie konkretnego pipeline’u, który wdrażał wersję A, i ponowne jego uruchomienie, co zagwarantuje powrót do działającej wersji aplikacji.
 
 \subsection{Więcej o języku opisu Github Actions}
 
-W dalszej części pracy będę używał wiele takich samych wzorców. Wypiszę tutaj podstawowe wzorce używane w Github actions
+W dalszej części pracy wykorzystano powtarzalne wzorce stosowane w konfiguracji GitHub Actions. Poniżej przedstawiono podstawowe struktury używane w tworzeniu pipeline’ów.
 
 \subsubsection{Triggery}
 
-Zwykle chcemy, żeby pipeline włączał się po wykonaniu jakiejś akcji powiązanej z gitem. Język opisu Github actions udostępnia triggery, w środku których definiuje się, co ma spowodować rozpoczęcie danego pipeline. Najprostszym przykładem jest włączenia pipeline po zrobieniu akcji push na main.
+Pipeline CI/CD powinien być uruchamiany po wykonaniu określonych akcji związanych z systemem kontroli wersji (Git). GitHub Actions umożliwia definiowanie triggerów, w których można określić warunki uruchomienia pipeline'u. Przykładowo, poniższy fragment kodu konfiguruje pipeline, aby uruchamiał się automatycznie po wykonaniu operacji push na gałęzi main.
 
 \begin{lstlisting}[caption=Fragment kodu z triggerem ustawionym na push na main]
 on:
@@ -952,9 +947,7 @@ on:
 
 \subsubsection{Template}
 
-Najprostszym sposobem napisania pipeline jest ten przytoczony wyżej. Stworzenie pliku \lstinline|.yml| i pisanie w nim kroków. Nie jest to jednak optymalny sposób, ponieważ uniemożliwia ponowne wykorzystanie powtarzalnych fragmentów kodu.
-
-Powszechnie stosowaną praktyką jest podzielenie folderu z pipelinami na \lstinline|templates| oraz \lstinline|workflows|. Folder z templatami zawiera akcje konfigurowalne za pomocą parametrów. Folder z workflows natomiast po prostu je wywołuje.
+Najprostszą formą definiowania pipeline’u jest zapis kroków bezpośrednio w pliku \lstinline|.yml|, jednak podejście to nie umożliwia ponownego wykorzystania powtarzalnych fragmentów kodu. Dlatego zalecaną praktyką jest rozdzielenie folderu z pipeline'ami na \lstinline|templates| oraz \lstinline|workflows|. Folder \lstinline|templates| zawiera akcje konfigurowalne za pomocą parametrów, natomiast folder \lstinline|workflows| wywołuje te szablony, dostosowując je do konkretnych zastosowań.
 
 \begin{figure}[H]
     \centering
@@ -963,7 +956,8 @@ Powszechnie stosowaną praktyką jest podzielenie folderu z pipelinami na \lstin
     \label{fig:enter-label}
 \end{figure}
 
-Aby przedstawić to na przykładzie, przygotowałem następujące pliki
+Poniżej przedstawiono przykładową konfigurację szablonów:
+
 \begin{lstlisting}[caption=Plik \lstinline|.github/templates/templateA/action.yml|]
 name: Print message to the screen
 
@@ -1017,7 +1011,7 @@ jobs:
           message: "Hello world B!"
 \end{lstlisting}
 
-Efektem wykonania akcji push na main jest włączenie dwóch pipelinów.
+W efekcie wykonanie akcji push na gałęzi main powoduje uruchomienie dwóch pipeline’ów.
 
 \begin{figure}[H]
     \centering
@@ -1026,7 +1020,7 @@ Efektem wykonania akcji push na main jest włączenie dwóch pipelinów.
     \label{fig:enter-label}
 \end{figure}
 
-I w każdym z nich odpowiedni tekst wypisany do konsoli 
+Każdy pipeline wyświetla odpowiedni tekst w konsoli:
 
 \begin{figure}[H]
     \centering
@@ -1045,72 +1039,70 @@ I w każdym z nich odpowiedni tekst wypisany do konsoli
     \end{minipage}
 \end{figure}
 
-Przykładem stosowania templatów są multi środowiska. W dzisiejszym świecie kultura devops jest na tyle rozwinięta, że stosowanie kilku środowisk stało się standardem. Oznacza to, że oprócz produkcyjnego środowiska istnieje kopia (a czasem kilka) całkowicie wyizolowana od pozostałych środowisk. Zwykle dostępna pod adresem \lstinline|https://nazwa-środowiska.oryginalna-domena.pl|.
-
-Rozwiązanie to jest wygodne, ponieważ pozwala przetestować zmiany w semi-realnym scenariuszu nie narażając środowiska produkcyjnego na błędy.
+Szablony są szczególnie użyteczne w przypadku istnienia wielu środowisk. Współczesne standardy DevOps wymagają stosowania wielu środowisk, w tym środowisk testowych, izolowanych od środowisk produkcyjnych, dostępnych często pod adresem \lstinline|https://nazwa-środowiska.oryginalna-domena.pl|. Taka struktura pozwala na testowanie zmian w środowisku zbliżonym do rzeczywistego, minimalizując ryzyko wpływu na środowisko produkcyjne.
 
 \section{Konfiguracja infrastruktury}
 
 \subsection{Serwer}
 
-Rolę mojego serwera będzie pełnić maszyna z ubuntu 22.04 posiadająca 2GB ramu, 10GB dysku oraz 1 współdzielony rdzeń procesora.
+Rolę serwera pełni maszyna z ubuntu 22.04 posiadająca 2GB ramu, 10GB dysku oraz 1 współdzielony rdzeń procesora.
 
 \subsection{Uwierzytelnienie do serwera}
 
-W procesie uwierzytelniania do serwera VPS możemy wyróżnić dwa główne podejścia. Uwierzytelnienie kluczem SSH oraz uwierzytelnienie hasłem. Każde z tych rozwiązań ma swoje zalety i wady, które mogą wpływać na decyzję o wyborze jednej z metod w zależności od specyfiki użycia i wymagań bezpieczeństwa.
+Jak podano w artykule Krakweb \cite{Krakweb}, w procesie uwierzytelniania dostępu do serwera VPS można wyróżnić dwa podstawowe podejścia: uwierzytelnianie kluczem SSH oraz uwierzytelnianie hasłem. Każde z nich ma swoje zalety i wady, które mogą wpływać na wybór jednej z metod w zależności od specyficznych wymagań oraz założeń dotyczących bezpieczeństwa.
 
 \subsubsection{Uwierzytelnienie hasłem}
 
-Uwierzytelnienie hasłem jest jednym z najczęściej spotykanych i najprostszych sposobów zabezpieczania dostępu do serwera. Polega ono na wymaganiu od użytkownika podania nazwy użytkownika oraz odpowiadającego mu hasła podczas logowania.
+Uwierzytelnianie hasłem jest jednym z najczęściej stosowanych sposobów ochrony dostępu do serwera. Polega ono na podaniu przez użytkownika nazwy konta oraz odpowiadającego mu hasła podczas logowania.
 
 \begin{itemize}
     \item \textbf{Zalety:}
     \begin{itemize}
-        \item \textit{Łatwość użycia}: Proces logowania jest intuicyjny i nie wymaga zaawansowanej wiedzy technicznej.
-        \item \textit{Powszechność}: Hasła są szeroko stosowane w różnych systemach i aplikacjach, co sprawia, że użytkownicy są zazwyczaj zaznajomieni z tą formą uwierzytelniania.
-        \item \textit{Brak konieczności konfiguracji dodatkowego oprogramowania}: Nie wymaga instalacji czy konfiguracji dodatkowych narzędzi poza podstawową konfiguracją serwera.
+        \item \textit{łatwość użycia} - proces logowania jest intuicyjny i nie wymaga zaawansowanej wiedzy technicznej,
+        \item \textit{powszechność} - hasła są szeroko stosowane w różnych systemach i aplikacjach, co sprawia, że użytkownicy są zazwyczaj zaznajomieni z tą formą uwierzytelniania,
+        \item \textit{brak konieczności konfiguracji dodatkowego oprogramowania} - nie wymaga instalacji czy konfiguracji dodatkowych narzędzi poza podstawową konfiguracją serwera.
     \end{itemize}
     \item \textbf{Wady:}
     \begin{itemize}
-        \item \textit{Bezpieczeństwo}: Hasła mogą być narażone na ataki brute force, phishing, czy przechwytywanie podczas transmisji. Skuteczne hasło musi być odpowiednio długie i skomplikowane, co z kolei może być problematyczne do zapamiętania.
-        \item \textit{Zarządzanie}: W przypadku wielu użytkowników lub często zmieniającego się personelu, zarządzanie hasłami może stać się trudne i czasochłonne.
-        \item \textit{Skłonność do słabych haseł}: Użytkownicy często tworzą łatwe do odgadnięcia hasła, co zwiększa ryzyko nieautoryzowanego dostępu.
+        \item \textit{bezpieczeństwo}: hasła mogą być narażone na ataki brute force, phishing, czy przechwytywanie podczas transmisji. Skuteczne hasło musi być odpowiednio długie i skomplikowane, co z kolei może być problematyczne do zapamiętania,
+        \item \textit{zarządzanie} - w przypadku wielu użytkowników lub często zmieniającego się personelu, zarządzanie hasłami może stać się trudne i czasochłonne,
+        \item \textit{skłonność do słabych haseł} - użytkownicy często tworzą łatwe do odgadnięcia hasła, co zwiększa ryzyko nieautoryzowanego dostępu.
     \end{itemize}
 \end{itemize}
 
 \subsubsection{Uwierzytelnienie kluczem SSH}
 
-Uwierzytelnienie kluczem SSH polega na użyciu pary kluczy kryptograficznych (klucza prywatnego i publicznego) do uwierzytelniania użytkownika. Klucz publiczny jest przechowywany na serwerze, natomiast klucz prywatny jest przechowywany przez użytkownika.
+Uwierzytelnianie kluczem SSH wykorzystuje parę kluczy kryptograficznych (klucz prywatny i klucz publiczny) do uwierzytelniania użytkownika. Klucz publiczny przechowywany jest na serwerze, a klucz prywatny pozostaje na urządzeniu użytkownika.
 
 \begin{itemize}
     \item \textbf{Zalety:}
     \begin{itemize}
-        \item \textit{Bezpieczeństwo}: Klucze SSH są znacznie trudniejsze do złamania w porównaniu z hasłami. Uwierzytelnianie kluczem prywatnym i publicznym zapewnia wysoki poziom bezpieczeństwa.
-        \item \textit{Brak konieczności przesyłania klucza prywatnego}: Podczas procesu logowania klucz prywatny nigdy nie opuszcza maszyny użytkownika, co eliminuje ryzyko jego przechwycenia.
-        \item \textit{Automatyzacja i skrypty}: Uwierzytelnienie kluczem jest wygodne do użycia w skryptach i automatycznych procesach, gdzie podanie hasła byłoby problematyczne.
+        \item \textit{bezpieczeństwo} - klucze SSH są znacznie trudniejsze do złamania w porównaniu z hasłami. Uwierzytelnianie kluczem prywatnym i publicznym zapewnia wysoki poziom bezpieczeństwa,
+        \item \textit{brak konieczności przesyłania klucza prywatnego} - podczas procesu logowania klucz prywatny nigdy nie opuszcza maszyny użytkownika, co eliminuje ryzyko jego przechwycenia,
+        \item \textit{automatyzacja i skrypty} - uwierzytelnienie kluczem jest wygodne do użycia w skryptach i automatycznych procesach, gdzie podanie hasła byłoby problematyczne.
     \end{itemize}
     \item \textbf{Wady:}
     \begin{itemize}
-        \item \textit{Złożoność konfiguracji}: Proces generowania kluczy, ich instalacja i zarządzanie mogą być bardziej skomplikowane, zwłaszcza dla mniej doświadczonych użytkowników.
-        \item \textit{Bezpieczeństwo klucza prywatnego}: Klucz prywatny musi być przechowywany w bezpiecznym miejscu. W przypadku jego utraty lub przechwycenia, dostęp do serwera może być zagrożony.
-        \item \textit{Zarządzanie kluczami}: W dużych organizacjach zarządzanie kluczami może być skomplikowane, szczególnie jeśli użytkownicy często się zmieniają.
+        \item \textit{złożoność konfiguracji} - proces generowania kluczy, ich instalacja i zarządzanie mogą być bardziej skomplikowane, zwłaszcza dla mniej doświadczonych użytkowników,
+        \item \textit{bezpieczeństwo klucza prywatnego} - klucz prywatny musi być przechowywany w bezpiecznym miejscu. W przypadku jego utraty lub przechwycenia, dostęp do serwera może być zagrożony,
+        \item \textit{zarządzanie kluczami} - w dużych organizacjach zarządzanie kluczami może być skomplikowane, szczególnie jeśli użytkownicy często się zmieniają.
     \end{itemize}
 \end{itemize}
 
 \subsubsection{Implementacja}
 
-Jako że uwierzytelnienie kluczem SSH jest bezpieczniejsze oraz wygodniejsze przy automatyzacji procesów, wybrałem właśnie tę opcję i opiszę proces implementacji.
+Ze względu na wyższy poziom bezpieczeństwa oraz wygodę automatyzacji, wybrano uwierzytelnianie kluczem SSH. Poniżej przedstawiono kroki jego implementacji.
 
-Zwykle po wykupieniu serwera dostaje się dane do zalogowania. W tym hasło. Należy zalogować się do serwera tymi danymi. Następnie na swojej maszynie należy wygenerować parę kluczy ssh.
+Po zakupie serwera dostarczane są dane logowania, w tym hasło, umożliwiające pierwsze logowanie do serwera. Po zalogowaniu należy wygenerować parę kluczy SSH na lokalnym urządzeniu.
 
 \begin{lstlisting}[caption=Wygenerowanie pary kluczy na swojej maszynie]
 cd ~/.ssh
 ssh-keygen -t rsa -b 4096
 \end{lstlisting}
 
-Stworzy to pliki \lstinline|id_rsa| oraz \lstinline|id_rsa.pub|. Należy skopiować zawartość \lstinline|id_rsa.pub|, a następnie wkleić ją do pliku \lstinline|~/.ssh/authorized_keys| na serwerze.
+Powyższe polecenie tworzy pliki \lstinline|id_rsa| oraz \lstinline|id_rsa.pub|. Należy skopiować zawartość pliku \lstinline|id_rsa.pub| i dodać ją do pliku \lstinline|~/.ssh/authorized_keys| na serwerze.
 
-Ostatnim wygodnym krokiem jest stworzenie pliku \lstinline|~/.ssh/config| na lokalnej maszynie i dodanie tam konfiguracji serwera, gdzie \lstinline|IdentityFile| to ścieżka do prywatnego klucza SSH.
+Dla wygody warto także utworzyć plik konfiguracyjny \lstinline|~/.ssh/config| na lokalnym urządzeniu, który będzie zawierał konfigurację połączenia z serwerem. Wartość \lstinline|IdentityFile| to ścieżka do prywatnego klucza SSH.
 
 \begin{lstlisting}[caption=Przykładowa konfiguracja pliku config na lokalnej maszynie]
 Host magisterka
@@ -1122,21 +1114,20 @@ Host magisterka
     ServerAliveInterval 60
 \end{lstlisting}
 
-Po wykonaniu powyższych kroków można przetestować połączenie z serwerem wpisując w terminal \lstinline|ssh magisterka|. Powinno to połączyć się z serwerem.
+Po zakończeniu konfiguracji połączenie z serwerem można przetestować, wpisując w terminalu \lstinline|ssh magisterka|. Powyższe polecenie powinno umożliwić nawiązanie połączenia z serwerem.
 
-Parametr \lstinline|ServerAliveInterval| zadba o to, żeby sesja z serwerem nie zamykała się od nieaktywności. Maszyna hosta co 60 sekund będzie wysyłała do serwera ping, co spowoduje utrzymanie otwartego połączenia.
-
+Opcja \lstinline|ServerAliveInterval| utrzymuje połączenie poprzez wysyłanie pingów co 60 sekund, co zapobiega jego zamykaniu w przypadku braku aktywności.
 
 \subsection{Instalacja potrzebnych narzędzi}
 
-Jak wspomniane wcześniej, należy zminimalizować liczbę potrzebnych zależności na serwerze. W tym wypadku potrzebny będzie jedynie Docker, którego można zainstalować wykonując:
+Aby zminimalizować liczbę zależności na serwerze, instalowany będzie jedynie Docker. Instalację można przeprowadzić przy użyciu poniższego skryptu:
 
 \begin{lstlisting}[caption=Skrypt instalujący dockera na maszynie Ubuntu]
 curl -fsSL https://get.docker.com -o get-docker.sh
 sh get-docker.sh
 \end{lstlisting}
 
-Należy przeprowadzić weryfikację poprawnej instalacji używając \lstinline|docker ps|. Powinna pokazać się Dockerowa tabelka pokazująca, że aktualnie nie pracują żadne kontenery:
+Po zakończeniu instalacji należy zweryfikować poprawność instalacji, wykonując polecenie \lstinline|docker ps|. Wynik powinien zawierać tabelę Dockera, wskazującą brak aktywnych kontenerów:
 
 \begin{lstlisting}[caption=Wynik wykonania komendy weryfikującej instalację Dockera]
 root@l104:~# docker ps
@@ -1146,9 +1137,9 @@ CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
 
 \subsection{Tunelowanie IPv6}
 
-Jako że serwer wybrany przeze mnie należy do budżetowych, nie ma on swojego adresu IPv4. Jest to popularna praktyka obniżająca koszty. Dostawca zapewnia wtedy adres IPv6, do którego jednak nie wszyscy użytkownicy mają dostęp (adres IPv6 nie jest powszechnie wspierany).
+Ze względu na budżetowy charakter wybranego serwera, nie posiada on indywidualnego adresu IPv4, co jest powszechną praktyką obniżającą koszty. W takiej sytuacji dostawca udostępnia jedynie adres IPv6, który nie jest jednak wspierany przez wszystkie sieci.
 
-Aby to obejść, można skorzystać z darmowego narzędzia \textbf{Cloudflare}, do którego najpierw należy podpiąć swoją domenę. Cloudflare będzie pełniło rolę proxy. Użytkownik wchodząc na domenę będzie łączył się z Cloudflare po IPv4, a ten będzie tunelował ten ruch trybem IPv6 do serwera.
+Rozwiązaniem tego problemu jest skorzystanie z bezpłatnej usługi \textbf{Cloudflare}, po uprzednim podłączeniu do niej domeny. Cloudflare działa w tym przypadku jako serwer proxy: użytkownik, wchodząc na stronę domeny, łączy się z Cloudflare za pośrednictwem IPv4, a Cloudflare następnie przekierowuje ruch do serwera w trybie IPv6.
 
 \begin{figure}[H]
     \centering
@@ -1157,7 +1148,7 @@ Aby to obejść, można skorzystać z darmowego narzędzia \textbf{Cloudflare}, 
     \label{fig:enter-label}
 \end{figure}
 
-W pierwszej kolejności należy na serwerze wykonać komendę \lstinline|ifconifg|, aby dostać się do listy interfejsów sieciowych serwera. Następnie odszukać pole \lstinline|inet6| i skopiować jego wartość.
+W celu uzyskania adresu IPv6 należy wykonać na serwerze komendę \lstinline|ifconfig|, która wyświetla listę interfejsów sieciowych serwera. Następnie należy odnaleźć pole \lstinline|inet6| i skopiować widoczny tam adres IPv6.
 
 \begin{figure}[H]
     \centering
@@ -1166,7 +1157,7 @@ W pierwszej kolejności należy na serwerze wykonać komendę \lstinline|ifconif
     \label{fig:enter-label}
 \end{figure}
 
-Następnie w sekcji \textbf{DNS} panelu konfiguracyjnego domeny w Cloudflare należy dodać rekord AAAA z nazwą ustawioną na nazwę domeny, a wartością ustawioną na wcześniej skopiowany adres.
+W panelu konfiguracyjnym domeny na platformie Cloudflare, w sekcji \textbf{DNS}, należy dodać rekord typu AAAA, ustawiając nazwę na nazwę domeny, a wartość na wcześniej skopiowany adres IPv6.
 
 \begin{figure}[H]
     \centering
@@ -1175,10 +1166,10 @@ Następnie w sekcji \textbf{DNS} panelu konfiguracyjnego domeny w Cloudflare nal
     \label{fig:enter-label}
 \end{figure}
 
-Aby upewnić się, że konfiguracja działa, należy na serwerze postawić testowy kontener z obrazem \textbf{nginx} używając \lstinline|docker run -p 80:80 nginx|
+Aby sprawdzić poprawność konfiguracji, można uruchomić testowy kontener z obrazem \textbf{nginx} na serwerze, stosując polecenie \lstinline|docker run -p 80:80 nginx|.
 
 
-W celu weryfikacji poprawności wszystkich kroków należy udać się na stronę domeny (w tym wypadku ablaszkiewicz.pl). Strona powinna pokazać stronę startową \textbf{nginx}.
+Po wykonaniu tych kroków, odwiedzenie strony domeny (w przedstawionym przykładzie ablaszkiewicz.pl) wyświetla stronę powitalną \textbf{nginx}, potwierdzając poprawność konfiguracji.
 
 \begin{figure}[H]
     \centering
@@ -1190,19 +1181,19 @@ W celu weryfikacji poprawności wszystkich kroków należy udać się na stronę
 
 \section{Reverse proxy}
 
-\subsection{Idea}
+\subsection{Koncepcja}
 
-W aktualnej konfiguracji z poziomu domeny można dostać się tylko do jednego serwisu działającego na serwerze - konkretnie do serwisu działającego na porcie 80. Jest to oczywiście niechciane rozwiązanie, ponieważ w aktualnej konfiguracji na serwerze włączone będą minimum 2 serwisy - frontend oraz backend.
+W aktualnej konfiguracji dostęp do serwera z poziomu domeny jest ograniczony do jednego serwisu, działającego na porcie 80. Jest to ograniczenie, ponieważ na serwerze planowane jest uruchomienie co najmniej dwóch serwisów — frontendowego i backendowego.
 
-Aby radzić sobie z takimi sytuacjami, wykorzystuje się mechanizm zwany \textbf{reverse proxy}. Zamiast uruchamiać serwis bezpośrednio na porcie 80, to na porcie 80 stawia się reverse proxy, któremu podaje się zestaw reguł, na podstawie których kieruje ono ruch na inne, wewnętrzne porty serwera.
+W celu rozwiązania tego problemu stosuje się mechanizm \textbf{reverse proxy}. Zamiast uruchamiać serwis bezpośrednio na porcie 80, na tym porcie konfiguruje się reverse proxy, któremu przypisuje się zestaw reguł kierujących ruch na odpowiednie wewnętrzne porty serwera.
 
-W klasycznym podejściu do reverse proxy instaluje się narzędzie typu nginx w warstwie systemowej i to tutaj się je konfiguruje. Znacząco lepszym pomysłem i łatwiejszym pomysłem jest jednak zdockeryzowanie reverse proxy. Ingerencja w usługi systemowe zawsze wiąże się z ryzykiem - możliwe, że konfiguracja będzie błędna i bardzo dużo czasu zajmie odnalezienie błędu - zdockeryzowanie narzędzia pozwoli uodpornić się na błędy konfiguracji oraz zapewni powrót do poprzednich, działających wersji w przypadku błędów.
+Tradycyjne podejście polega na instalacji narzędzia, takiego jak NGINX, w warstwie systemowej, gdzie dokonuje się jego konfiguracji. Alternatywnym rozwiązaniem, zapewniającym większą elastyczność, jest uruchomienie reverse proxy w kontenerze Docker. Izolacja w kontenerze pozwala na łatwiejsze zarządzanie konfiguracją oraz szybsze przywrócenie poprzednich, działających wersji w przypadku błędów.
 
 \subsection{Implementacja}
 
-Narzędziem realizującym to zadanie w moim przypadku będzie nginx. Oprócz wyżej wymienionego zadania warto wiedzieć, że narzędzia tego typu zwykle zbierają logi wszystkiego, co związane z przekierowaniami. Będzie to bardzo przydatne w dalszej części pracy.
+Do realizacji mechanizmu reverse proxy zastosowano narzędzie NGINX. Jak podaje oficjalna dokumentacja \cite{NginxDocs}, oprócz funkcji przekierowywania ruchu NGINX może rejestrować logi powiązane z ruchem, co jest użyteczne w analizie i monitorowaniu działania systemu.
 
-Narzędzie skonfigurowałem tak, aby domyślnie kierowało ruch na wewnętrzny port serwera 3000 (tam będzie działał frontend), a adresy zawierające \lstinline|/api/| kierowało na 3001 (tam będzie działał backend).
+Konfiguracja narzędzia została przygotowana tak, aby domyślnie kierować ruch na wewnętrzny port 3000 (przypisany do serwisu frontendowego), podczas gdy żądania zawierające prefiks \lstinline|/api/| będą kierowane na port 3001 (przeznaczony dla backendu).
 
 \begin{figure}[H]
     \centering
@@ -1211,7 +1202,7 @@ Narzędzie skonfigurowałem tak, aby domyślnie kierowało ruch na wewnętrzny p
     \label{fig:enter-label}
 \end{figure}
 
-W tym celu przygotowałem pliki, które zbudują obraz dockerowy z reverse proxy.
+W celu implementacji reverse proxy przygotowano pliki konfiguracyjne umożliwiające utworzenie obrazu Docker z odpowiednią konfiguracją NGINX.
 
 \begin{lstlisting}[caption=Plik \lstinline|/infrastructure/reverse-proxy/Dockerfile|]
 FROM nginx:1.22.0-alpine
@@ -1297,7 +1288,7 @@ echo "$config" >> "$out"
 
 \subsection{Test}
 
-W celu przetestowania podejścia wykonałem na serwerze serię komend
+Aby zweryfikować poprawność działania reverse proxy, wykonano na serwerze poniższe komendy:
 
 \begin{lstlisting}[caption=Komendy włączające reverse proxy na serwerze]
 git clone https://github.com/ablaszkiewicz/devops-sandbox.git
@@ -1308,14 +1299,15 @@ docker run -p 3000:80 -d nginx
 docker run -p 3001:80 -d httpd
 \end{lstlisting}
 
-Powyższe komendy uruchamiają serwisy w następującej konfiguracji:
+Po wykonaniu powyższych komend uruchomione zostały następujące serwisy:
+
 \begin{itemize}
-    \item port 80 - napisane reverse proxy,
-    \item port 3000 - bazowy obraz nginx,
-    \item port 3001 - bazowy obraz apache
+    \item port 80 - reverse proxy,
+    \item port 3000 - serwis NGINX,
+    \item port 3001 - serwis Apache.
 \end{itemize}
 
-Po włączeniu wszystkich kontenerów po wejściu na \lstinline|https://ablaszkiewicz.pl| powinna ukazać się strona startowa nginx
+Połączenie z domeną \lstinline|https://ablaszkiewicz.pl| powinno wyświetlić stronę startową NGINX:
 
 \begin{figure}[H]
     \centering
@@ -1324,7 +1316,7 @@ Po włączeniu wszystkich kontenerów po wejściu na \lstinline|https://ablaszki
     \label{fig:enter-label}
 \end{figure}
 
-A po wejściu na \lstinline|https://ablaszkiewicz.pl/api| powinna ukazać się strona startowa apache
+Natomiast przejście do \lstinline|https://ablaszkiewicz.pl/api| powinno przekierować do strony startowej Apache:
 
 \begin{figure}[H]
     \centering
@@ -1335,11 +1327,11 @@ A po wejściu na \lstinline|https://ablaszkiewicz.pl/api| powinna ukazać się s
 
 \subsection{Wiele środowisk}
 
-W idealnym świecie każde środowisko powinno być oddzielną maszynę. Z uwagi na budżet u mnie jednak obydwa środowiska będą działały na jednej maszynie i wytłumaczę podejście, które zastosowałem do osiągnięcia dobrze zarządzalnego kierowania ruchem. Poprzednio zaimplementowane reverse proxy działa na poziomie lokalizacji (dobiera to, co znajduje się już po \lstinline|.pl|), dlatego nazwę je \lstinline|location reverse proxy|. Nowe reverse proxy będzie dobierało to, co znajduje się przed nazwą domeny, dlatego nazwę je \lstinline|domain reverse proxy|.
+W optymalnej konfiguracji każde środowisko powinno działać na odrębnej maszynie. W przypadku ograniczeń budżetowych, obydwa środowiska mogą funkcjonować na jednej maszynie, stosując odpowiednie reguły kierowania ruchem. Wcześniej skonfigurowane reverse proxy działa na poziomie lokalizacji w URL (wybierając zasoby na podstawie ścieżki po \lstinline|.pl|), dlatego można je nazwać \textbf{location reverse proxy}. Dla nowych reguł przekierowań, opartych na prefiksie przed nazwą domeny, skonfigurowano \textbf{domain reverse proxy}.
 
-W mojej konfiguracji będzie istniało środowisko produkcyjne dostępne pod standardową domeną oraz środowisko deweloperskie dostępne z prefixem \lstinline|dev.|.
+W tej konfiguracji środowisko produkcyjne jest dostępne pod standardową domeną, natomiast środowisko deweloperskie pod prefiksem \lstinline|dev.|.
 
-Nowo powstałe reverse proxy zostanie wpięte przed reverse proxy odpowiedzialnymi za lokalizację, tworząc następującą strukturę
+Nowo skonfigurowane reverse proxy, odpowiedzialne za przekierowania na poziomie domeny, zostało umieszczone przed reverse proxy działającym na poziomie lokalizacji, tworząc następującą strukturę:
 
 \begin{figure}[H]
     \centering
@@ -1348,8 +1340,7 @@ Nowo powstałe reverse proxy zostanie wpięte przed reverse proxy odpowiedzialny
     \label{fig:enter-label}
 \end{figure}
 
-
-Zasada konfiguracji reverse proxy jest analogiczna do poprzednich. Jako że zasady przekierowań są tutaj bardzo proste, skorzystam z wrappera \lstinline|https://github.com/unkn0w/proxer|, który udostępnia prosty plik konfiguracyjny definiujący zasady przekierowań i też jest zdockeryzowany.
+Konfiguracja domain reverse proxy przebiega w sposób analogiczny do poprzednich. Z uwagi na prostotę reguł przekierowań, zastosowano narzędzie \lstinline|proxer| dostępne na platformie GitHub (https://github.com/unkn0w/proxer), które umożliwia zarządzanie przekierowaniami za pomocą prostego pliku konfiguracyjnego i jest dostępne w formie obrazu Docker.
 
 \begin{lstlisting}[caption=Plik \lstinline|/infrastructure/reverse-proxy/src/nxconf.sh|]
 my.domain1.com=http://192.168.1.123:3000
@@ -1361,10 +1352,10 @@ my.otherdomain.org=http://somedomain.com
 
 \subsubsection{Definicja pipeline'u}
 
-Pipeline dla backendu będzie składał się z następujących kroków:
+Pipeline wdrożeniowy dla komponentu backendowego składa się z następujących etapów:
 
 \begin{itemize}
-    \item zbudowanie obrazu Docker,
+    \item budowa obrazu Docker,
     \item wypchnięcie obrazu Docker do rejestru,
     \item wdrożenie aplikacji na serwer.
 \end{itemize}
@@ -1376,12 +1367,11 @@ Pipeline dla backendu będzie składał się z następujących kroków:
     \label{fig:enter-label}
 \end{figure}
 
-\subsubsection{Template}
+\subsubsection{Szablon}
 
-Jako że akcja zbudowania i wypchnięcia obrazu do rejestru jest wspólna nie tylko dla reverse proxy, stworzyłem dedykowany, generyczny template \lstinline|.github/templates/build-and-push/action.yml|, który jako parametry wejściowe przyjmuje dane uwierzytelniające do Dockerhub, kontekst, ścieżkę do pliku \lstinline|Dockerfile| oraz nazwę obrazku. Akcja buduje obraz, a następnie wypycha go do rejestru zgodnie z podanymi danymi.
+Część dotycząca budowy i przesyłania obrazu do rejestru jest uniwersalna i wykorzystywana w różnych przypadkach. W celu standaryzacji przygotowano ogólny szablon \lstinline|.github/templates/build-and-push/action.yml|, który przyjmuje jako parametry dane uwierzytelniające do Docker Hub, kontekst, ścieżkę do pliku \lstinline|Dockerfile| oraz nazwę obrazu. Akcja buduje obraz, a następnie przesyła go do rejestru zgodnie z podanymi parametrami.
 
-
-Akcja wdrożenia reverse proxy również jest wspólna nie tylko dla reverse proxy, dlatego stworzyłem template \lstinline|.github/templates/deploy-container/action.yml|, który jako parametry wejściowe przyjmuje dane uwierzytelniające do serwera, nazwę obrazu, nazwę kontenera oraz parę portów. Akcja loguje się do serwera i włącza kontener zgodnie z podanymi danymi
+Podobnie, wdrożenie kontenera jest procesem, który może być wielokrotnie używany. Szablon \lstinline|.github/templates/deploy-container/action.yml| przyjmuje parametry uwierzytelniające do serwera, nazwę obrazu, nazwę kontenera oraz porty. Akcja loguje się do serwera, uruchamia kontener i przypisuje parametry zgodnie z dostarczonymi danymi.
 
 \begin{figure}[H]
     \centering
@@ -1478,14 +1468,14 @@ runs:
 
 \subsubsection{Workflow}
 
-Poprzednio zdefiniowane template wystarczy teraz tylko wywołać. W sumie będą to 3 pliki workflow tworzące wcześniej wspomniane
+Szablony pipeline’ów mogą być teraz wykorzystane w trzech plikach workflow, które realizują następujące funkcje:
 
 \begin{itemize}
-    \item domain reverse proxy - odpowiedzialne za dzielenie ruchu pomiędzy środowiskami,
-    \item 2 location reverse proxy - odpowiedzialne za dzielenie ruchu pomiędzy frontend a backend na konkretnym środowisku.
+    \item domain reverse proxy - odpowiedzialne za kierowanie ruchu pomiędzy środowiskami,
+    \item 2 location reverse proxy - odpowiedzialne za kierowanie ruchu pomiędzy frontend a backend na konkretnym środowisku.
 \end{itemize}
 
-Warto zauważyć, że pliki mają bardzo mało różnic. Głównie będzie to nazwa obrazu i port, na którym włączony zostanie kontener. Przyjmuję, że kontenery produkcyjne będą działały na portach \lstinline|30XX|, a deweloperskie na \lstinline|40XX|. 
+Pliki workflow różnią się głównie nazwą obrazu i portem, na którym kontener zostanie uruchomiony. Założono, że kontenery produkcyjne będą uruchamiane na portach \lstinline|30XX|, a deweloperskie na portach \lstinline|40XX|.
 
 \begin{lstlisting}[caption=Plik \texttt{.github/workflows/dev-deploy-reverse-proxy.yml}]
 name: Deploy reverse proxy (dev)
@@ -1598,9 +1588,9 @@ jobs:
 
 \end{lstlisting}
 
-\subsection{Zestawienie}
+\subsection{Porównanie podejść}
 
-Przygotowałem poniżej zestawienie, które prezentuje wyższość rozwiązania wykorzystującego zdockeryzowane reverse proxy ponad standardowym.
+Poniżej przedstawiono porównanie podejścia z wykorzystaniem kontenerów dla reverse proxy oraz podejścia tradycyjnego.
 
 \begin{table}[H]
 \centering
@@ -1622,12 +1612,12 @@ Poziom skomplikowanie & \cellcolor{green!50}niski & \cellcolor{yellow!50}średni
 
 \section{Backend}
 
-W tej sekcji skupię się na konfiguracji pipeline'u dla aplikacji backendowej, wykorzystując narzędzia stworzone wcześniej. Jako że użyję tych samych template, to konieczne jest tylko zdefiniowanie workflow.
+W tej sekcji omówiono konfigurację pipeline’u dla aplikacji backendowej, wykorzystując wcześniej przygotowane szablony. Proces ten wymaga jedynie zdefiniowania odpowiedniego workflow.
 
 
 \subsection{Workflow}
 
-Poprzednio zdefiniowane template wystarczy teraz tylko wywołać. 
+Aby uruchomić pipeline, wystarczy wywołać zdefiniowane wcześniej szablony w workflow. 
 
 \begin{lstlisting}[caption=Plik \texttt{.github/workflows/prod-deploy-backend.yml}]
 name: Deploy backend (prod)
@@ -1703,7 +1693,7 @@ jobs:
 
 \end{lstlisting}
 
-Po wypchnięciu kodu do githuba, akcja włącza się automatycznie.
+Po wypchnięciu kodu do GitHub pipeline włącza się automatycznie.
 
 \begin{figure}[H]
     \centering
@@ -1712,7 +1702,7 @@ Po wypchnięciu kodu do githuba, akcja włącza się automatycznie.
     \label{fig:enter-label}
 \end{figure}
 
-W celu przetestowania, czy wszystko działa poprawnie, udałem się pod adres\lstinline|https://ablaszkiewicz.pl/api/counter|. Jak widać na zdjęciu poniżej, wszystko działa poprawnie.
+Działanie wdrożonej aplikacji można zweryfikować, przechodząc pod adres \lstinline|https://ablaszkiewicz.pl/api/counter|. Poniższy zrzut ekranu potwierdza poprawność działania.
 
 \begin{figure}[H]
     \centering
@@ -1723,7 +1713,7 @@ W celu przetestowania, czy wszystko działa poprawnie, udałem się pod adres\ls
 
 \subsection{Podsumowanie}
 
-Przeprowadziłem eksperyment i poprosiłem osobę, która nie miała wcześniej styczności z serwerem ani aplikacją, aby wdrożyła ręcznie aplikację na serwer. Zajęło to 7 minut. Dla porównania - automatyczne wdrożenie zajmuje 1 minutę.
+Przeprowadzono eksperyment, w którym poproszono osobę bez wcześniejszego doświadczenia z serwerem i aplikacją o ręczne wdrożenie aplikacji na serwer. Proces ten zajął 7 minut, podczas gdy automatyczne wdrożenie zajmuje 1 minutę.
 
 \begin{figure}[H]
 \centering
@@ -1751,7 +1741,7 @@ Przeprowadziłem eksperyment i poprosiłem osobę, która nie miała wcześniej 
 \label{fig:czas_wdrozenia}
 \end{figure}
 
-Oprócz tego należy pamiętać, że wspomniana minuta, to nie jest czas dewelopera, w którym podejmuje jakiejś interakcje z infrastrukturą. W czasie wdrażania może robić inne rzeczy. 7 minut w metodzie ręcznej to natomiast czysty czas dewelopera, który musi poświecić na wdrażanie.
+Należy zauważyć, że czas trwania automatycznego wdrożenia nie wymaga dodatkowej interakcji ze strony dewelopera, który w tym czasie może realizować inne zadania. W przypadku ręcznego wdrożenia cały czas trwania procesu jest czasem pracy dewelopera.
 
 \begin{table}[H]
 \centering
@@ -1771,13 +1761,11 @@ Zduplikowanie podejścia dla innych aplikacji & \cellcolor{red!50}nie & \cellcol
 
 \section{Frontend}
 
-W tej sekcji skupię się na konfiguracji pipeline’u dla aplikacji frontendowej, wykorzystując narzędzia
-stworzone wcześniej. Jako że użyję tych samych template, to konieczne jest tylko zdefiniowanie
-workflow.
+W tej sekcji omówiono konfigurację pipeline’u dla aplikacji frontendowej z wykorzystaniem wcześniej opracowanych szablonów. W tym celu konieczne jest jedynie zdefiniowanie workflow.
 
 \subsection{Workflow}
 
-Znów - poprzednio zdefiniowane template wystarczy teraz tylko wywołać. 
+Aby uruchomić pipeline, wystarczy odwołać się do wcześniej zdefiniowanych szablonów w workflow.
 
 \begin{lstlisting}[caption=Plik \texttt{.github/workflows/prod-deploy-frontend.yml}]
 name: Deploy frontend (prod)
@@ -1853,7 +1841,7 @@ jobs:
 
 \end{lstlisting}
 
-Po wypchnięciu kodu do githuba, akcja włącza się automatycznie.
+Po wypchnięciu kodu do GitHub akcja włącza się automatycznie.
 
 \begin{figure}[H]
     \centering
@@ -1862,7 +1850,7 @@ Po wypchnięciu kodu do githuba, akcja włącza się automatycznie.
     \label{fig:enter-label}
 \end{figure}
 
-W celu przetestowania, czy wszystko działa poprawnie, udałem się pod adres \lstinline|https://ablaszkiewicz.pl|. Jak widać na zdjęciu poniżej, wszystko działa poprawnie. Licznik się aktualizuje.
+Działanie wdrożonej aplikacji można zweryfikować, przechodząc pod adres \lstinline|https://ablaszkiewicz.pl|. Poniższy zrzut ekranu potwierdza poprawność działania aplikacji, w tym funkcjonalność licznika.
 
 \begin{figure}[H]
     \centering
@@ -1873,19 +1861,20 @@ W celu przetestowania, czy wszystko działa poprawnie, udałem się pod adres \l
 
 \section{Podsumowanie dotychczasowej pracy}
 
-Podsumowując, co zrobiłem w poprzednich działach:
+W poprzednich sekcjach zostały zrealizowane następujące zadania:
+
 \begin{itemize}
     \item zbadanie podejść budowy aplikacji,
     \item zbadanie podejść budowy obrazów,
     \item zbadanie podejść kierowania ruchem,
     \item konfiguracja infrastruktury,
     \item przygotowanie infrastruktury pod wiele środowisk,
-    \item dockeryzacja wszystkich aplikacji oraz elementów infrastruktury,
+    \item konteneryzacja wszystkich aplikacji oraz elementów infrastruktury,
     \item stworzenie reużywalnych templatów,
     \item stworzenie workflow do wszystkich aplikacji oraz elementów infrastruktury.
 \end{itemize}
 
-Co w rezultacie daje aplikację, która sama się wdraża na środowisku produkcyjnym przy każdym wypchnięciu kodu na \lstinline|main| oraz na środowisku deweloperskim przy wypchnięciu na \lstinline|dev|.
+Powyższe działania skutkują stworzeniem systemu umożliwiającego automatyczne wdrożenie aplikacji w środowisku produkcyjnym przy każdym wypchnięciu kodu na gałąź \lstinline|main| oraz w środowisku deweloperskim przy przesłaniu na gałąź \lstinline|dev|.
 
 \begin{figure}[H]
     \centering
@@ -1896,31 +1885,31 @@ Co w rezultacie daje aplikację, która sama się wdraża na środowisku produkc
 
 
 \section{Observability i monitoring}
-\subsection{Co chcę osiągnąć}
+\subsection{Cel}
 
-W poprzednich rozdziałach skoncentrowałem się na automatyzacji procesów budowania i wdrażania aplikacji, co pozwoliło na efektywne wprowadzenie kultury DevOps do mojego projektu. Jednak jednym z kluczowych elementów tej kultury jest również zapewnienie wysokiego poziomu obserwowalności i monitoringu systemów. Bez odpowiednich narzędzi i mechanizmów monitorujących trudno jest utrzymać stabilność aplikacji oraz szybko reagować na potencjalne problemy.
+W poprzednich rozdziałach skoncentrowano się na automatyzacji procesów budowania i wdrażania aplikacji, co umożliwiło efektywne wdrożenie kultury DevOps do projektu. Jednak jednym z kluczowych elementów tej kultury jest zapewnienie wysokiego poziomu obserwowalności i monitoringu systemów, co pozwala na utrzymanie stabilności aplikacji oraz szybkie reagowanie na potencjalne problemy.
 
-Celem tego rozdziału jest wprowadzenie rozwiązań, które umożliwią:
+Celem niniejszego rozdziału jest wprowadzenie rozwiązań, które umożliwią:
 
 \begin{itemize}
-    \item \textbf{Monitorowanie stanu serwera} — chcę na bieżąco śledzić takie parametry jak zajętość miejsca na dysku, zużycie pamięci RAM oraz obciążenie procesora CPU. Pozwoli to na szybkie wykrywanie anomalii i zapobieganie awariom wynikającym z braku zasobów,
-    \item \textbf{Zbieranie metryk frontendowych} — zależy mi na zrozumieniu interakcji użytkowników z naszą aplikacją. Chcę wiedzieć, ile unikalnych osób odwiedza stronę, z jakich krajów pochodzą oraz jak długo trwa ładowanie poszczególnych komponentów interfejsu,
-    \item \textbf{Implementację niestandardowych metryk backendowych} — planuję stworzyć własne metryki, które będą monitorować kluczowe aspekty działania serwera aplikacji, takie jak liczba obsłużonych żądań,
-    \item \textbf{Konfigurację systemu alertów} — zależy mi na tym, aby w przypadku wystąpienia krytycznych błędów lub przekroczenia ustalonych progów zużycia zasobów, system automatycznie powiadamiał odpowiednie osoby. Pozwoli to na szybką reakcję i minimalizację potencjalnych strat.
+    \item \textbf{monitorowanie stanu serwera} — bieżące śledzenie parametrów takich jak wykorzystanie miejsca na dysku, zużycie pamięci RAM oraz obciążenie procesora. Pozwoli to na szybkie wykrywanie anomalii i zapobieganie awariom wynikającym z braku zasobów,
+    \item \textbf{zbieranie metryk frontendowych} — uzyskanie informacji na temat interakcji użytkowników z aplikacją, liczby unikalnych odwiedzających, pochodzenia geograficznego oraz czasu ładowania poszczególnych elementów interfejsu,
+    \item \textbf{implementację niestandardowych metryk backendowych} — monitorowanie kluczowych aspektów działania aplikacji, takich jak liczba obsłużonych żądań, w celu lepszego zrozumienia wydajności i skalowalności,
+    \item \textbf{konfigurację systemu alertów} — automatyczne powiadamianie o krytycznych błędach lub przekroczeniach ustalonych progów zużycia zasobów, co pozwala na szybkie reakcje i minimalizację potencjalnych strat.
 \end{itemize}
 
-Dążę do stworzenia kompleksowego systemu monitoringu, który nie tylko zbierze kluczowe dane, ale również przedstawi je w czytelny i zrozumiały sposób. W ten sposób zwiększymy niezawodność i wydajność naszej aplikacji, a także zapewni lepsze doświadczenia użytkownikom końcowym.
+Nadrzędnym celem jest stworzenie kompleksowego systemu monitoringu, który nie tylko zbiera kluczowe dane, ale także przedstawia je w czytelny i zrozumiały sposób. Dzięki temu możliwe będzie zwiększenie niezawodności i wydajności aplikacji oraz poprawa doświadczeń użytkowników końcowych.
 
-W kolejnych sekcjach dokonam przeglądu dostępnych narzędzi do realizacji tych celów, takich jak Prometheus, Grafana czy Uptime Kuma. Porównam ich możliwości, zalety i wady, a następnie opiszę proces implementacji wybranych rozwiązań w kontekście naszego projektu.
+W kolejnych sekcjach przeprowadzony został przegląd dostępnych narzędzi, takich jak Prometheus, Grafana oraz Uptime Kuma, ze wskazaniem ich możliwości, zalet i wad, a następnie opisany zostanie proces implementacji wybranych rozwiązań w kontekście danego projektu.
 
 \subsection{Przegląd narzędzi}
 
-\subsubsection{Małe narzędzia}
+\subsubsection{Narzędzia podstawowe}
 
-Małe narzędzia do monitorowania i \textit{observability} są często wybierane w małych projektach ze względu na swoją prostotę, łatwość wdrożenia oraz niskie koszty. Do najpopularniejszych z nich należą:
+Podstawowe narzędzia do monitorowania i \textit{observability} są często wybierane w małych projektach ze względu na swoją prostotę, łatwość wdrożenia oraz niskie koszty. Do najczęściej stosowanych należą:
 
 \begin{itemize}
-    \item \textbf{Gatus} – lekki serwer monitorujący, który umożliwia monitorowanie usług poprzez proste konfiguracje w formacie YAML. Oferuje podstawowe powiadomienia i łatwą integrację z istniejącą infrastrukturą. Jest idealny dla prostych zastosowań, gdzie wymagana jest szybka konfiguracja,
+    \item \textbf{Gatus} – lekki serwer monitorujący, który umożliwia monitorowanie usług poprzez proste konfiguracje w formacie YAML. Oferuje podstawowe powiadomienia i łatwą integrację z istniejącą infrastrukturą. Jest idealny dla prostych zastosowań, gdzie wymagana jest szybka konfiguracja \cite{GatusGithub},
 
 \begin{figure}[H]
     \centering
@@ -1929,7 +1918,7 @@ Małe narzędzia do monitorowania i \textit{observability} są często wybierane
     \label{fig:enter-label}
 \end{figure}
 
-    \item \textbf{Uptime Kuma} – przyjazny dla użytkownika monitor serwisów z interfejsem podobnym do Uptime Robot. Pozwala na monitorowanie HTTP(s), TCP, Ping oraz oferuje powiadomienia przez różne kanały, takie jak Telegram czy Slack. Jest łatwy w instalacji i oferuje atrakcyjny interfejs użytkownika,
+    \item \textbf{Uptime Kuma} – przyjazny dla użytkownika monitor serwisów z interfejsem podobnym do Uptime Robot. Pozwala na monitorowanie HTTP(s), TCP, Ping oraz oferuje powiadomienia przez różne kanały, takie jak Telegram czy Slack. Jest łatwy w instalacji i oferuje atrakcyjny interfejs użytkownika \cite{UptimeKumaGithub},
 
 \begin{figure}[H]
     \centering
@@ -1938,7 +1927,7 @@ Małe narzędzia do monitorowania i \textit{observability} są często wybierane
     \label{fig:enter-label}
 \end{figure}
 
-    \item \textbf{Statping} - narzędzie open source do monitorowania statusu usług, które oferuje prosty interfejs i możliwość hostowania własnej strony statusu. Umożliwia monitorowanie usług HTTP(s) i TCP oraz wysyłanie powiadomień. Jest odpowiedni dla małych projektów wymagających podstawowego monitoringu,
+    \item \textbf{Statping} - narzędzie open source do monitorowania statusu usług, które oferuje prosty interfejs i możliwość hostowania własnej strony statusu \cite{StatpingGithub}. Umożliwia monitorowanie usług HTTP(s) i TCP oraz wysyłanie powiadomień. Jest odpowiedni dla małych projektów wymagających podstawowego monitoringu,
 
 \begin{figure}[H]
     \centering
@@ -1947,7 +1936,7 @@ Małe narzędzia do monitorowania i \textit{observability} są często wybierane
     \label{fig:enter-label}
 \end{figure}
     
-    \item \textbf{Uptime Robot} – popularna usługa SaaS do monitorowania dostępności stron i serwisów. Oferuje darmowy plan z podstawowymi funkcjami oraz płatne plany z dodatkowymi możliwościami i profesjonalnym wsparciem. Dzięki temu jest łatwo dostępny bez konieczności instalacji własnej infrastruktury.
+    \item \textbf{Uptime Robot} – popularna usługa SaaS do monitorowania dostępności stron i serwisów. Oferuje darmowy plan z podstawowymi funkcjami oraz płatne plany z dodatkowymi możliwościami i profesjonalnym wsparciem \cite{UptimeRobotMedium}. Dzięki temu jest łatwo dostępny bez konieczności instalacji własnej infrastruktury.
 
 \begin{figure}[H]
     \centering
@@ -1975,14 +1964,12 @@ Małe narzędzia do monitorowania i \textit{observability} są często wybierane
     \label{tab:porownanie-malych-narzedzi}
 \end{table}
 
-Małe narzędzia, takie jak wymienione powyżej, są doskonałe dla małych projektów lub indywidualnych potrzeb. Ich zaletą jest prostota oraz możliwość szybkiego wdrożenia bez konieczności angażowania dużych zasobów. Jednak w przypadku projektów o charakterze \textit{enterprise-grade} mogą okazać się niewystarczające.
-
-Często narzędzia te powstawały jako projekty hobbystyczne tworzone przez jedną osobę lub mały zespół. Z tego powodu mogą nie być optymalnie wydajne ani super bezpieczne. Brak regularnych aktualizacji oraz ograniczonego wsparcia mogą 
+Podstawowe narzędzia monitorujące, takie jak wymienione powyżej, sprawdzają się w małych projektach, oferując prostotę oraz szybkie wdrożenie przy niskich zasobach. Niemniej jednak w przypadku projektów o większej skali mogą nie spełniać wszystkich wymagań. Z racji tego, że często powstają jako projekty open source tworzone przez niewielkie zespoły, mogą nie oferować optymalnej wydajności ani pełnego bezpieczeństwa, co należy wziąć pod uwagę przy planowaniu długoterminowej strategii monitoringu.
 
 
 \subsubsection{Prometheus}
 
-Prometheus jest otwartoźródłowym narzędziem do monitorowania i alertowania, pierwotnie stworzonym w firmie SoundCloud. Obecnie jest rozwijany jako niezależny projekt open source i jest częścią Fundacji Cloud Native Computing Foundation (CNCF). Prometheus został zaprojektowany z myślą o monitorowaniu wysoko dynamicznych środowisk chmurowych.
+Prometheus to otwartoźródłowe narzędzie służące do monitorowania i alertowania, pierwotnie opracowane przez firmę SoundCloud. Obecnie funkcjonuje jako samodzielny projekt open source i jest częścią Fundacji Cloud Native Computing Foundation (CNCF). Narzędzie zostało zaprojektowane z myślą o monitorowaniu dynamicznych środowisk chmurowych.
 
 \begin{figure}[H]
     \centering
@@ -1994,12 +1981,12 @@ Prometheus jest otwartoźródłowym narzędziem do monitorowania i alertowania, 
 Główne cechy Prometheusa:
 
 \begin{itemize}
-    \item \textbf{Model danych oparty na szeregach czasowych} — dane są przechowywane jako szeregi czasowe identyfikowane przez nazwę metryki oraz pary klucz-wartość (tzw. \textit{label}),
-    \item \textbf{Język zapytań PromQL} — elastyczny język zapytań umożliwiający agregację i analizę danych,
-    \item \textbf{Autonomiczny serwer} — Prometheus nie polega na zewnętrznych systemach przechowywania danych, co zwiększa jego niezawodność,
-    \item \textbf{Model pull} — dane są pobierane z monitorowanych usług poprzez HTTP, co ułatwia integrację,
-    \item \textbf{Odkrywanie usług} — wsparcie dla dynamicznego odkrywania usług poprzez integracje z systemami takimi jak Kubernetes czy Consul,
-    \item \textbf{Alerting} — wbudowany mechanizm alertowania z możliwością integracji z różnymi systemami powiadomień.
+    \item \textbf{model danych oparty na szeregach czasowych} — dane są przechowywane jako szeregi czasowe identyfikowane przez nazwę metryki oraz pary klucz-wartość (tzw. \textit{label}),
+    \item \textbf{język zapytań PromQL} — elastyczny język zapytań umożliwiający agregację i analizę danych,
+    \item \textbf{autonomiczny serwer} — Prometheus nie polega na zewnętrznych systemach przechowywania danych, co zwiększa jego niezawodność,
+    \item \textbf{model pull} — dane są pobierane z monitorowanych usług poprzez HTTP, co ułatwia integrację,
+    \item \textbf{odkrywanie usług} — wsparcie dla dynamicznego odkrywania usług poprzez integracje z systemami takimi jak Kubernetes czy Consul,
+    \item \textbf{alerting} — wbudowany mechanizm alertowania z możliwością integracji z różnymi systemami powiadomień.
 \end{itemize}
 
 Prometheus jest idealnym narzędziem dla środowisk \textit{enterprise-grade} ze względu na swoją skalowalność, niezawodność oraz bogaty ekosystem. Pozwala na monitorowanie tysięcy metryk w czasie rzeczywistym, co jest kluczowe w dużych organizacjach. Ponadto, dzięki wsparciu społeczności oraz ciągłemu rozwojowi, Prometheus oferuje aktualne i bezpieczne rozwiązania.
@@ -2008,7 +1995,7 @@ Warto jednak zauważyć, że wdrożenie Prometheusa wymaga pewnej wiedzy i dośw
 
 \subsubsection{Grafana}
 
-Grafana to otwartoźródłowa platforma do wizualizacji danych i analizy metryk. Umożliwia tworzenie interaktywnych i dynamicznych dashboardów, które pomagają w monitorowaniu systemów, aplikacji oraz infrastruktury. Grafana integruje się z wieloma źródłami danych, w tym z Prometheusem, Elasticsearch, InfluxDB czy Graphite.
+Grafana to otwartoźródłowa platforma do wizualizacji danych i analizy metryk. Umożliwia tworzenie interaktywnych i dynamicznych dashboardów, które pomagają w monitorowaniu systemów, aplikacji oraz infrastruktury. Grafana integruje się z wieloma źródłami danych, w tym z Prometheusem, Elasticsearch, InfluxDB czy Graphite \cite{BizetyGrafana}.
 
 \begin{figure}[H]
     \centering
@@ -2023,7 +2010,7 @@ Główne cechy Grafany:
     \item \textbf{Bogate możliwości wizualizacji} — szeroki wybór wykresów, paneli i formatów prezentacji danych,
     \item \textbf{Elastyczność} — możliwość dostosowania dashboardów do indywidualnych potrzeb poprzez edycję paneli i tworzenie własnych wtyczek,
     \item \textbf{Alerting} — wbudowany system alertowania z integracją z różnymi kanałami powiadomień, takimi jak e-mail, Slack czy PagerDuty,
-    \item \textbf{Autentykacja i autoryzacja} — wsparcie dla różnych metod uwierzytelniania, w tym LDAP, OAuth czy Grafana Auth,
+    \item \textbf{Uwierzytelnianie i autoryzacja} — wsparcie dla różnych metod uwierzytelniania, w tym LDAP, OAuth czy Grafana Auth,
     \item \textbf{Społeczność i wsparcie} — aktywna społeczność użytkowników oraz regularne aktualizacje i ulepszenia.
 \end{itemize}
 
@@ -2033,7 +2020,7 @@ Podobnie jak w przypadku Prometheusa, wdrożenie Grafany może wymagać zaawanso
 
 \subsubsection{VictoriaMetrics}
 
-VictoriaMetrics to wysoko wydajny i skalowalny system przechowywania szeregów czasowych oraz narzędzie monitorujące, które jest kompatybilne z ekosystemem Prometheusa. Został stworzony jako odpowiedź na niektóre ograniczenia Prometheusa, szczególnie w kontekście przechowywania długoterminowych danych oraz skalowalności w dużych środowiskach.
+VictoriaMetrics to wysoko wydajny i skalowalny system przechowywania szeregów czasowych oraz narzędzie monitorujące, które jest kompatybilne z ekosystemem Prometheusa \cite{VictoriaMetricsBlog}. Został stworzony jako odpowiedź na niektóre ograniczenia Prometheusa, szczególnie w kontekście przechowywania długoterminowych danych oraz skalowalności w dużych środowiskach.
 
 \begin{figure}[H]
     \centering
@@ -2053,7 +2040,6 @@ Główne cechy VictoriaMetrics:
 \end{itemize}
 
 \paragraph{Historia powstania}\mbox{} \\
-
 
 VictoriaMetrics została stworzona przez zespół inżynierów, którzy zauważyli ograniczenia w istniejących rozwiązaniach do monitorowania i przechowywania danych szeregów czasowych, takich jak Prometheus i InfluxDB. Ich celem było stworzenie narzędzia, które będzie bardziej wydajne pod względem zużycia zasobów oraz lepiej skalowalne w dużych środowiskach.
 
@@ -2084,22 +2070,22 @@ Choć VictoriaMetrics i Prometheus mają wiele wspólnego, istnieją między nim
 \paragraph{Zalety VictoriaMetrics nad Prometheusem:}
 
 \begin{itemize}
-    \item \textbf{Lepsza skalowalność} — VictoriaMetrics jest w stanie obsłużyć większe obciążenia przy mniejszym zużyciu zasobów,
-    \item \textbf{Efektywne przechowywanie długoterminowe} — dzięki zaawansowanym algorytmom kompresji, VictoriaMetrics jest bardziej efektywna w przechowywaniu danych historycznych,
-    \item \textbf{Prostsza instalacja i utrzymanie} — pojedynczy plik binarny ułatwia wdrożenie i zarządzanie,
-    \item \textbf{Wsparcie dla klastrów} — wbudowane wsparcie dla uruchamiania w trybie klastrowym.
+    \item \textbf{lepsza skalowalność} — VictoriaMetrics jest w stanie obsłużyć większe obciążenia przy mniejszym zużyciu zasobów,
+    \item \textbf{efektywne przechowywanie długoterminowe} — dzięki zaawansowanym algorytmom kompresji, VictoriaMetrics jest bardziej efektywna w przechowywaniu danych historycznych,
+    \item \textbf{prostsza instalacja i utrzymanie} — pojedynczy plik binarny ułatwia wdrożenie i zarządzanie,
+    \item \textbf{wsparcie dla klastrów} — wbudowane wsparcie dla uruchamiania w trybie klastrowym.
 \end{itemize}
 
 \paragraph{Wady w porównaniu z Prometheusem:}
 
 \begin{itemize}
-    \item \textbf{Mniejsza społeczność} — Prometheus ma większą bazę użytkowników i bardziej rozbudowany ekosystem,
-    \item \textbf{Mniej wtyczek i integracji} — niektóre narzędzia i wtyczki mogą nie być kompatybilne lub wymagać dodatkowej konfiguracji,
-    \item \textbf{Mniejsza elastyczność w niektórych obszarach} — niektóre zaawansowane funkcje Prometheusa mogą być trudniejsze do zaimplementowania w VictoriaMetrics.
+    \item \textbf{mniejsza społeczność} — Prometheus ma większą bazę użytkowników i bardziej rozbudowany ekosystem,
+    \item \textbf{mniej wtyczek i integracji} — niektóre narzędzia i wtyczki mogą nie być kompatybilne lub wymagać dodatkowej konfiguracji,
+    \item \textbf{mniejsza elastyczność w niektórych obszarach} — niektóre zaawansowane funkcje Prometheusa mogą być trudniejsze do zaimplementowania w VictoriaMetrics.
 \end{itemize}
 
 
-VictoriaMetrics jest potężnym narzędziem dla organizacji, które potrzebują skalowalnego i wydajnego systemu monitorowania z możliwością długoterminowego przechowywania danych. Dzięki kompatybilności z ekosystemem Prometheusa, migracja lub integracja jest stosunkowo prosta. Jednak wybór pomiędzy Prometheusem a VictoriaMetrics zależy od konkretnych potrzeb i zasobów organizacji. Prometheus może być lepszym wyborem dla środowisk z mniejszymi wymaganiami skalowalności i potrzebą korzystania z szerokiego ekosystemu narzędzi i wtyczek.
+VictoriaMetrics jest odpowiednim wyborem dla organizacji poszukujących skalowalnego systemu monitorowania z długoterminowym przechowywaniem danych. Kompatybilność z Prometheusem ułatwia migrację lub integrację, choć wybór między narzędziami zależy od specyficznych potrzeb organizacji.
 
 \subsubsection{Podsumowanie}
 
@@ -2109,17 +2095,75 @@ Ich wdrożenie i utrzymanie wymaga jednak większych zasobów oraz wiedzy techni
 
 \subsection{Provisioning}
 
-Tak, jak dotychczas w tej pracy opisywałem proces automatyzacji wdrażania i konfiguracji poszczególnych narzędzi, tak też będę robił w przypadku infrastruktury. W tym przypadku monitoringu to podejście nie jest oczywiste i w przypadku każdego narzędzia będą występowały różnice, jednak twórcy takich rozwiązań są świadomi potrzeb i większość narzędzi jest do tego przystosowana.
+W dalszej części pracy omówiono proces automatyzacji wdrażania i konfiguracji narzędzi monitorujących, z naciskiem na infrastrukturę. W przypadku monitoringu podejście to jest bardziej złożone i różni się w zależności od używanego narzędzia. Niemniej jednak, twórcy większości rozwiązań monitorujących są świadomi potrzeby automatyzacji, dzięki czemu narzędzia te są odpowiednio przystosowane do takich zastosowań.
 
-Ominę kroki ręcznego wdrażania i przejdę po prostu do wdrażania za pomocą zautomatyzowanych akcji.
+Pominięto kroki manualnej instalacji na rzecz wdrażania przy pomocy zautomatyzowanych akcji.
 
 \subsection{Implementacja}
 
+\subsubsection{Uptime Kuma}
+
+Uptime Kuma to lekkie narzędzie do monitorowania dostępności usług i endpointów HTTP. Powstało jako projekt hobbystyczny jednego programisty, który rozpoczął jego rozwój w celu stworzenia alternatywy dla komercyjnych i złożonych systemów monitorowania. Dzięki swojej prostocie i łatwości wdrożenia, szybko zyskało na popularności i przyciągnęło uwagę społeczności open source. Aktualnie projekt ma ponad \textbf{60 000 gwiazdek} na platformie GitHub, co świadczy o jego wysokiej użyteczności oraz aktywnej społeczności deweloperów i użytkowników, która wspólnie rozwija narzędzie \cite{UptimeKumaGithub}.
+
+Główną funkcjonalnością Uptime Kuma jest możliwość monitorowania dostępności usług poprzez regularne wykonywanie żądań HTTP do określonych endpointów. W przypadku wykrycia niedostępności system powiadamia administratora za pomocą skonfigurowanych kanałów, takich jak e-mail, powiadomienia push, integracje z popularnymi komunikatorami, czy webhooki.
+
+W związku z brakiem wsparcia dla automatycznego provisioningu, narzędzie zostało uruchomione za pomocą komendy:
+
+\begin{lstlisting}[caption=Komenda użyta do uruchomienia Uptime Kuma, label=lst:uptime-kuma-run]
+docker run -d --restart=unless-stopped -p 8000:3001 -v uptime-kuma:/app/data --name uptime-kuma louislam/uptime-kuma:1
+\end{lstlisting}
+
+Po uruchomieniu narzędzia oraz skonfigurowaniu podstawowych danych użytkownika (login i hasło), dodano odpowiedni rekord w ustawieniach domeny, umożliwiając dostęp do narzędzia pod adresem \texttt{status.ablaszkiewicz.pl}. 
+
+Następnie dokonano modyfikacji pliku konfiguracyjnego reverse proxy w celu poprawnego routingu. Zaktualizowany plik konfiguracyjny przedstawiono poniżej:
+
+\begin{lstlisting}[caption=Zmodyfikowany plik konfiguracyjny reverse proxy, label=lst:reverse-proxy-config]
+grafana.ablaszkiewicz.pl=http://192.168.1.104:2000
+dev.ablaszkiewicz.pl=http://192.168.1.104:4080
+ablaszkiewicz.pl=http://192.168.1.104:3080
+status.ablaszkiewicz.pl=http://192.168.1.104:8000
+\end{lstlisting}
+
+Dodanie monitorów w Uptime Kuma polega na podaniu adresu URL monitorowanego zasobu oraz konfiguracji następujących parametrów:
+\begin{itemize}
+    \item \textbf{interwał} – czas pomiędzy kolejnymi testami osiągalności serwisu,
+    \item \textbf{ponowne próby} – liczba prób przed utworzeniem incydentu po pierwszej nieudanej próbie,
+    \item \textbf{akceptowane statusy} – lista statusów HTTP uznawanych za poprawne.
+\end{itemize}
+
+Na rysunku \ref{fig:add-monitor} przedstawiono widok interfejsu Uptime Kuma podczas dodawania monitora.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{uptimeKumaDodawanieMonitora.png}
+    \caption{Interfejs dodawania monitora w Uptime Kuma}
+    \label{fig:add-monitor}
+\end{figure}
+
+Po skonfigurowaniu wszystkich monitorów główny panel aplikacji prezentuje się jak na rysunku \ref{fig:dashboard}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{uptimeKumaDashboard.png}
+    \caption{Główny panel Uptime Kuma}
+    \label{fig:dashboard}
+\end{figure}
+
+
+Jedną z istotnych funkcjonalności oferowanych przez Uptime Kuma jest możliwość wysyłania alertów. Po podstawowej konfiguracji bota Telegram, użytkownik otrzymuje powiadomienia o wystąpieniu oraz rozwiązaniu incydentu. Przykład powiadomienia przedstawiono na rysunku \ref{fig:telegram-alert}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{uptimeKumaTelegram.png}
+    \caption{Przykład powiadomienia Telegram z Uptime Kuma}
+    \label{fig:telegram-alert}
+\end{figure}
+
 \subsubsection{Node Exporter}
 
-Node Exporter to narzędzie stworzone specjalnie do monitorowania serwera. Zbierane metryki obejmują zasoby sprzętowe, takie jak procesor, pamięć RAM, przestrzeń dyskową, oraz inne parametry systemowe. W celu integracji Node Exportera z Prometheusem i wdrożenia go na serwerze, wystarczy uruchomić go w kontenerze.
+Node Exporter to narzędzie zaprojektowane specjalnie do monitorowania zasobów serwera. Zbierane metryki obejmują zasoby sprzętowe, takie jak procesor, pamięć RAM, przestrzeń dyskową, a także inne parametry systemowe. W celu integracji Node Exportera z Prometheusem i jego wdrożenia na serwerze, narzędzie to uruchamiane jest w kontenerze.
 
-Stworzyłem pomocniczy template, który stopuje stare kontenery na podstawie listy nazw oddzielonych przecinkiem dostarczonych jako parametr.
+Przygotowano pomocniczy szablon, którego zadaniem jest zatrzymywanie starych kontenerów na podstawie listy nazw dostarczonych jako parametry.
 
 \begin{lstlisting}[caption=Plik \texttt{.github/templates/stop-old-containers/action.yml}]
 name: Stop old containers
@@ -2169,7 +2213,7 @@ runs:
           done
 \end{lstlisting}
 
-Następnie stworzyłem template, który włączy Node Exportera z potrzebnymi flagami. Nadają one Node Exporterowi szerokie uprawnienia, a to dlatego, że działa on w warstwie hosta.
+Następnie opracowano szablon, który uruchamia Node Exportera z odpowiednimi flagami umożliwiającymi szeroki dostęp do zasobów, ponieważ działa on w kontekście warstwy hosta.
 
 \begin{lstlisting}[caption=Plik \texttt{.github/templates/deploy-node-exporter/action.yml}]
 name: Deploy node exporter
@@ -2206,7 +2250,7 @@ runs:
           --path.rootfs=/host
 \end{lstlisting}
 
-Na koniec stworzyłem workflow, który skorzysta z wcześniej stworzonych templatów.
+Na końcu opracowano workflow, który wykorzystuje wcześniej zdefiniowane szablony.
 
 \begin{lstlisting}[caption=Plik \texttt{.github/workflows/prod-deploy-node-exporter.yml}]
 name: Deploy node exporter (prod)
@@ -2239,7 +2283,7 @@ jobs:
 
 \end{lstlisting}
 
-Weryfikację poprawności wdrożenia dokonałem poprzez wykonanie \lstinline|curl localhost:9100/metrics|.
+Weryfikacji poprawności wdrożenia dokonano poprzez wykonanie komendy \lstinline|curl localhost:9100/metrics|.
 
 \begin{figure}[H]
     \centering
@@ -2250,9 +2294,9 @@ Weryfikację poprawności wdrożenia dokonałem poprzez wykonanie \lstinline|cur
 
 \subsubsection{Prometheus}
 
-Narzędziem, które będzie zbierało metryki produkowane przez Node Exportera jest Prometheus. Konfiguracja narzędzia odbywa się poprzez plik \lstinline|.yaml|.
+Narzędziem odpowiedzialnym za gromadzenie metryk produkowanych przez Node Exportera jest Prometheus. Konfiguracja tego narzędzia odbywa się przy pomocy pliku \lstinline|.yaml|.
 
-Pomysł na automatyczną konfigurację tego narzędzia jest taki, że plik konfiguracyjny będzie znajdował się w repozytorium z infrastrukturą. Całe repozytorium zostanie pobrane do specjalnie utworzonego katalogu na serwerze i w momencie włączania Prometheusa zamontuję ten plik jako \textbf{volume} i podam odpowiedni argument.
+Zaproponowana strategia automatycznej konfiguracji zakłada umieszczenie pliku konfiguracyjnego w repozytorium z infrastrukturą. Repozytorium to zostanie pobrane do specjalnie utworzonego katalogu na serwerze, a przy uruchamianiu Prometheusa plik konfiguracyjny zostanie zamontowany jako \textbf{volume} i przekazany jako odpowiedni argument.
 
 \begin{figure}[H]
     \centering
@@ -2261,9 +2305,9 @@ Pomysł na automatyczną konfigurację tego narzędzia jest taki, że plik konfi
     \label{fig:enter-label}
 \end{figure}
 
-Zacząłem od stworzenia wspomnianego pliku konfiguracyjnego. Określa się w nim, pod jakimi adresami dostępne są metryki. Dodatkowo możliwe jest ustawienie częstotliwości zbierania metryk oraz nadanie im nazw.
+Pierwszym krokiem było przygotowanie pliku konfiguracyjnego, w którym określono adresy dostępnych metryk. Dodatkowo skonfigurowano częstotliwość zbierania danych oraz nazwy poszczególnych metryk.
 
-W tym przypadku Prometheus będzie posiadał tylko jeden job i będzie nim zbieranie metryk Node Exportera.
+W przedstawionej konfiguracji Prometheus posiada tylko jedno zadanie (job), którym jest zbieranie metryk z Node Exportera.
 
 \begin{lstlisting}[caption=Plik \texttt{infrastructure/prometheus/prometheus.yml}]
 global:
@@ -2277,12 +2321,12 @@ scrape_configs:
 
 \end{lstlisting}
 
-Następnie stworzyłem template, który kolejno:
+Następnie przygotowano szablon, który realizuje następujące kroki:
 \begin{itemize}
-    \item stworzy specjalny katalog na rzeczy związane z Prometheusem,
-    \item wejdzie do niego,
-    \item pobierze repozytorium git,
-    \item włączy kontener montując plik konfiguracyjny prometheusa jako volume.
+    \item tworzy specjalny katalog na rzeczy związane z Prometheusem,
+    \item przechodzi do utworzoneg katalogu,
+    \item pobiera repozytorium git,
+    \item włącza kontener montując plik konfiguracyjny prometheusa jako volume.
 \end{itemize}
 
 \begin{lstlisting}[caption=Plik \texttt{.github/templates/deploy-prometheus/action.yml}]
@@ -2325,7 +2369,7 @@ runs:
           prom/prometheus:v2.49.1
 \end{lstlisting}
 
-Na końcu stworzyłem workflow, który skorzysta z wcześniej stworzonego template.
+Na końcu utworzono workflow, który wykorzystuje wspomniany wcześniej szablon.
 
 \begin{lstlisting}[caption=Plik \texttt{.github/workflows/prod-deploy-prometheus.yml}]
 name: Deploy prometheus (prod)
@@ -2358,7 +2402,7 @@ jobs:
 
 \end{lstlisting}
 
-Aby przetestować poprawność konfiguracji mogę użyć komendy \lstinline|ssh -L 9090:localhost:9090 magisterka|, aby przekierować ruch portu \textbf{Prometheusa} na moją lokalną maszynę, po czym mogę odwiedzić \lstinline|http://localhost:9090/targets|, aby zobaczyć skonfigurowane cele.
+Przetestowano poprawność konfiguracji używając komendy \lstinline|ssh -L 9090:localhost:9090 magisterka|, aby przekierować ruch portu \textbf{Prometheusa} na moją maszynę, po czym odwiedzono \lstinline|http://localhost:9090/targets|, aby zobaczyć skonfigurowane cele.
 
 \begin{figure}[H]
     \centering
@@ -2367,13 +2411,13 @@ Aby przetestować poprawność konfiguracji mogę użyć komendy \lstinline|ssh 
     \label{fig:enter-label}
 \end{figure}
 
-Na rysunku widać, że \textbf{Prometheus} poprawnie scrapuje dane z \textbf{Node Exportera}
+Na powyższym rysunku przedstawiono, że \textbf{Prometheus} poprawnie zbiera dane z \textbf{Node Exportera}.
 
 \subsubsection{Grafana}
 
 Grafana jest narzędziem wizualizacyjnym, które umożliwia przeglądanie i analizowanie danych zbieranych przez Prometheusa. Dzięki integracji z Prometheusem użytkownik może z łatwością tworzyć zaawansowane panele do wizualizacji danych.
 
-Stworzyłem template, który włącza kontener z Grafaną.
+Przygotowano szablon, który uruchamia kontener z Grafaną.
 
 \begin{lstlisting}[caption=Plik \texttt{.github/templates/deploy-grafana/action.yml}]
 name: Deploy grafana
@@ -2415,7 +2459,7 @@ runs:
             grafana/grafana:10.3.3
 \end{lstlisting}
 
-Dodatkowo stworzyłem workflow, który korzysta z dwóch poprzednich plików.
+Dodatkowo utworzono workflow korzystający z powyższego szablonu.
 
 \begin{lstlisting}[caption=Plik \texttt{.github/workflows/prod-deploy-grafana.yml}]
 name: Deploy grafana (prod)
@@ -2449,7 +2493,7 @@ jobs:
           grafana-password: ${{ secrets.MONITORING_PASSWORD }}
 \end{lstlisting}
 
-Pozostało stworzyć sekrety w repozytorium.
+Następnie dodano sekrety uwierzytelnienia w repozytorium.
 
 \begin{figure}[H]
     \centering
@@ -2458,7 +2502,7 @@ Pozostało stworzyć sekrety w repozytorium.
     \label{fig:enter-label}
 \end{figure}
 
-Oraz podłączyć domenę w cloudflare.
+Skonfigurowano również domenę w usłudze Cloudflare.
 
 \begin{figure}[H]
     \centering
@@ -2467,7 +2511,7 @@ Oraz podłączyć domenę w cloudflare.
     \label{fig:enter-label}
 \end{figure}
 
-I na koniec zmienić konfigurację wcześniej stworzonego współdzielonego reverse proxy tak, aby ruch z \lstinline|grafana.ablaszkiewicz.pl| kierował na \lstinline|localhost:2000|, na którym zostanie wdrożona Grafana.
+Ostatnim krokiem była modyfikacja konfiguracji reverse proxy, aby przekierowywać ruch z \lstinline|grafana.ablaszkiewicz.pl| na \lstinline|localhost:2000|, gdzie wdrożona jest Grafana.
 
 \begin{lstlisting}[caption=Zaktualizowany plik \texttt{infrastructure/reverse-proxy-shared/config}]
 grafana.ablaszkiewicz.pl=http://192.168.1.104:2000
@@ -2475,7 +2519,7 @@ dev.ablaszkiewicz.pl=http://192.168.1.104:4080
 ablaszkiewicz.pl=http://192.168.1.104:3080
 \end{lstlisting}
 
-Po konfiguracji jestem w stanie wejść na stronę swojej grafany.
+Po ukończeniu konfiguracji można uzyskać dostęp do Grafany.
 
 \begin{figure}[H]
     \centering
@@ -2484,7 +2528,7 @@ Po konfiguracji jestem w stanie wejść na stronę swojej grafany.
     \label{fig:enter-label}
 \end{figure}
 
-Pomyślnie loguje się zapisanymi w sekretach danymi.
+Uwierzytelnienie przebiega pomyślnie przy użyciu danych zapisanych w sekretach.
 
 \begin{figure}[H]
     \centering
@@ -2493,7 +2537,7 @@ Pomyślnie loguje się zapisanymi w sekretach danymi.
     \label{fig:enter-label}
 \end{figure}
 
-Aby zweryfikować poprawność działania poprzednich kroków, spróbuję dodać \textbf{Prometheusa} jako \textbf{Data Srouce}. W tym celu udałem się do zakładki Data Sources i po kliknięciu Add data source wpisałem adres prometheusa
+Aby sprawdzić poprawność konfiguracji, dodano Prometheusa jako źródło danych (\textit{Data Source}) w zakładce Data Sources, podając odpowiedni adres.
 
 \begin{figure}[H]
     \centering
@@ -2502,7 +2546,7 @@ Aby zweryfikować poprawność działania poprzednich kroków, spróbuję dodać
     \label{fig:enter-label}
 \end{figure}
 
-Po zapisaniu nowego źródła widać wiadomość sygnalizującą, że połączenie jest skonfigurowane poprawnie.
+Po zapisaniu konfiguracji pojawiła się informacja potwierdzająca poprawne połączenie.
 
 \begin{figure}[H]
     \centering
@@ -2511,11 +2555,11 @@ Po zapisaniu nowego źródła widać wiadomość sygnalizującą, że połączen
     \label{fig:enter-label}
 \end{figure}
 
-Aby zobaczyć zwizualizowane statystyki serwera, mogę stworzyć w Grafanie nowy dashboard i jako źródło podać ID dashboardu stworzonego przez społeczność \lstinline|https://grafana.com/grafana/dashboards/1860-node-exporter-full/|.
+Aby uzyskać wizualizację statystyk serwera, utworzono nowy dashboard w Grafanie, oparty na dashboardzie udostępnionym przez społeczność pod adresem \lstinline|https://grafana.com/grafana/dashboards/1860-node-exporter-full/|.
 
-Po zapisaniu zmian widzę już zwizualizowane statystyki serwera.
+Po zapisaniu ustawień możliwe jest wyświetlenie zwizualizowanych statystyk serwera.
 
-Należy jednak pamiętać, że zrestartowanie kontenera z \textbf{Grafaną} spowoduje utratę zmian. W tym celu użyję takiego samego podejścia, jak w przypadku \textbf{Prometheusa}. Konfigurację \textbf{Grafany} przeniosę do pliku i zamontuję go jako plik konfiguracyjny przy starcie kontenera.
+Aby uniknąć utraty konfiguracji w przypadku restartu kontenera, przeniesiono konfigurację Grafany do plików montowanych przy uruchamianiu kontenera, podobnie jak w przypadku Prometheusa.
 
 \begin{figure}[H]
     \centering
@@ -2547,9 +2591,9 @@ providers:
       foldersFromFilesStructure: true
 \end{lstlisting}
 
-Dodatkowo używając UI Grafany wyeksportowałem aktualny dashboard jako JSON i wkleiłem go do \lstinline|infrastructure/grafana/dashboards/node-exporter.json|.
+Korzystając z interfejsu Grafany, wyeksportowano aktualny dashboard w formacie JSON i zapisano go w pliku \lstinline|infrastructure/grafana/dashboards/node-exporter.json|.
 
-Na koniec zostało zmodyfikować template wdrażający Grafanę tak, aby montował wcześniej stworzone pliki jako volume.
+Ostatecznie zmodyfikowano szablon wdrożeniowy Grafany, aby montował nowo utworzone pliki konfiguracyjne jako \textbf{volume}.
 
 \begin{lstlisting}[caption=Zmodyfikowany plik \texttt{.github/templates/deploy-grafana/action.yml}]
 name: Deploy grafana
@@ -2602,13 +2646,7 @@ runs:
             grafana/grafana:10.3.3
 \end{lstlisting}
 
-Dokonałem teraz ponownego wdrożenia kontenera z Grafaną. Po restarcie widzę skonfigurowane źródło danych oraz dashboard.
-
-\subsubsection{Logi nginx}
-
-\subsubsection{Promtail}
-
-\subsubsection{Loki}
+Po ponownym wdrożeniu kontenera Grafany konfiguracja źródeł danych i dashboardów została zachowana.
 
 \section{Optymalizacje}
 \subsection{Cachowanie buildów}
@@ -2619,22 +2657,117 @@ Dokonałem teraz ponownego wdrożenia kontenera z Grafaną. Po restarcie widzę 
 \begin{thebibliography}{9}
 
 \bibitem{flickr}
-John Allspaw, Paul Hammond (2009) 10+ Deploys per Day: Dev and Ops Cooperation at Flickr \url{https://www.slideshare.net/jallspaw/10-deploys-per-day-dev-and-ops-cooperation-at-flickr}
+John Allspaw, Paul Hammond, "10+ Deploys per Day: Dev and Ops Cooperation at Flickr", 2009. [Prezentacja] \url{https://www.slideshare.net/jallspaw/10-deploys-per-day-dev-and-ops-cooperation-at-flickr} [Dostęp: 20 listopada 2024]
 
 \bibitem{devOpsDays}
-Strona internetowa DevOpsDays \url{https://devopsdays.org/}
+"DevOpsDays". [Strona internetowa] \url{https://devopsdays.org/} [Dostęp: 20 listopada 2024]
 
 \bibitem{devOpsHandbook}
-Gene Kim, Patrick Debois, Professor John Willis, Jez Humble (2016) The DevOPS Handbook: How to Create World-Class Agility, Reliability, and Security in Technology Organizations
+Gene Kim, Patrick Debois, Professor John Willis, Jez Humble, "The DevOPS Handbook: How to Create World-Class Agility, Reliability, and Security in Technology Organizations", 2016.
 
 \bibitem{damonEdwards}
-Damon Edwards (2010) What is DevOps? \url{http://dev2ops.org/2010/02/what-is-devops/}
+Damon Edwards, "What is DevOps?", 2010. [Blog] \url{http://dev2ops.org/2010/02/what-is-devops/} [Dostęp: 20 listopada 2024]
 
 \bibitem{cdDockerJenkins}
-Rafał Leszko (2017) Building CI/CD using Docker and Jenkins
+Rafał Leszko, "Building CI/CD using Docker and Jenkins", 2017.
 
 \bibitem{royceWaterfall}
-Winston Royce (1970) Managing the Development of Large Software Systems
+Winston Royce, "Managing the Development of Large Software Systems", 1970.
+
+\bibitem{stateOfDevops}
+"2023 State of DevOps", 2023. [Blog] \url{https://www.splunk.com/en_us/blog/learn/state-of-devops.html} [Dostęp: 21 listopada 2024]
+
+\bibitem{babisha}
+Bhabishya Gorung, "A comparative analysis of create-react-app (CRA) and Vite for React.js projects", 2024. [Praca] \url{https://www.theseus.fi/bitstream/handle/10024/860241/Gurung_Bhabishya.pdf?sequence=2&isAllowed=y} [Dostęp: 21 listopada 2024]
+
+\bibitem{cleanArchitecture}
+Robert C. Martin, "Clean Architecture: A Craftsman's Guide to Software Structure and Design", 2017.
+
+\bibitem{understandingIdempotency}
+Thalia Barrera, "Understanding Idempotency: A Key to Reliable and Scalable Data Pipelines", 2023. [Blog] \url{https://airbyte.com/data-engineering-resources/idempotency-in-data-pipelines} [Dostęp: 21 listopada 2024]
+
+\bibitem{continuousDelivery}
+Jez Humble, David Farley, "Continuous Delivery: Reliable Software Releases through Build, Test, and Deployment Automation", 2010.
+
+\bibitem{characterizationFramework}
+Fugetta Alfonso, Hall Richard S., Carzaniga Antonio, Heimbigner Dennis M, "A Characterization Framework for Software Deployment Technologies", 2010. [Praca] \url{https://scholar.colorado.edu/concern/reports/v405sb15g} [Dostęp: 22 listopada 2024]
+
+\bibitem{efficientDocker}
+Mokshith Reddy Eda, N. Srinivasu, Suneetha Bulla, "Mokshith Reddy Eda, N. Srinivasu, Suneetha Bulla", 2023. [Praca] \url{https://www.researchgate.net/publication/373346783_Efficient_Docker_Image_Optimization_using_Multi-Stage_Builds_and_Nginx_for_Enhanced_Application_Deployment} [Dostęp: 22 listopada 2024]
+
+\bibitem{smallerContainers}
+Tonis Tiigi, "How to Build Smaller Container Images: Docker Multi-Stage Builds", 2024. [Praca] \url{https://labs.iximiuz.com/tutorials/docker-multi-stage-builds} [Dostęp: 22 listopada 2024]
+
+\bibitem{reduceDockerImages}
+Travis Media, "How to Significantly Reduce Your Docker Images with Multi-Stage Builds", 2010. [Blog] \url{https://travis.media/blog/docker-multi-stage-builds/} [Dostęp: 23 listopada 2024]
+
+\bibitem{AzureDevOpsGitHubActionsComparison}
+Melanie, "Azure DevOps vs GitHub Actions: Which is the best CI/CD tool?", 2023. [Artykuł] \url{https://datascientest.com/en/azure-devops-vs-github-actions-which-is-the-best-ci-cd-tool} [Dostęp: 23 listopada 2024]
+
+\bibitem{GitLabAzureDevOpsComparison}
+Piotr Zięba, "Porównanie narzędzi DevOps: GitLab i Azure DevOps", 2020. [Blog] \url{https://deviniti.com/pl/blog/devops-pl/porownanie-narzedzi-devops-gitlab-azure/} [Dostęp: 23 listopada 2024]
+
+\bibitem{CircleCIGitHubActionsGitLab}
+Vince Power, "CircleCI vs. GitHub Actions vs. GitLab: Key Differences", 2023. [Blog] \url{https://saucelabs.com/resources/blog/circleci-vs-github-actions-vs-gitlab-key-differences} [Dostęp: 24 listopada 2024]
+
+\bibitem{GitHubActionsImporter}
+GitHub, "GitHub Actions Importer". [Repozytorium] \url{https://github.com/actions/importer-labs} [Dostęp: 24 listopada 2024]
+
+\bibitem{BabelWikipedia}
+Wikipedia, "Babel (transcompiler)". [Artykuł] \url{https://en.wikipedia.org/wiki/Babel_%28transcompiler%29} [Dostęp: 24 listopada 2024]
+
+\bibitem{BabelDailyDev}
+DailyDev, "Typescript Transpiler Tools Comparison". [Artykuł] \url{https://daily.dev/blog/typescript-transpiler-tools-comparison?utm_source=chatgpt.com} [Dostęp: 25 listopada 2024]
+
+\bibitem{BabelLogRocket}
+LogRocket, "Why you should use SWC (and not Babel)". [Artykuł] \url{https://blog.logrocket.com/why-you-should-use-swc} [Dostęp: 25 listopada 2024]
+
+\bibitem{DevCra}
+DevTo, "Goodbye create-react-app". [Artykuł] \url{https://dev.to/ag2byte/create-react-app-is-officially-dead-h7o} [Dostęp: 25 listopada 2024]
+
+\bibitem{ViteSite}
+Vite. [Strona] \url{https://vite.dev/} [Dostęp: 26 listopada 2024]
+
+\bibitem{NodemonArticle}
+Refine, "How to Use Nodemon to Automatically Restart Node.js Applications". [Artykuł] \url{https://refine.dev/blog/nodemon/} [Dostęp: 26 listopada 2024]
+
+\bibitem{NodejsAviary}
+Aviary, "Node.js – przewodnik po środowisku uruchomieniowym JavaScript". [Artykuł] \url{https://aviary.pl/node-js/} [Dostęp: 26 listopada 2024]
+
+\bibitem{DockerAlpine}
+Docker, "How to Use the Alpine Docker Official Image". [Artykuł] \url{https://www.docker.com/blog/how-to-use-the-alpine-docker-official-image/} [Dostęp: 27 listopada 2024]
+
+\bibitem{MediumDistroless}
+Pratik Nalawade, "Distroless Images in Docker: Streamlining Containers for Security and Efficiency". [Artykuł] \url{https://medium.com/@nalawade1000work/distroless-images-in-docker-streamlining-containers-for-security-and-efficiency-42372d1b7fb9} [Dostęp: 27 listopada 2024]
+
+\bibitem{Krakweb}
+Krakweb, "4 najpopularniejsze mechanizmy uwierzytelniania". [Artykuł] \url{https://www.krakweb.pl/4-najpopularniejsze-mechanizmy-uwierzytelniania-klucze-ssh-tokeny-oauth-certyfikaty-ssl-oraz-dane-uwierzytelniajace-loginy-i-hasla} [Dostęp: 27 listopada 2024]
+
+\bibitem{NginxDocs}
+Nginx, "NGINX Reverse Proxy". [Dokumentacja] \url{https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy} [Dostęp: 28 listopada 2024]
+
+\bibitem{BizetyGrafana}
+Bizety, "Open Source Monitoring Stack: Prometheus and Grafana", 2019. [Artykuł] \url{https://bizety.com/2019/01/25/open-source-monitoring-stack-prometheus-and-grafana/} [Dostęp: 28 listopada 2024]
+
+\bibitem{VictoriaMetricsBlog}
+Sajfeddine Rajhi, "VictoriaMetrics: A Guide, Comparing It to Prometheus, and Implementing Kubernetes Monitoring", 2024. [Blog] \url{https://seifrajhi.github.io/blog/victoriametrics-time-series-db-prometheus-k8s/} [Dostęp: 28 listopada 2024]
+
+
+\bibitem{UptimeKumaGithub}
+Uptime Kuma. [Dokumentacja] \url{https://github.com/louislam/uptime-kuma} [Dostęp: 29 listopada 2024]
+
+
+\bibitem{GatusGithub}
+Gatus. [Dokumentacja] \url{https://github.com/TwiN/gatus} [Dostęp: 29 listopada 2024]
+
+
+\bibitem{StatpingGithub}
+Statping. [Dokumentacja] \url{https://github.com/statping/statping} [Dostęp: 30 listopada 2024]
+
+\bibitem{UptimeRobotMedium}
+Tang Rufus, "Monitoring Uptime with Uptime Robot for Free", 2017. [Artykuł] \url{https://medium.com/typist-tech/monitoring-uptime-with-uptime-robot-for-free-a6231fca1ff0} [Dostęp: 30 listopada 2024]
+
+
 
 \end{thebibliography}
 
