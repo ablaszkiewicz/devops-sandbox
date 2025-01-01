@@ -77,7 +77,7 @@ Rozwój tej kultury, chociaż silnie związany z programowaniem, wydaje się by�
 
 Jeszcze dekadę temu, umiejętność autonomicznego wdrażania aplikacji była rzadkością, wymagającą dogłębnej wiedzy o narzędziach i zasadach działania systemów operacyjnych. Obecnie, implementacja automatycznego systemu wdrażania aplikacji wielośrodowiskowych na serwerze jest możliwa w znacznie krótszym czasie. Przypisuję to zjawisko rozwojowi narzędzi o wysokim stopniu abstrakcji, które nazwałbym "meta-narzędziami"\chapref{subsectionMetaNarzedzia}. Pod tym terminem rozumiem narzędzia wykorzystujące inne narzędzia do jeszcze bardziej efektywnego osiągania określonych celów. Warto zauważyć, że to nie koniec - istnieją "meta-meta-narzędzia", które integrują wiele "meta-narzędzi".
 
-Obserwuje się trend, w którym końcowy użytkownik tych rozwiązań jest coraz bardziej oddalony od pierwotnego celu, który stara się osiągnąć, co skutkuje ograniczeniem jego potrzeby posiadania szczegółowej wiedzy na temat działania tych systemów. Ma to swoje zalety, jak ułatwienie osiągania celów, ale również wady, takie jak utrzymanie użytkownika w nieświadomości konsekwencji niektórych decyzji. \cite{devOpsHandbook}
+Obserwuje się trend, w którym końcowy użytkownik tych rozwiązań jest coraz bardziej oddalony od pierwotnego celu, który stara się osiągnąć, co skutkuje ograniczeniem jego potrzeby posiadania szczegółowej wiedzy na temat działania tych systemów. Ma to swoje zalety, jak ułatwienie osiągania celów, ale również wady, takie jak utrzymanie użytkownika w nieświadomości konsekwencji niektórych decyzji. \cite{devOpsHandbook}. Jednym z typowych przykładów jest nieoptymalne wykorzystanie zasobów chmurowych i rachunki sięgające setek tysięcy dolarów spowodowane niewłaściwą konfiguracją.
 
 Tematem niniejszej pracy jest analiza oraz praktyczne wdrożenie elementów kultury DevOps w kontekście projektu aplikacji. Praca skupia się przede wszystkim na procesach i rozwiązaniach związanych z implementacją, automatyzacją oraz utrzymaniem wysokiej jakości systemów IT. 
 
@@ -87,7 +87,7 @@ Poruszone zagadnienia obejmują analizę i porównanie różnych podejść oraz 
 
 \subsection{Cele pracy}
 
-Celem niniejszej pracy było stworzenie aplikacji o architekturze frontendowej i backendowej oraz szczegółowe omówienie procesu wdrażania kultury DevOps w takim projekcie. Przy każdym omawianym zagadnieniu przedstawiono problem, który dane rozwiązanie adresuje, dokonano porównania możliwych podejść, wybrano optymalne oraz krótko opisano jego implementację.
+Celem niniejszej pracy było stworzenie aplikacji o architekturze frontendowej i backendowej oraz szczegółowe omówienie procesu wdrażania kultury DevOps w takim projekcie. Tego typu architektura została wybrana ze względu na jej reprezentatywność dla typowych projektów realizowanych w środowiskach korporacyjnych, gdzie aplikacje często mają złożoną warstwę logiki biznesowej (backend) oraz interfejs użytkownika dostępny z poziomu przeglądarki lub aplikacji mobilnej (frontend).
 
 Główny nacisk położono nie na opis samej aplikacji, lecz na aspekty związane z kulturą DevOps. W efekcie aplikacja cechuje się wysokim poziomem bezpieczeństwa, szybkim procesem budowania, kontrolą nad wprowadzanymi zmianami oraz możliwością testowania nowych wersji w odrębnym środowisku. W przypadku wystąpienia problemów z serwerem lub aplikacją generowany jest alert informujący o nieprawidłowościach.
 
@@ -104,7 +104,7 @@ Poruszone zagadnienia obejmują:
     \item porównanie strategii budowy oraz zarządzania reverse proxy, uwzględniając aspekty wydajności, bezpieczeństwa oraz łatwości integracji z aplikacją,
     \item porównanie strategii wdrażania aplikacji,
     \item kompleksowy opis sposobu zarządzania serwerem w kontekście wdrażania i utrzymania aplikacji,
-    \item opracowanie wytycznych dotyczących pisania wydajnych i czytelnych pipeline’ów na platformie GitHub Actions.
+    \item opracowanie wytycznych dotyczących pisania wydajnych i czytelnych pipeline’ów \chapref{pipeline} na platformie GitHub Actions.
     \item porównanie podejść i narzędzi służących do monitorowania serwera oraz stanu aplikacji.
 \end{itemize}
 
@@ -118,7 +118,7 @@ Na początku warto przytoczyć porównanie zaproponowane przez Patricka Deboisa\
     I've settled on my own definition of "DevOps": everything you do to overcome the friction between silos. All the rest is plain engineering.
 \end{displayquote}
 
-Mówi on o zjawisku pojawianiu się granic pomiędzy drużyną deweloperów a opsów. Zaznacza, że jest to niekorzystne dla procesu wytwarzania oprogramowania, jako że informacje nie są poprawnie propagowane między wszystkimi zainteresowanymi. Definiuje DevOps jako wszystko, co robi się, aby zatrzeć te granice. Reszte traktuję jako czystą inżynierię.
+Mówi on o zjawisku pojawianiu się granic pomiędzy drużyną deweloperów a „opsów” (tj. zespołu odpowiedzialnego za operacje, utrzymanie i zarządzanie infrastrukturą IT). Zaznacza, że jest to niekorzystne dla procesu wytwarzania oprogramowania, jako że informacje nie są poprawnie propagowane między wszystkimi zainteresowanymi. Definiuje DevOps jako wszystko, co robi się, aby zatrzeć te granice. Reszte traktuję jako czystą inżynierię.
 \newline
 
 Bardzo podobnie definiuje to Damon Edwards\cite{damonEdwards}.
@@ -146,7 +146,7 @@ W niniejszym podrozdziale skategoryzowano dostępne narzędzia, które zostaną 
 \begin{itemize}
     \item budowa aplikacji NodeJS \chapref{sectionBudowanieAplikacji} - webpack, vite, SWC,
     \item platformy CI/CD \chapref{sectionCICD} - Gitlab, Github Actions,
-    \item wirtualizacja \chapref{sectionBudowaObrazu} - docker,
+    \item konteneryzacja \chapref{sectionBudowaObrazu} - docker,
     \item monitorowanie i observability - uptime kuma, grafana, prometheus, loki, cadvisor, promtail,
     \item konfiguracja i zarządzanie serwerem - htop, nginx, cloudflare,
 \end{itemize}
@@ -158,7 +158,14 @@ W niniejszym podrozdziale skategoryzowano dostępne narzędzia, które zostaną 
 Klasyczny artykuł Winstona Royce'a, który wprowadził koncepcję modelu wodospadowego w zarządzaniu projektami oprogramowania. Choć sam model wodospadowy jest obecnie uważany za przestarzały, artykuł Royce'a jest ważny dla zrozumienia ewolucji metodologii zarządzania projektami, które doprowadziły do powstania zwinnych metod i praktyk DevOps. Royce podkreślał znaczenie planowania, dokumentacji i rygorystycznego podejścia do zarządzania dużymi projektami.
 
 \subsubsection{Allspaw, John, and Paul Hammond. "10+ Deploys per Day: Dev and Ops Cooperation at Flickr." (2009)\cite{flickr}}
-Jest to całkiem stara pozycja i nie wchodzi w szczegóły, ale co ciekawe, prawie wszystko z tej prezentacji sprawdza się w dzisiejszych czasach - zostało po prostu bardziej rozwinięte. Prezentacja ta, wygłoszona podczas konferencji Velocity stała się kamieniem milowym dla ruchu DevOps. Autorzy podkreślają znaczenie nie tyle użytej technologii, co kultury wspólpracy i komunikacji. 
+Jest to całkiem stara pozycja i nie wchodzi w szczegóły, ale co ciekawe, prawie wszystko z tej prezentacji sprawdza się w dzisiejszych czasach - zostało po prostu bardziej rozwinięte. Prezentacja ta, wygłoszona podczas konferencji Velocity stała się kamieniem milowym dla ruchu DevOps. Autorzy podkreślają znaczenie nie tyle użytej technologii, co kultury wspólpracy i komunikacji.
+
+Wprowadzono kilka kluczowych konepcji:
+\begin{itemize}
+    \item \textbf{Ciągłość dostarczania:} częste, małe wdrożenia redukujące ryzyko.
+    \item \textbf{Automatyzacja i monitorowanie:} narzędzia wspierające szybsze wykrywanie i rozwiązywanie problemów.
+    \item \textbf{Wspólna odpowiedzialność:} zasada „you build it, you run it” wzmacniająca zaufanie i zrozumienie między zespołami.
+\end{itemize}
 
 \subsubsection{Kim, Gene, "The DevOPS Handbook: How to Create World-Class Agility, Reliability, and Security in Technology Organizations (2016)\cite{devOpsHandbook}}
 Książka ta jest kompleksowym przewodnikiem po świecie DevOps, napisanym przez uznanych ekspertów: Gene Kima, Patricka Deboisa, Johna Willisa i Jeza Humble'a. Autorzy przedstawiają fundamenty DevOps, koncentrując się na praktykach i narzędziach, które pomagają organizacjom osiągnąć wyjątkową wydajność, niezawodność i bezpieczeństwo. Książka ta jest często cytowana jako fundamentalne źródło wiedzy, które wyjaśnia, jak wdrożyć i skalować DevOps w dużych organizacjach, podając konkretne przykłady i studia przypadków.
@@ -166,23 +173,27 @@ Książka ta jest kompleksowym przewodnikiem po świecie DevOps, napisanym przez
 \subsubsection{Edwards, Damon. "What is DevOps?" (2010)\cite{damonEdwards}}
 W artykule tym Damon Edwards definiuje DevOps jako koncepcję parasolową obejmującą wszystkie działania mające na celu poprawę współpracy między rozwojem a operacjami. Edwards podkreśla, że DevOps nie jest jedynie zestawem narzędzi, ale przede wszystkim filozofią pracy, która promuje ciągłe doskonalenie, automatyzację i wzajemne zrozumienie między zespołami. Artykuł ten jest często cytowany jako jedno z pierwszych źródeł definiujących DevOps w sposób, który obejmuje zarówno techniczne, jak i kulturowe aspekty.
 
-\subsection{Meta narzędzia} \label{subsectionMetaNarzedzia}
+\subsection{Metanarzędzia} \label{subsectionMetaNarzedzia}
 
-Podstawową metodą wdrożenia kodu na serwer jest pobranie i włączenie go na serwerze. Wraz z rozwojem IT powstały jednak bardziej abstrakcyjne metody wdrażania. Na wzór wzięto funkcje \textbf{Lambda} oferowane przez \textbf{AWS}. Oferują one środowisko uruchomieniowe, za które płaci się na podstawie wykorzystanych minut. Nie wymagają konfiguracji i posiadania własnych zasobów serwerowych. Jest to pierwsza warstwa abstrakcji - można nazwać to meta-narzędziem.
+Podstawową metodą wdrożenia kodu na serwer jest pobranie i włączenie go na serwerze. Wraz z rozwojem IT powstały jednak bardziej abstrakcyjne metody wdrażania. Na wzór wzięto funkcje \textbf{Lambda} oferowane przez \textbf{AWS}. Oferują one środowisko uruchomieniowe, za które płaci się na podstawie wykorzystanych minut. Nie wymagają konfiguracji i posiadania własnych zasobów serwerowych. Jest to pierwsza warstwa abstrakcji - można nazwać to metanarzędziem.
 
 Samo wgranie kodu do funkcji Lambda wymaga od dewelopera całkiem powtarzalnej interakcji. Kod należy skompresować do pliku zip i wgrać przez panel AWS Lambda. Aby uprościć te czynności, powstało wiele narzędzi automatyzujących ten proces. Opiszę tutaj narzędzie \textbf{Serverless Framework}. Narzędzie to jest oferowane w postaci strony internetowej z dodatkiem CLI, z poziomu którego wykonuje się komendę, która wdroży aplikację.
 
-Po odpowiedniej konfiguracji projektu wystarczy użyć \lstinline|sls deploy|, aby kod w przeciągu kilkunastu sekund został wdrożony w funkcję Lambda. Narzędzie jest warstwą abstrakcji na inne narzędzie zarządzające stanem wdrożonych zasobów na koncie AWS - \textbf{CloudFormation}.
+Po odpowiedniej konfiguracji projektu wystarczy użyć \lstinline|sls deploy|, aby kod w przeciągu kilkunastu sekund został wdrożony w funkcję Lambda. Narzędzie jest warstwą abstrakcji na inne narzędzie zarządzające stanem wdrożonych zasobów na koncie AWS - \textbf{CloudFormation} \footnote{https://aws.amazon.com/cloudformation/ - narzędzie do zarządzania infrastrukturą AWS}.
 
-Deweloper korzystając z niego nie zdaje sobie sprawy, co dzieje się pod spodem. Jest na przykład zupełnie nieświadomy tego, że narzędzie to tworzy \textbf{S3 Bucket}, w którym zapisane zostaną informacje dotyczące wdrażania kolejnych wersji aplikacji oraz informacje o stworzonych zasobach.
+Deweloper korzystając z niego nie zdaje sobie sprawy, co dzieje się pod spodem. Jest na przykład zupełnie nieświadomy tego, że narzędzie to tworzy \textbf{S3 Bucket} \footnote{https://aws.amazon.com/s3/ - narzędzie do przechowywania plików}, w którym zapisane zostaną informacje dotyczące wdrażania kolejnych wersji aplikacji oraz informacje o stworzonych zasobach.
 
 W tym wypadku nazwałbym to nawet meta-meta-meta-narzędziem, ponieważ \textbf{SLS Framework} jest abstrakcją na \textbf{CloudFormation}, która jest abstrakcją na ręczne tworzenie zasobów w \textbf{AWS}, które jest abstrakcją na posiadanie swojego serwera.
+
+
 
 \section{Wdrażana aplikacja}
 
 Aplikacja, która została wdrożona w ramach pracy, jest prostym serwisem typu klient-serwer, składającym się z backendu (serwera) i frontendowej aplikacji klienckiej. Ze względu na charakter tej pracy, której głównym celem jest przedstawienie podejścia DevOps oraz mechanizmów CI/CD, aplikacja pełni funkcję „manekina” – prostej, ale funkcjonalnej struktury pozwalającej na demonstrację kluczowych praktyk DevOps, takich jak automatyzacja wdrożeń, monitorowanie czy zarządzanie konfiguracją.
 
 Taki projekt aplikacji jest celowo minimalistyczny, aby nie skupiać się na skomplikowanych funkcjonalnościach oprogramowania, a zamiast tego umożliwić pełną koncentrację na procesach związanych z jego cyklem życia. Dzięki temu ograniczonemu zestawowi funkcji aplikacja doskonale nadaje się do zilustrowania procedur wdrażania, konfiguracji, testowania i monitorowania, które są kluczowe w kulturze DevOps.
+
+Rozwiązanie takie może rodzić pytanie o arbitralność wyboru architektury i jej wpływ na wnioski końcowe. Warto jednak podkreślić, że zaprezentowane podejście bazuje na standardach i najlepszych praktykach stosowanych w środowiskach korporacyjnych, co czyni je reprezentatywnym dla rozwiązań wdrażanych w praktyce. W konsekwencji uzyskane wyniki i wnioski można uznać za miarodajne i adekwatne w kontekście szeroko rozumianej kultury DevOps.
 
 \subsection{Backend}
 
@@ -212,7 +223,7 @@ npx nest new backend --skip-git
 
 stworzono nowy projekt NestJS gotowy do użycia. Warto w tym miejscu przeanalizować proces inicjalizacji. Domyślnym narzędziem do transpilacji w NestJS jest Babel, który „tłumaczy” kod z jednej wersji języka na inną. Ponieważ projekt tworzony jest w TypeScript, przed wdrożeniem musi zostać przetłumaczony na JavaScript.
 
-Działanie Babela\cite{BabelWikipedia} polega na analizie kodu, który zostaje przekształcony na proste elementy reprezentujące pomocniczy meta-język zwany AST (Abstract Syntax Tree), a następnie ponownym składaniu tych elementów w kod odpowiadający wybranej wersji JavaScript.
+Działanie Babela\footnote{https://babeljs.io/docs/} polega na analizie kodu, który zostaje przekształcony na proste elementy reprezentujące pomocniczy metajęzyk zwany AST (Abstract Syntax Tree), a następnie ponownym składaniu tych elementów w kod odpowiadający wybranej wersji JavaScript.
 
 
 \begin{figure}[H]
@@ -566,6 +577,62 @@ W tym podejściu wdrażanie jest w pełni zautomatyzowane dzięki infrastrukturz
 
 \subsection{Podsumowanie}
 
+\textbf{Podatność na błędy konfiguracji}
+\begin{itemize}
+    \item \textbf{całkowicie ręczne wdrażanie} - wysoka podatność na błędy konfiguracji wynikająca z ręcznego wprowadzania ustawień, co zwiększa ryzyko pomyłek ludzkich, takich jak literówki, niezgodność wersji czy pominięcie kroków konfiguracji,
+    \item \textbf{ręczne wdrażanie z dodatkami} - nadal wysoka podatność na błędy, ponieważ kluczowe etapy konfiguracji wciąż są wykonywane ręcznie, mimo użycia dodatkowych narzędzi wspomagających,
+    \item \textbf{wirtualizacja} - Niska podatność dzięki możliwości definiowania konfiguracji w formie szablonów (np. plików YAML) oraz automatyzacji części procesu,
+    \item \textbf{wirtualizacja + CI/CD} - bardzo niska podatność na błędy dzięki pełnej automatyzacji i standaryzacji procesów konfiguracji, co minimalizuje interwencje manualne.
+\end{itemize}
+
+\textbf{Czas potrzebny na pierwszą konfigurację}
+\begin{itemize}
+    \item \textbf{całkowicie ręczne wdrażanie} - niski, ponieważ proces ogranicza się do manualnego uruchomienia aplikacji i podstawowej konfiguracji środowiska na serwerze,
+    \item \textbf{Ręczne wdrażanie z dodatkami} - średni, ponieważ korzystanie z dodatkowych narzędzi (np. skryptów) wymaga ich wcześniejszego przygotowania i dostosowania do specyfiki środowiska,
+    \item \textbf{wirtualizacja} - wysoki, gdyż przygotowanie infrastruktury wirtualizacyjnej wymaga szczegółowego zaplanowania, instalacji oprogramowania (np. Docker, Kubernetes) i utworzenia odpowiednich szablonów,
+    \item \textbf{wirtualizacja + CI/CD}: bardzo wysoki, ponieważ wdrożenie wymaga skonfigurowania zarówno wirtualizacji, jak i narzędzi CI/CD, takich jak Jenkins, GitLab CI czy GitHub Actions, co może być czasochłonne.
+\end{itemize}
+
+\textbf{Czas wdrożenia nowej wersji aplikacji}
+\begin{itemize}
+    \item \textbf{całkowicie ręczne wdrażanie} - wysoki, ponieważ każda aktualizacja wymaga ręcznego przesłania plików na serwer i ponownej konfiguracji środowiska.
+    \item \textbf{ręczne wdrażanie z dodatkami} - wysoki, mimo pewnych udogodnień (np. skrypty automatyzujące część procesu), proces nadal wymaga ręcznej ingerencji.
+    \item \textbf{Wirtualizacja} - średni, dzięki możliwości szybkiego odtwarzania środowiska aplikacji z wykorzystaniem obrazów kontenerów,
+    \item \textbf{wirtualizacja + CI/CD}: niski, gdyż cały proces wdrożenia nowej wersji aplikacji jest zautomatyzowany i wykonywany w ciągu kilku minut od zgłoszenia zmiany.
+\end{itemize}
+
+\textbf{Zarządzanie stanem aplikacji}
+\begin{itemize}
+    \item \textbf{całkowicie ręczne wdrażanie} - brak możliwości zarządzania stanem aplikacji poza manualnym podejściem, co zwiększa ryzyko niespójności,
+    \item \textbf{ręczne wdrażanie z dodatkami}: możliwość częściowego zarządzania stanem aplikacji za pomocą dodatkowych narzędzi, takich nodemon,
+    \item \textbf{wirtualizacja} - automatyczne zarządzanie stanem aplikacji poprzez obrazy kontenerów i pliki konfiguracyjne,
+    \item \textbf{wirtualizacja + CI/CD} - pełna automatyzacja zarządzania stanem aplikacji, integrująca kontrolę wersji, konfigurację środowiska i logikę aplikacji w jednym procesie.
+\end{itemize}
+
+\textbf{Skalowanie aplikacji}
+\begin{itemize}
+    \item \textbf{całkowicie ręczne wdrażanie} - skalowanie aplikacji jest bardzo trudne, ponieważ wymaga manualnego uruchamiania dodatkowych instancji aplikacji i konfiguracji środowiska na każdym serwerze,
+    \item \textbf{ręczne wdrażanie z dodatkami} - skalowanie jest łatwiejsze niż w przypadku całkowicie ręcznego wdrażania, dzięki wykorzystaniu narzędzi automatyzujących niektóre kroki. Jednak wciąż wymaga ręcznego dostosowywania konfiguracji,
+    \item \textbf{wirtualizacja} - skalowanie jest proste dzięki możliwości uruchamiania wielu instancji aplikacji w formie kontenerów na jednej lub wielu maszynach fizycznych,
+    \item \textbf{wirtualizacja + CI/CD} - skalowanie jest bardzo łatwe i zautomatyzowane, szczególnie w połączeniu z systemami zarządzania orkiestracją kontenerów, takimi jak Kubernetes, co pozwala na dynamiczne dostosowywanie liczby instancji do aktualnego obciążenia.
+\end{itemize}
+
+\textbf{Podatność na ataki}
+\begin{itemize}
+    \item \textbf{całkowicie ręczne wdrażanie} - wysoka podatność na ataki wynikająca z braku standaryzacji i automatyzacji. Ręcznie skonfigurowane środowiska często zawierają błędy bezpieczeństwa, takie jak otwarte porty czy przestarzałe wersje oprogramowania,
+    \item \textbf{ręczne wdrażanie z dodatkami}: podatność na ataki pozostaje wysoka, ponieważ dodatkowe narzędzia nie eliminują wszystkich luk bezpieczeństwa związanych z manualnym podejściem,
+    \item \textbf{wirtualizacja} - niska podatność na ataki dzięki izolacji aplikacji w kontenerach oraz standaryzacji konfiguracji, co minimalizuje ryzyko wynikające z błędów ludzkich.
+    \item \textbf{wirtualizacja + CI/CD} - bardzo niska podatność na ataki, ponieważ proces CI/CD uwzględnia automatyczne skanowanie bezpieczeństwa, aktualizację zależności i eliminację znanych luk w zabezpieczeniach na etapie budowania i wdrażania aplikacji.
+\end{itemize}
+
+\textbf{Monitorowanie aplikacji}
+\begin{itemize}
+    \item \textbf{całkowicie ręczne wdrażanie} - brak monitorowania aplikacji. Ewentualne problemy są wykrywane tylko w wyniku zgłoszeń użytkowników, co znacząco opóźnia reakcję na awarie,
+    \item \textbf{ręczne wdrażanie z dodatkami} - monitorowanie wymaga ręcznej konfiguracji narzędzi lub skryptów, co ogranicza zakres i jakość zbieranych danych. Nadal pozostaje to wysoce zależne od manualnej pracy,
+    \item \textbf{wirtualizacja} - Monitorowanie aplikacji jest możliwe dzięki wbudowanym funkcjom niektórych narzędzi wirtualizacyjnych (np. Docker Stats). Można łatwo zbierać dane o zasobach, takich jak CPU czy pamięć, ale bardziej zaawansowane monitorowanie wymaga dodatkowych narzędzi,
+    \item \textbf{wirtualizacja + CI/CD} - pełne monitorowanie jest integralną częścią procesu, dzięki wykorzystaniu rozwiązań takich jak Prometheus, Grafana czy ELK Stack, które umożliwiają bieżące śledzenie wydajności, logów oraz stanu aplikacji w czasie rzeczywistym.
+\end{itemize}
+
 \begin{table}[H]
 \centering
 \begin{tabular}{|l|c|c|c|c|}
@@ -755,7 +822,7 @@ Celem CI/CD jest zautomatyzowanie czynności związanych z testowaniem, budowani
 
 \begin{itemize}
     \item automatyczne uruchamianie testów jednostkowych i integracyjnych po każdym zatwierdzeniu zmian, co zapewnia wczesne wykrywanie błędów,
-    \item automatyczne budowanie aplikacji po każdym wypchnięciu kodu, co umożliwia szybsze wdrażanie nowych wersji,
+    \item automatyczne budowanie aplikacji po każdym wysłaniu kodu, co umożliwia szybsze wdrażanie nowych wersji,
     \item automatyczne wdrażanie aplikacji na środowiska testowe i produkcyjne, co przyspiesza proces wydawania nowych wersji i minimalizuje ryzyko błędów wynikających z ręcznego wdrażania.
     \item zapewnienie spójności środowisk poprzez zautomatyzowane procesy budowania i wdrażania.
     \item zwiększenie efektywności zespołu poprzez automatyzację powtarzalnych zadań.
@@ -779,7 +846,7 @@ CircleCI to platforma skoncentrowana na szybkości i elastyczności, która inte
 
 \paragraph{GitHub Actions}\mbox{} \\
 
-GitHub Actions to narzędzie CI/CD natywnie zintegrowane z GitHubem, umożliwiające automatyzację procesów bezpośrednio w repozytorium. Jest szczególnie przyjazne dla mniejszych zespołów, ze względu na prostą konfigurację i szeroki wybór gotowych akcji \cite{GitHubActionsImporter}.
+GitHub Actions to narzędzie CI/CD natywnie zintegrowane z GitHubem, umożliwiające automatyzację procesów bezpośrednio w repozytorium. Jest szczególnie przyjazne dla mniejszych zespołów, ze względu na prostą konfigurację i szeroki wybór gotowych akcji \chapref{gotoweAkcje} \cite{GitHubActionsImporter}.
 
 \paragraph{Podsumowanie}\mbox{} \\
 
@@ -789,7 +856,7 @@ W ramach tej pracy wybrano \textbf{GitHub Actions} jako platformę CI/CD. Jest t
 
 \subsection{Pojęcia}
 
-\subsubsection{Pipeline}
+\subsubsection{Pipeline} \label{pipeline}
 
 Pipeline CI/CD jest sekwencją kroków, które są automatycznie wykonywane po każdym zatwierdzeniu zmian (commicie). W przypadku GitHub Actions konfiguracja pipeline’u odbywa się za pomocą plików YAML, które definiują poszczególne kroki. Poniżej przedstawiono przykładową konfigurację pipeline'u:
 
@@ -811,7 +878,7 @@ steps:
 
 \end{lstlisting}
 
-Pipeline składa się z sekcji konfiguracyjnej, określającej warunki jego uruchamiania. W powyższym przykładzie jest to operacja wypchnięcia na gałęzi main.
+Pipeline składa się z sekcji konfiguracyjnej, określającej warunki jego uruchamiania. W powyższym przykładzie jest to operacja wysłania kodu do gałęzi main.
 
 Kolejna sekcja definiuje rodzaj agenta, który zostanie użyty do wykonania zadania, w tym przypadku jest to środowisko Ubuntu.
 
@@ -823,7 +890,7 @@ Agent w kontekście CI/CD to bezstanowa maszyna wirtualna lub kontener, na któr
 
 Agent odgrywa kluczową rolę w procesie CI/CD, gdyż to na nim realizowane są wszystkie operacje składające się na pipeline. Każde zadanie (job) w pipeline jest uruchamiane na oddzielnym agencie, co pozwala na równoległe wykonywanie zadań i zwiększa efektywność całego procesu. Agenty są bezstanowe, co oznacza, że każde uruchomienie zadania odbywa się na nowej, czystej maszynie, minimalizując ryzyko problemów wynikających ze współzależności między zadaniami.
 
-\subsubsection{Gotowe akcje GitHub Actions}
+\subsubsection{Gotowe akcje GitHub Actions} \label{gotoweAkcje}
 
 Jedną z zalet GitHub Actions jest dostępność gotowych akcji (actions), które ułatwiają i przyspieszają konfigurację pipeline'ów CI/CD. Akcje te to predefiniowane, wielokrotnego użytku moduły, które można łatwo zintegrować z własnym pipeline’em. Dzięki nim możliwe jest uproszczenie powtarzalnych i złożonych zadań w procesie automatyzacji.
 
@@ -921,7 +988,7 @@ Przykładem akcji nieidempotentnej byłaby akcja budująca obraz Dockerowy, któ
 
 Poprawnym rozwiązaniem w tej sytuacji jest pobranie konkretnego commitu, do którego odniesienie znajduje się w pipeline. Powtórne uruchomienie tego samego pipeline’u zawsze będzie odnosić się do tego samego commitu.
 
-Praktyczne zastosowanie tej zasady może być szczególnie istotne w przypadku potrzeby rollbacku do poprzedniej, działającej wersji aplikacji. Przykładowo, jeśli wdrożono następujące wersje:
+Praktyczne zastosowanie tej zasady może być szczególnie istotne w przypadku potrzeby przywrócenia do poprzedniej, działającej wersji aplikacji. Przykładowo, jeśli wdrożono następujące wersje:
 \begin{itemize}
     \item wersja A - wersja funkcjonująca prawidłowo,
     \item wersja B - wersja zawierająca błędy
@@ -947,12 +1014,12 @@ on:
 
 \subsubsection{Template}
 
-Najprostszą formą definiowania pipeline’u jest zapis kroków bezpośrednio w pliku \lstinline|.yml|, jednak podejście to nie umożliwia ponownego wykorzystania powtarzalnych fragmentów kodu. Dlatego zalecaną praktyką jest rozdzielenie folderu z pipeline'ami na \lstinline|templates| oraz \lstinline|workflows|. Folder \lstinline|templates| zawiera akcje konfigurowalne za pomocą parametrów, natomiast folder \lstinline|workflows| wywołuje te szablony, dostosowując je do konkretnych zastosowań.
+Najprostszą formą definiowania pipeline’u jest zapis kroków bezpośrednio w pliku \lstinline|.yml|, jednak podejście to nie umożliwia ponownego wykorzystania powtarzalnych fragmentów kodu. Dlatego zalecaną praktyką jest rozdzielenie folderu z pipeline'ami na \lstinline|templates| (szablony) oraz \lstinline|workflows|. Folder \lstinline|templates| zawiera akcje konfigurowalne za pomocą parametrów, natomiast folder \lstinline|workflows| wywołuje te szablony, dostosowując je do konkretnych zastosowań.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\linewidth]{templatesAndWorkflows.png}
-    \caption{Diagram przedstawiający w jaki sposób workflows korzystają z templates}
+    \caption{Diagram przedstawiający w jaki sposób workflows korzystają z szablonów}
     \label{fig:enter-label}
 \end{figure}
 
@@ -1045,7 +1112,7 @@ Szablony są szczególnie użyteczne w przypadku istnienia wielu środowisk. Wsp
 
 \subsection{Serwer}
 
-Rolę serwera pełni maszyna z ubuntu 22.04 posiadająca 2GB ramu, 10GB dysku oraz 1 współdzielony rdzeń procesora.
+Rolę serwera pełni maszyna z Ubuntu 22.04 posiadająca 2GB ramu, 10GB dysku oraz 1 współdzielony rdzeń procesora. Nie jest to indywidualna, fizyczna maszyna, a kontener Proxmox. Rozwiązanie to zostało wybrane z uwagi na budżetową naturę - zachowuje się jednak tak samo jak typowo wybierane korporacyjne rozwiązania.
 
 \subsection{Uwierzytelnienie do serwera}
 
@@ -1139,7 +1206,7 @@ CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
 
 Ze względu na budżetowy charakter wybranego serwera, nie posiada on indywidualnego adresu IPv4, co jest powszechną praktyką obniżającą koszty. W takiej sytuacji dostawca udostępnia jedynie adres IPv6, który nie jest jednak wspierany przez wszystkie sieci.
 
-Rozwiązaniem tego problemu jest skorzystanie z bezpłatnej usługi \textbf{Cloudflare}, po uprzednim podłączeniu do niej domeny. Cloudflare działa w tym przypadku jako serwer proxy: użytkownik, wchodząc na stronę domeny, łączy się z Cloudflare za pośrednictwem IPv4, a Cloudflare następnie przekierowuje ruch do serwera w trybie IPv6.
+Rozwiązaniem tego problemu jest skorzystanie z bezpłatnej usługi \textbf{Cloudflare} \footnote{Cloudflare to platforma internetowa oferująca usługi ochrony, przyspieszania i niezawodności stron internetowych poprzez funkcje takie jak sieć dostarczania treści (CDN), ochrona przed atakami DDoS, zarządzanie DNS oraz optymalizacja wydajności.}, po uprzednim podłączeniu do niej domeny. Cloudflare działa w tym przypadku jako serwer proxy: użytkownik, wchodząc na stronę domeny, łączy się z Cloudflare za pośrednictwem IPv4, a Cloudflare następnie przekierowuje ruch do serwera w trybie IPv6.
 
 \begin{figure}[H]
     \centering
@@ -1185,7 +1252,7 @@ Po wykonaniu tych kroków, odwiedzenie strony domeny (w przedstawionym przykład
 
 W aktualnej konfiguracji dostęp do serwera z poziomu domeny jest ograniczony do jednego serwisu, działającego na porcie 80. Jest to ograniczenie, ponieważ na serwerze planowane jest uruchomienie co najmniej dwóch serwisów — frontendowego i backendowego.
 
-W celu rozwiązania tego problemu stosuje się mechanizm \textbf{reverse proxy}. Zamiast uruchamiać serwis bezpośrednio na porcie 80, na tym porcie konfiguruje się reverse proxy, któremu przypisuje się zestaw reguł kierujących ruch na odpowiednie wewnętrzne porty serwera.
+W celu rozwiązania tego problemu stosuje się mechanizm \textbf{reverse proxy}. Zamiast uruchamiać serwis bezpośrednio na porcie 80, na tym porcie konfiguruje się reverse proxy, któremu przypisuje się zestaw reguł kierujących ruch na odpowiednie wewnętrzne porty serwera. Reverse proxy umożliwia nie tylko rozdzielenie ruchu pomiędzy różne serwisy, ale również zapewnia wspólny i niezmienny adres dla usług, co ma kluczowe znaczenie dla dostępności i skalowalności w środowiskach produkcyjnych.
 
 Tradycyjne podejście polega na instalacji narzędzia, takiego jak NGINX, w warstwie systemowej, gdzie dokonuje się jego konfiguracji. Alternatywnym rozwiązaniem, zapewniającym większą elastyczność, jest uruchomienie reverse proxy w kontenerze Docker. Izolacja w kontenerze pozwala na łatwiejsze zarządzanie konfiguracją oraz szybsze przywrócenie poprzednich, działających wersji w przypadku błędów.
 
@@ -1590,7 +1657,62 @@ jobs:
 
 \subsection{Porównanie podejść}
 
-Poniżej przedstawiono porównanie podejścia z wykorzystaniem kontenerów dla reverse proxy oraz podejścia tradycyjnego.
+\textbf{Kilka serwisów na tym samym porcie}
+\begin{itemize}
+    \item brak reverse proxy - nie ma możliwości uruchomienia wielu serwisów na tym samym porcie, każdy serwis wymaga oddzielnego portu, co powoduje konieczność używania różnych adresów URL lub portów do ich rozróżnienia,
+    \item reverse proxy - umożliwia obsługę wielu serwisów na tym samym porcie poprzez przekierowanie ruchu na różne wewnętrzne porty serwera na podstawie ustalonych reguł,
+    \item reverse proxy + docker - działa identycznie jak tradycyjne reverse proxy, z dodatkową zaletą łatwiejszej konfiguracji i izolacji dzięki zastosowaniu kontenerów.
+\end{itemize}
+
+\textbf{Bogate logi}
+\begin{itemize}
+    \item brak reverse proxy - logi są generowane tylko po stronie aplikacji, co ogranicza ich dostępność i możliwości analizy w kontekście całego ruchu sieciowego,
+    \item reverse proxy - zapewnia bogate logi, które rejestrują ruch sieciowy, błędy oraz szczegóły dotyczące przekierowań, co pozwala na lepsze monitorowanie i diagnostykę,
+    \item reverse proxy + docker - identyczne korzyści jak w przypadku tradycyjnego reverse proxy, z dodatkową możliwością łatwego przechowywania i wersjonowania logów w środowisku kontenerowym.
+\end{itemize}
+
+\textbf{Ukrycie wewnętrznych zasad routingu}
+\begin{itemize}
+    \item brak reverse proxy - nie ma możliwości ukrycia zasad routingu, każdy serwis jest dostępny bezpośrednio z zewnątrz, co ujawnia wewnętrzną strukturę serwera,
+    \item reverse proxy - umożliwia ukrycie wewnętrznych zasad routingu poprzez kierowanie ruchu do odpowiednich serwisów w sposób niewidoczny dla użytkowników,
+    \item reverse proxy + docker - zapewnia identyczne korzyści jak tradycyjne reverse proxy, ale izolacja kontenerów dodatkowo wzmacnia bezpieczeństwo.
+\end{itemize}
+
+\textbf{Banowanie lokalizacji}
+\begin{itemize}
+    \item brak reverse proxy - możliwość banowania lokalizacji istnieje jedynie po stronie aplikacji, co wymaga dodatkowego kodu lub dedykowanych bibliotek,
+    \item reverse proxy - umożliwia łatwe blokowanie dostępu z wybranych lokalizacji, na przykład na podstawie adresu IP czy kraju,
+    \item reverse proxy + docker - oferuje te same korzyści co tradycyjne reverse proxy, a dodatkowo umożliwia szybkie wdrożenie zmian dzięki dynamicznej konfiguracji w środowisku kontenerowym.
+\end{itemize}
+
+\textbf{Centralne zarządzanie ruchem}
+\begin{itemize}
+    \item brak reverse proxy - brak centralnego punktu zarządzania ruchem oznacza konieczność ręcznego konfigurowania każdej aplikacji indywidualnie,
+    \item reverse proxy - działa jako centralny punkt zarządzania ruchem, umożliwiając łatwe przekierowanie, filtrowanie oraz balansowanie ruchu,
+    \item reverse proxy + docker - zapewnia identyczne korzyści jak tradycyjne reverse proxy, a dodatkowo pozwala na łatwą modyfikację konfiguracji dzięki izolacji w kontenerach.
+\end{itemize}
+
+\textbf{Odporność na błędy konfiguracji}
+\begin{itemize}
+    \item brak reverse proxy - nie dotyczy.
+    \item reverse proxy - podatne na błędy konfiguracji, które mogą skutkować błędnym przekierowaniem ruchu lub problemami z dostępnością usług,
+    \item reverse proxy + docker - zwiększona odporność na błędy dzięki możliwości wersjonowania konfiguracji w plikach i łatwego przywracania poprzednich wersji.
+\end{itemize}
+
+\textbf{Wersjonowanie konfiguracji}
+\begin{itemize}
+    \item brak reverse proxy - nie dotyczy.
+    \item reverse proxy - brak natywnego wsparcia dla wersjonowania konfiguracji, co oznacza konieczność ręcznego zarządzania plikami,
+    \item reverse proxy + docker - w pełni wspiera wersjonowanie konfiguracji dzięki integracji z systemami kontroli wersji, co pozwala na łatwe śledzenie i cofanie zmian.
+\end{itemize}
+
+\textbf{Poziom skomplikowania}
+\begin{itemize}
+    \item brak reverse proxy - niski poziom skomplikowania dzięki prostocie konfiguracji i ograniczeniu ustawień do podstawowych funkcji serwera,
+    \item reverse proxy - średni poziom skomplikowania, wynikający z konieczności konfiguracji dodatkowego narzędzia oraz definicji reguł routingu,
+    \item reverse proxy + docker - wysoki poziom skomplikowania, związany z konfiguracją zarówno reverse proxy, jak i środowiska kontenerowego.
+\end{itemize}
+
 
 \begin{table}[H]
 \centering
@@ -1693,7 +1815,7 @@ jobs:
 
 \end{lstlisting}
 
-Po wypchnięciu kodu do GitHub pipeline włącza się automatycznie.
+Po wysłaniu kodu do GitHub pipeline włącza się automatycznie.
 
 \begin{figure}[H]
     \centering
@@ -1841,7 +1963,7 @@ jobs:
 
 \end{lstlisting}
 
-Po wypchnięciu kodu do GitHub akcja włącza się automatycznie.
+Po wysłaniu kodu do GitHub akcja włącza się automatycznie.
 
 \begin{figure}[H]
     \centering
@@ -1870,11 +1992,11 @@ W poprzednich sekcjach zostały zrealizowane następujące zadania:
     \item konfiguracja infrastruktury,
     \item przygotowanie infrastruktury pod wiele środowisk,
     \item konteneryzacja wszystkich aplikacji oraz elementów infrastruktury,
-    \item stworzenie reużywalnych templatów,
+    \item stworzenie reużywalnych szablonów,
     \item stworzenie workflow do wszystkich aplikacji oraz elementów infrastruktury.
 \end{itemize}
 
-Powyższe działania skutkują stworzeniem systemu umożliwiającego automatyczne wdrożenie aplikacji w środowisku produkcyjnym przy każdym wypchnięciu kodu na gałąź \lstinline|main| oraz w środowisku deweloperskim przy przesłaniu na gałąź \lstinline|dev|.
+Powyższe działania skutkują stworzeniem systemu umożliwiającego automatyczne wdrożenie aplikacji w środowisku produkcyjnym przy każdym wysłaniu kodu na gałąź \lstinline|main| oraz w środowisku deweloperskim przy przesłaniu na gałąź \lstinline|dev|.
 
 \begin{figure}[H]
     \centering
@@ -2087,11 +2209,68 @@ Choć VictoriaMetrics i Prometheus mają wiele wspólnego, istnieją między nim
 
 VictoriaMetrics jest odpowiednim wyborem dla organizacji poszukujących skalowalnego systemu monitorowania z długoterminowym przechowywaniem danych. Kompatybilność z Prometheusem ułatwia migrację lub integrację, choć wybór między narzędziami zależy od specyficznych potrzeb organizacji.
 
+\subsubsection{Graphite}
+\label{subsubsec:graphite}
+
+\textbf{Graphite} jest kolejnym narzędziem typu \emph{open source}, służącym do przechowywania oraz wizualizacji danych o charakterze szeregów czasowych. Projekt ten powstał pierwotnie w firmie Orbitz w celu monitorowania i analizowania wydajności aplikacji. Dzięki modularnej architekturze, Graphite umożliwia elastyczne gromadzenie metryk z różnych źródeł, oferując przy tym zintegrowany mechanizm wizualizacji danych w postaci wykresów \cite{GraphiteDocs}.
+
+\paragraph{Architektura i główne komponenty.}\mbox{}\\
+Podstawowy ekosystem Graphite składa się z trzech kluczowych elementów:
+\begin{itemize}
+    \item \textbf{Carbon} -- moduł odpowiedzialny za przyjmowanie, parsowanie i zapisywanie przychodzących metryk w bazie danych plików \emph{Whisper},
+    \item \textbf{Whisper} -- silnik przechowujący dane szeregów czasowych na dysku w plikach o stałym rozmiarze, stanowiąc alternatywę dla rozwiązań bazodanowych,
+    \item \textbf{Graphite Web} -- interfejs webowy, który umożliwia wyświetlanie zgromadzonych danych w postaci wykresów i paneli nawigacyjnych.
+\end{itemize}
+
+\paragraph{Funkcjonalności i charakterystyka.}
+\begin{itemize}
+    \item \textbf{Wielość formatów danych wejściowych} -- Graphite wspiera różne sposoby dostarczania metryk (np.\ protokół \emph{plaintext}, \emph{pickle}) oraz integracje z zewnętrznymi narzędziami.
+    \item \textbf{Elastyczna wizualizacja} -- wbudowany interfejs umożliwia tworzenie i dostosowywanie wykresów, a także prostą eksplorację danych historycznych.
+    \item \textbf{Skalowanie poziome} -- przy większych wolumenach danych możliwe jest uruchamianie wielu instancji \emph{Carbon} i \emph{Graphite Web} w celu rozłożenia obciążenia.
+    \item \textbf{Możliwości analityczne} -- dostępne funkcje transformacji (np.\ \emph{summarize}, \emph{scale}, \emph{movingAverage}) pozwalają na przetwarzanie danych w czasie rzeczywistym.
+\end{itemize}
+
+\paragraph{Porównanie z Prometheusem i VictoriaMetrics.}\mbox{}\\
+Graphite, w porównaniu z nowocześniejszymi systemami pokroju Prometheus czy VictoriaMetrics, oferuje bardziej tradycyjne podejście oparte na plikach \emph{Whisper} i modelu \emph{push}. Może to być korzystne w niektórych scenariuszach (np.\ tam, gdzie istnieje potrzeba prostego zapisu w lokalnym systemie plików bez rozbudowanej orkiestracji). Z drugiej strony, rozwiązania takie jak Prometheus czy VictoriaMetrics zazwyczaj lepiej sprawdzają się w środowiskach chmurowych oraz oferują wyższą skalowalność i bardziej rozbudowane funkcje analityczne.
+
+\paragraph{Zalety Graphite:}
+\begin{itemize}
+    \item \textbf{sprawdzona technologia} -- długi okres rozwoju i stabilna społeczność,
+    \item \textbf{relatywnie prosty system plików \emph{Whisper}} -- ułatwia samodzielne zarządzanie danymi i rozwiązywanie problemów z zapisem,
+    \item \textbf{wbudowany interfejs graficzny} -- umożliwiający przeglądanie metryk bez konieczności integracji z dodatkowymi narzędziami.
+\end{itemize}
+
+\paragraph{Wady Graphite:}
+\begin{itemize}
+    \item \textbf{mniejsza skalowalność} -- w porównaniu z nowocześniejszymi systemami (np.\ Prometheus, VictoriaMetrics) wymaga dodatkowego wysiłku konfiguracyjnego przy dużej liczbie metryk,
+    \item \textbf{brak wbudowanego systemu alertowania} -- integracja z zewnętrznymi usługami lub narzędziami (np.\ Grafana Alerting) jest konieczna do realizacji zaawansowanej funkcjonalności alertowania,
+    \item \textbf{większy \emph{overhead} przy przechowywaniu danych} -- pliki \emph{Whisper} nie zawsze są optymalne w kontekście długoterminowego przechowywania dużych wolumenów danych.
+\end{itemize}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|c|c|c|}
+        \hline
+        \textbf{Cecha} & \textbf{Graphite} & \textbf{Prometheus} & \textbf{VictoriaMetrics} \\ \hline
+        Główny sposób gromadzenia metryk & \emph{Push}         & \emph{Pull}          & \emph{Pull / Push}       \\ \hline
+        Mechanizm przechowywania       & Pliki \emph{Whisper} & Wbudowany (TSDB)     & Wbudowany (TSDB)         \\ \hline
+        Skalowalność                   & Średnia              & Wysoka               & Bardzo wysoka            \\ \hline
+        Alerting                       & Brak wbudowanego      & Wbudowane            & Wbudowane                \\ \hline
+        Architektura klastrowa         & Utrudniona           & Eksperymentalna      & Wsparcie pełne           \\ \hline
+        Poziom złożoności instalacji   & Średni               & Średni / Wysoki      & Niski / Średni           \\ \hline
+    \end{tabular}
+    \caption{Porównanie Graphite, Prometheus i VictoriaMetrics}
+    \label{tab:porownanie-graphite-prometheus-victoriametrics}
+\end{table}
+
+Graphite wciąż pozostaje popularnym rozwiązaniem, szczególnie w środowiskach, gdzie preferuje się klasyczny model \emph{push} lub istnieją już znaczące zasoby oparte na tym systemie. Dla projektów o względnie umiarkowanych potrzebach w zakresie skalowalności i długoterminowego przechowywania danych Graphite może być wystarczający. Jednak w sytuacjach wymagających większej elastyczności i wydajności często rozważa się wdrożenie rozwiązań nowszej generacji, takich jak Prometheus czy VictoriaMetrics.
+
+
 \subsubsection{Podsumowanie}
 
-Prometheus i Grafana to potężne narzędzia, które w połączeniu oferują kompleksowe rozwiązanie do monitorowania i wizualizacji danych w środowiskach o wysokich wymaganiach. Są one znacznie bardziej zaawansowane niż małe narzędzia omówione wcześniej i są odpowiednie dla projektów \textit{enterprise-grade}.
+Prometheus i Grafana to potężne narzędzia, które w połączeniu oferują kompleksowe rozwiązanie do monitorowania i wizualizacji danych w środowiskach o wysokich wymaganiach. Są one znacznie bardziej zaawansowane niż małe narzędzia omówione wcześniej i pozostają odpowiednim wyborem dla projektów \textit{enterprise-grade}. Z kolei \textbf{Graphite} stanowi alternatywę o dłuższej historii rozwoju, bazującą na modelu \emph{push} i plikach \emph{Whisper}. Mimo że w pewnych zastosowaniach wciąż spełnia swoje zadania (szczególnie przy istniejącej infrastrukturze opartej na tym systemie), w niektórych obszarach może ustępować Prometheusowi pod względem skalowalności, elastyczności oraz wbudowanych funkcji alertowania.
 
-Ich wdrożenie i utrzymanie wymaga jednak większych zasobów oraz wiedzy technicznej. W zamian oferują skalowalność, wydajność oraz szerokie możliwości dostosowania, co sprawia, że są preferowanym wyborem w dużych organizacjach, gdzie niezawodność i bezpieczeństwo są priorytetem.
+Implementacja i utrzymanie wspomnianych rozwiązań (Prometheus, Grafana oraz Graphite) wymagają jednak większych zasobów oraz wiedzy technicznej. W zamian oferują one skalowalność, wydajność oraz szerokie możliwości dostosowania, co sprawia, że są preferowanym wyborem w dużych organizacjach, gdzie niezawodność, bezpieczeństwo oraz pełna kontrola nad procesem gromadzenia i prezentowania danych stanowią kluczowe elementy infrastruktury.
 
 \subsection{Provisioning}
 
@@ -2648,10 +2827,100 @@ runs:
 
 Po ponownym wdrożeniu kontenera Grafany konfiguracja źródeł danych i dashboardów została zachowana.
 
-\section{Optymalizacje}
-\subsection{Cachowanie buildów}
-\subsection{Odporność na restarty}
+\subsubsection{Alerty grafana}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{konfiguracjaContactPointGrafana.png}
+    \caption{Konfiguracja contact point w Grafanie}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{konfiguracjaAlertGrafana.png}
+    \caption{Konfiguracja alertu w Grafanie}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{alertGrafana.png}
+    \caption{Alert widoczny na telegramie, który przyszedł z Grafany}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsubsection{Alerty Grafana}
+
+Aby w sposób zautomatyzowany powiadamiać administratora o potencjalnych nieprawidłowościach w działaniu systemu, w narzędziu Grafana skonfigurowano mechanizm alertów. Proces ten obejmuje przede wszystkim zdefiniowanie \textit{contact point}, czyli kanału dystrybucji powiadomień (np.\ komunikator Telegram, e-mail lub inna wybrana usługa), a następnie utworzenie reguły (tzw.\ \textit{alert rule}), która określa warunki wyzwalające wysłanie alertu.
+
+Pierwszym etapem konfiguracji systemu alertów w Grafanie jest dodanie tzw.\ \textit{contact point}, czyli miejsca docelowego, do którego kierowane będą powiadomienia o pojawiających się zdarzeniach krytycznych (rys.\ref{fig:contact-point-grafana}). W tym celu należy określić typ kanału (womawianym środowisku użyto komunikatora Telegram) oraz wprowadzić niezbędne dane uwierzytelniające i konfiguracje połączenia.
+
+\begin{figure}[H] \centering \includegraphics[width=0.9\linewidth]{konfiguracjaContactPointGrafana.png} \caption{Konfiguracja \textit{contact point} w Grafanie} \label{fig:contact-point-grafana} \end{figure}
+
+Kolejnym krokiem jest utworzenie reguły alertu, która określa warunki wysyłania powiadomień (rys.~\ref{fig:alert-rule-grafana}). Reguła ta może opierać się na dowolnych danych dostępnych w Grafanie, np.\ metrykach z Prometheusa. Administrator definiuje metrykę lub zapytanie (ang.\ \textit{query}), a następnie ustawia progi (np.\ zużycie pamięci, obciążenie CPU) lub warunki braku odpowiedzi serwisu, powodujące powstanie stanu \textit{alerting} i wygenerowanie powiadomienia.
+
+\begin{figure}[H] \centering \includegraphics[width=0.9\linewidth]{konfiguracjaAlertGrafana.png} \caption{Konfiguracja reguły alertu w Grafanie} \label{fig:alert-rule-grafana} \end{figure}
+
+Po spełnieniu zadeklarowanych w regule warunków (np.\ przekroczeniu ustalonego progu metryki) alert przechodzi w stan \textit{firing}, a Grafana wysyła powiadomienie do skonfigurowanego \textit{contact point}. Dzięki takiemu podejściu administrator ma możliwość szybkiej reakcji na potencjalne problemy. Na rysunku~\ref{fig:alert-grafana-telegram} zaprezentowano przykład alertu odebranego w komunikatorze Telegram.
+
+\begin{figure}[H] \centering \includegraphics[width=0.9\linewidth]{alertGrafana.png} \caption{Przykładowy alert z Grafany wysłany do Telegrama} \label{fig:alert-grafana-telegram} \end{figure}
+
+Dzięki konfiguracji alertów w Grafanie zespół administratorów otrzymuje szybkie i~zautomatyzowane powiadomienia o występujących problemach (np.\ przeciążeniu serwera, nieosiągalności usługi czy przekroczeniu istotnych progów metryk). Pozwala to na błyskawiczne podjęcie działań naprawczych oraz minimalizuje ryzyko dłuższych przestojów czy awarii.
+
+\subsection{Porównanie Grafany i Uptime Kuma}
+
+
+Uptime Kuma oraz Grafana to narzędzia służące do monitorowania środowisk IT, jednak różnią się one zarówno zakresem funkcjonalności, jak i stopniem zaawansowania konfiguracji. Poniżej przedstawiono kluczowe cechy obu rozwiązań, uzupełnione o tabelaryczne zestawienie.
+
+\paragraph{Zakres i funkcjonalność}
+\begin{itemize}
+    \item \textbf{Uptime Kuma} -- skupia się przede wszystkim na monitorowaniu dostępności usług poprzez wysyłanie żądań HTTP (pingi do endpointów) w ustalonych interwałach. Narzędzie to w sposób intuicyjny pozwala na obserwację podstawowych wskaźników \emph{uptime} i \emph{downtime},
+    \item \textbf{Grafana} -- pełni rolę kompleksowego rozwiązania do wizualizacji i analizy danych. Dzięki integracji z wieloma źródłami metryk (np.\ Prometheus, InfluxDB, ElasticSearch), użytkownicy mogą tworzyć rozbudowane dashboardy i w czasie rzeczywistym analizować obciążenie serwera, wykorzystanie zasobów czy inne niestandardowe metryki.
+\end{itemize}
+
+\paragraph{Łatwość instalacji i konfiguracji}
+\begin{itemize}
+    \item \textbf{Uptime Kuma} -- charakteryzuje się prostotą instalacji i szybką konfiguracją. Narzędzie może zostać uruchomione w kontenerze Docker (bez rozbudowanych zależności) i po krótkim wstępnym skonfigurowaniu od razu dostarcza podstawowy panel monitorujący,
+    \item \textbf{Grafana} -- sama instalacja Grafany (również w kontenerze Docker) nie jest skomplikowana, jednak aby w pełni wykorzystać jej możliwości, należy dodatkowo zintegrować ją z dostawcami danych (np.\ Prometheus). Proces ten wymaga bardziej zaawansowanej konfiguracji i zrozumienia modelu danych.
+\end{itemize}
+
+\paragraph{Monitorowanie i alertowanie}
+\begin{itemize}
+    \item \textbf{Uptime Kuma} -- zapewnia podstawowe alerty (np.\ Telegram, e-mail) w przypadku wykrycia niedostępności usługi. Jest to intuicyjne w konfiguracji i wystarczające do prostych zastosowań, takich jak sprawdzanie, czy dana usługa HTTP odpowiada,
+    \item \textbf{Grafana} -- posiada bardziej rozbudowany system alertów (m.in.\ stany \emph{warning}, \emph{critical}) oparty o reguły zdefiniowane na podstawie metryk zintegrowanych źródeł. Umożliwia tworzenie złożonych warunków alertowania oraz powiadomień przez różne kanały (Slack, e-mail, Telegram, itp.). 
+\end{itemize}
+
+\paragraph{Rozszerzalność i elastyczność}
+\begin{itemize}
+    \item \textbf{Uptime Kuma} -- koncentruje się na jednym głównym zadaniu (monitorowanie dostępności). Nie oferuje rozbudowanych możliwości wizualizacji czy analizy, choć można go zintegrować z innymi narzędziami w środowisku,
+    \item \textbf{Grafana} -- jest wysoce konfigurowalna i rozszerzalna poprzez \emph{pluginy}, gotowe panele społeczności (tzw.\ \emph{community dashboards}) oraz integracje z wieloma usługami. Pozwala to na pełen wgląd w stan i wydajność aplikacji.
+\end{itemize}
+
+\paragraph{Przykładowe zastosowania}
+\begin{itemize}
+    \item \textbf{Uptime Kuma} -- szybkie uruchomienie i monitorowanie kluczowych endpointów aplikacji internetowych, prosty mechanizm alertowania o niedostępności,
+    \item \textbf{Grafana} -- zaawansowana analityka, przeglądanie metryk historycznych, agregacja danych z wielu źródeł (logi, metryki, zdarzenia), możliwość tworzenia złożonych raportów.
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{4.5cm}|p{4.5cm}|p{4.5cm}|}
+\hline
+\textbf{Cecha}                  & \textbf{Uptime Kuma}                                                                 & \textbf{Grafana}                                                         \\ \hline
+\textbf{Główne zadanie}         & Monitorowanie dostępności i czasu reakcji usług                                     & Kompleksowa wizualizacja i analiza danych z różnych źródeł               \\ \hline
+\textbf{Łatwość instalacji}     & Bardzo prosta (kontener Docker, minimalna konfiguracja)                             & Również prosta, ale pełny potencjał wymaga integracji z zewnętrznymi DB   \\ \hline
+\textbf{Alerty}                 & Proste powiadomienia (Telegram, e-mail, \emph{push})                                & Zaawansowane (reguły warunkowe, wielopoziomowe stany, różne kanały)       \\ \hline
+\textbf{Dashboardy}             & Podstawowy panel z listą monitorowanych usług                                       & Rozbudowane, konfigurowalne panele i wizualizacje                         \\ \hline
+\textbf{Skalowalność}           & Możliwe skalowanie w poziomie (więcej monitorów, wiele instancji Docker)           & Łatwe skalowanie i integracja z wieloma źródłami (Prometheus, InfluxDB)   \\ \hline
+\textbf{Próg wejścia}           & Niski (łatwość konfiguracji, szybkie uruchomienie)                                   & Wysoki (konieczna znajomość źródeł danych i reguł alertowania) \\ \hline
+\textbf{Zaawansowana analityka} & Ograniczona głównie do wykrywania stanu \emph{up/down}                               & Bogate możliwości (statystyki, korelacje, współdziałanie z innymi narzędziami) \\ \hline
+\end{tabular}
+\caption{Porównanie Uptime Kuma i Grafana}
+\label{tab:porownanie-uptime-kuma-grafana}
+\end{table}
+
+Podsumowując, \textbf{Uptime Kuma} jest doskonałym wyborem, gdy celem jest szybkie wdrożenie podstawowego monitoringu dostępności usług oraz prostych alertów. Z kolei \textbf{Grafana} wyróżnia się znacznie szerszym zakresem zastosowań, zwłaszcza w obszarach zaawansowanej analizy i wizualizacji danych. W zależności od potrzeb projektu, oba rozwiązania można również zintegrować, aby uzyskać z jednej strony \emph{uptime monitoring}, a z drugiej -- pełną analitykę i wgląd w szczegółowe metryki. 
 
 
 \begin{thebibliography}{9}
@@ -2766,6 +3035,9 @@ Statping. [Dokumentacja] \url{https://github.com/statping/statping} [Dostęp: 30
 
 \bibitem{UptimeRobotMedium}
 Tang Rufus, "Monitoring Uptime with Uptime Robot for Free", 2017. [Artykuł] \url{https://medium.com/typist-tech/monitoring-uptime-with-uptime-robot-for-free-a6231fca1ff0} [Dostęp: 30 listopada 2024]
+
+\bibitem{GraphiteDocs}
+Graphite``. [Dokumentacja] \url{https://graphite.readthedocs.io/en/latest/} [Dostęp: 29 grudnia 2024]
 
 
 
